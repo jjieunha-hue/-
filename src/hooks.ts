@@ -13,8 +13,9 @@ import {
   orderBy,
   writeBatch
 } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL, uploadBytesResumable } from 'firebase/storage';
 import { onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut, User } from 'firebase/auth';
-import { db, auth, OperationType, handleFirestoreError } from './firebase';
+import { db, auth, storage, OperationType, handleFirestoreError } from './firebase';
 import { Project, FestivalItem, AboutInfo } from './types';
 import { INITIAL_ABOUT, INITIAL_PROJECTS, INITIAL_FESTIVALS } from './constants';
 
@@ -126,6 +127,32 @@ export function usePortfolioData() {
     }
   };
 
+  const uploadImage = (file: File, path: string, onProgress?: (p: number) => void) => {
+    const storageRef = ref(storage, path);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+    
+    return new Promise<string>((resolve, reject) => {
+      uploadTask.on('state_changed', 
+        (snapshot) => {
+          const p = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+          if (onProgress) onProgress(p);
+        },
+        (error) => {
+          console.error('Upload task error:', error);
+          reject(error);
+        },
+        async () => {
+          try {
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            resolve(downloadURL);
+          } catch (e) {
+            reject(e);
+          }
+        }
+      );
+    });
+  };
+
   return {
     about,
     projects,
@@ -137,6 +164,7 @@ export function usePortfolioData() {
     logout,
     updateAbout,
     updateProject,
-    updateFestival
+    updateFestival,
+    uploadImage
   };
 }

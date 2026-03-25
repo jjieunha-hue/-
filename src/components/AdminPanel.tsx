@@ -6,14 +6,15 @@
 import React, { useState } from 'react';
 import { Project, FestivalItem, AboutInfo } from '../types';
 import { usePortfolioData } from '../hooks';
-import { X, Save, Plus, Trash2, LogOut, Settings } from 'lucide-react';
+import { auth } from '../firebase';
+import { X, Save, Plus, Trash2, LogOut, Settings, Upload, Loader2 } from 'lucide-react';
 
 interface AdminPanelProps {
   onClose: () => void;
 }
 
 export default function AdminPanel({ onClose }: AdminPanelProps) {
-  const { about, projects, festivals, updateAbout, updateProject, updateFestival, logout } = usePortfolioData();
+  const { about, projects, festivals, updateAbout, updateProject, updateFestival, logout, uploadImage } = usePortfolioData();
   const [activeTab, setActiveTab] = useState<'about' | 'projects' | 'festivals'>('about');
 
   const handleSyncProjects = async () => {
@@ -162,6 +163,85 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
   );
 }
 
+function ImageUpload({ onUpload, label, multiple = false }: { onUpload: (url: string) => void, label: string, multiple?: boolean }) {
+  const { uploadImage } = usePortfolioData();
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    if (!auth.currentUser) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
+
+    setUploading(true);
+    const totalFiles = files.length;
+    let completedFiles = 0;
+
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const path = `portfolio/${Date.now()}_${file.name}`;
+        
+        // Use the progress callback for individual file progress if needed
+        // For now we still show overall progress
+        const url = await uploadImage(file, path, (p) => {
+          // Individual file progress could be used here
+          console.log(`File ${i + 1} progress: ${p}%`);
+        });
+        
+        onUpload(url);
+        completedFiles++;
+        setProgress(Math.round((completedFiles / totalFiles) * 100));
+      }
+    } catch (error: any) {
+      console.error("Upload failed", error);
+      let errorMessage = "알 수 없는 오류가 발생했습니다.";
+      if (error?.code === 'storage/unauthorized') {
+        errorMessage = "서버 권한이 없습니다. Storage 규칙을 확인해주세요.";
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      alert(`이미지 업로드에 실패했습니다: ${errorMessage}\n\n상세 정보: ${JSON.stringify(error)}`);
+    } finally {
+      setUploading(false);
+      setProgress(0);
+    }
+  };
+
+  return (
+    <div className="space-y-2 pb-4">
+      <label className="text-[10px] font-black uppercase text-gray-300 italic">{label}</label>
+      <div className="flex items-center gap-4">
+        <label className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 cursor-pointer transition-colors relative overflow-hidden">
+          {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+          <span className="text-[10px] font-black uppercase">
+            {uploading ? `Uploading ${progress}%` : `Upload Image${multiple ? 's' : ''}`}
+          </span>
+          {multiple && !uploading && <span className="text-[8px] text-gray-400 absolute -bottom-4 left-0 whitespace-nowrap">Multiple files supported</span>}
+          {uploading && (
+            <div 
+              className="absolute bottom-0 left-0 h-1 bg-black transition-all duration-300" 
+              style={{ width: `${progress}%` }}
+            />
+          )}
+          <input 
+            type="file" 
+            className="hidden" 
+            accept="image/*" 
+            onChange={handleFileChange} 
+            disabled={uploading} 
+            multiple={multiple}
+          />
+        </label>
+      </div>
+    </div>
+  );
+}
+
 function ProjectEditor({ project, onSave }: { project: Project, onSave: (p: Project) => void }) {
   const [localProject, setLocalProject] = useState(project);
   const isDirty = JSON.stringify(localProject) !== JSON.stringify(project);
@@ -202,12 +282,18 @@ function ProjectEditor({ project, onSave }: { project: Project, onSave: (p: Proj
       </div>
       <div className="space-y-1">
         <label className="text-[10px] font-black uppercase text-gray-300 italic">Main Image URL</label>
-        <input 
-          value={localProject.imageUrl || ''} 
-          onChange={(e) => setLocalProject({ ...localProject, imageUrl: e.target.value })}
-          className="w-full p-2 border border-gray-50 outline-none focus:border-black text-sm"
-          placeholder="Main image URL"
-        />
+        <div className="flex gap-4">
+          <input 
+            value={localProject.imageUrl || ''} 
+            onChange={(e) => setLocalProject({ ...localProject, imageUrl: e.target.value })}
+            className="flex-1 p-2 border border-gray-50 outline-none focus:border-black text-sm"
+            placeholder="Main image URL"
+          />
+          <ImageUpload 
+            label="Upload Main Image" 
+            onUpload={(url) => setLocalProject(prev => ({ ...prev, imageUrl: url }))} 
+          />
+        </div>
       </div>
       <div className="space-y-1">
         <label className="text-[10px] font-black uppercase text-gray-300 italic">Short Description</label>
@@ -230,33 +316,83 @@ function ProjectEditor({ project, onSave }: { project: Project, onSave: (p: Proj
       </div>
       <div className="space-y-1">
         <label className="text-[10px] font-black uppercase text-gray-300 italic">Completed Photos (one per line)</label>
-        <textarea 
-          value={localProject.completedImages?.join('\n') || ''} 
-          onChange={(e) => setLocalProject({ ...localProject, completedImages: e.target.value.split('\n').filter(l => l.trim()) })}
-          className="w-full p-2 border border-gray-50 outline-none focus:border-black text-sm font-light"
-          rows={6}
-          placeholder="Completed photo URLs..."
-        />
+        <div className="flex gap-4">
+          <textarea 
+            value={localProject.completedImages?.join('\n') || ''} 
+            onChange={(e) => setLocalProject({ ...localProject, completedImages: e.target.value.split('\n').filter(l => l.trim()) })}
+            className="flex-1 p-2 border border-gray-50 outline-none focus:border-black text-sm font-light"
+            rows={6}
+            placeholder="Completed photo URLs..."
+          />
+          <ImageUpload 
+            label="Add Photo" 
+            multiple={true}
+            onUpload={(url) => setLocalProject(prev => ({ 
+              ...prev, 
+              completedImages: [...(prev.completedImages || []), url] 
+            }))} 
+          />
+        </div>
+      </div>
+      <div className="space-y-1">
+        <label className="text-[10px] font-black uppercase text-gray-300 italic">2D Designs (one per line)</label>
+        <div className="flex gap-4">
+          <textarea 
+            value={localProject.design2DImages?.join('\n') || ''} 
+            onChange={(e) => setLocalProject({ ...localProject, design2DImages: e.target.value.split('\n').filter(l => l.trim()) })}
+            className="flex-1 p-2 border border-gray-50 outline-none focus:border-black text-sm font-light"
+            rows={4}
+            placeholder="2D design URLs..."
+          />
+          <ImageUpload 
+            label="Add 2D" 
+            multiple={true}
+            onUpload={(url) => setLocalProject(prev => ({ 
+              ...prev, 
+              design2DImages: [...(prev.design2DImages || []), url] 
+            }))} 
+          />
+        </div>
       </div>
       <div className="space-y-1">
         <label className="text-[10px] font-black uppercase text-gray-300 italic">3D Designs (one per line)</label>
-        <textarea 
-          value={localProject.designImages?.join('\n') || ''} 
-          onChange={(e) => setLocalProject({ ...localProject, designImages: e.target.value.split('\n').filter(l => l.trim()) })}
-          className="w-full p-2 border border-gray-50 outline-none focus:border-black text-sm font-light"
-          rows={6}
-          placeholder="3D design URLs..."
-        />
+        <div className="flex gap-4">
+          <textarea 
+            value={localProject.design3DImages?.join('\n') || ''} 
+            onChange={(e) => setLocalProject({ ...localProject, design3DImages: e.target.value.split('\n').filter(l => l.trim()) })}
+            className="flex-1 p-2 border border-gray-50 outline-none focus:border-black text-sm font-light"
+            rows={4}
+            placeholder="3D design URLs..."
+          />
+          <ImageUpload 
+            label="Add 3D" 
+            multiple={true}
+            onUpload={(url) => setLocalProject(prev => ({ 
+              ...prev, 
+              design3DImages: [...(prev.design3DImages || []), url] 
+            }))} 
+          />
+        </div>
       </div>
       <div className="space-y-1">
         <label className="text-[10px] font-black uppercase text-gray-300 italic">Legacy Detail Images (one per line)</label>
-        <textarea 
-          value={localProject.detailImages?.join('\n') || ''} 
-          onChange={(e) => setLocalProject({ ...localProject, detailImages: e.target.value.split('\n').filter(l => l.trim()) })}
-          className="w-full p-2 border border-gray-50 outline-none focus:border-black text-sm font-light"
-          rows={4}
-          placeholder="Additional image URLs..."
-        />
+        <div className="flex gap-4">
+          <textarea 
+            value={localProject.detailImages?.join('\n') || ''} 
+            onChange={(e) => setLocalProject({ ...localProject, detailImages: e.target.value.split('\n').filter(l => l.trim()) })}
+            className="flex-1 p-2 border border-gray-50 outline-none focus:border-black text-sm font-light"
+            rows={4}
+            placeholder="Additional image URLs..."
+          />
+          <ImageUpload 
+            label="Add Image" 
+            multiple={true}
+            onUpload={(url) => setLocalProject(prev => ({ 
+              ...prev, 
+              detailImages: [...(prev.detailImages || []), url] 
+            }))} 
+          />
+        </div>
       </div>
     </div>
   );
@@ -302,12 +438,18 @@ function FestivalEditor({ festival, onSave }: { festival: FestivalItem, onSave: 
       </div>
       <div className="space-y-2">
         <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Image URL</label>
-        <input 
-          value={localFestival.imageUrl || ''} 
-          onChange={(e) => setLocalFestival({ ...localFestival, imageUrl: e.target.value })}
-          className="w-full p-2 border border-gray-50 outline-none focus:border-black text-sm"
-          placeholder="Festival image URL"
-        />
+        <div className="flex gap-4">
+          <input 
+            value={localFestival.imageUrl || ''} 
+            onChange={(e) => setLocalFestival({ ...localFestival, imageUrl: e.target.value })}
+            className="flex-1 p-2 border border-gray-50 outline-none focus:border-black text-sm"
+            placeholder="Festival image URL"
+          />
+          <ImageUpload 
+            label="Upload Image" 
+            onUpload={(url) => setLocalFestival(prev => ({ ...prev, imageUrl: url }))} 
+          />
+        </div>
       </div>
       <div className="space-y-2">
         <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Timeline</label>
