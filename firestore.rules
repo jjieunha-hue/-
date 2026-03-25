@@ -8,10 +8,10 @@ service cloud.firestore {
     // Fields: name, title, highlight, description, phone, email, experiences[]
     //
     // Collection: projects
-    // Fields: id, title, subtitle, period, description, tags[], category, icon
+    // Fields: id, title, subtitle, period, description, tags[], category, icon, order, imageUrl
     //
     // Collection: festivals
-    // Fields: id, title, sub, order
+    // Fields: id, title, sub, order, description, period, tags[], imageUrl
     // ===============================================================
 
     function isAuthenticated() {

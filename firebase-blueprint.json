@@ -37,7 +37,9 @@
         "description": { "type": "string" },
         "tags": { "type": "array", "items": { "type": "string" } },
         "category": { "type": "string", "enum": ["environmental", "interior", "others"] },
-        "icon": { "type": "string" }
+        "icon": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "order": { "type": "number" }
       }
     },
     "festival": {
@@ -48,7 +50,11 @@
         "id": { "type": "string" },
         "title": { "type": "string" },
         "sub": { "type": "string" },
-        "order": { "type": "number" }
+        "order": { "type": "number" },
+        "description": { "type": "string" },
+        "period": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "imageUrl": { "type": "string" }
       }
     }
   },

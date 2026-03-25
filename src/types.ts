@@ -9,10 +9,15 @@ export interface Project {
   subtitle: string;
   period: string;
   description: string;
+  details?: string[]; // Multiple paragraphs or bullet points
   tags: string[];
   category: 'environmental' | 'interior' | 'others';
   imageUrl?: string;
+  detailImages?: string[];
+  completedImages?: string[];
+  designImages?: string[];
   icon?: string;
+  order: number;
 }
 
 export interface FestivalItem {
@@ -20,6 +25,10 @@ export interface FestivalItem {
   title: string;
   sub: string;
   order: number;
+  description?: string;
+  period?: string;
+  tags?: string[];
+  imageUrl?: string;
 }
 
 export interface AboutInfo {
@@ -29,6 +38,11 @@ export interface AboutInfo {
   description: string;
   phone: string;
   email: string;
+  social?: {
+    instagram?: string;
+    behance?: string;
+    notion?: string;
+  };
   experiences: Experience[];
 }
 

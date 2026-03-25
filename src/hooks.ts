@@ -11,7 +11,7 @@ import {
   setDoc, 
   query, 
   orderBy,
-  getDoc
+  writeBatch
 } from 'firebase/firestore';
 import { onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut, User } from 'firebase/auth';
 import { db, auth, OperationType, handleFirestoreError } from './firebase';
@@ -20,8 +20,8 @@ import { INITIAL_ABOUT, INITIAL_PROJECTS, INITIAL_FESTIVALS } from './constants'
 
 export function usePortfolioData() {
   const [about, setAbout] = useState<AboutInfo>(INITIAL_ABOUT);
-  const [projects, setProjects] = useState<Project[]>(INITIAL_PROJECTS);
-  const [festivals, setFestivals] = useState<FestivalItem[]>(INITIAL_FESTIVALS);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [festivals, setFestivals] = useState<FestivalItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -37,20 +37,23 @@ export function usePortfolioData() {
       if (snapshot.exists()) {
         setAbout(snapshot.data() as AboutInfo);
       } else {
-        // Initialize if not exists
         setDoc(doc(db, 'settings', 'about'), INITIAL_ABOUT).catch(e => handleFirestoreError(e, OperationType.WRITE, 'settings/about'));
       }
     }, (error) => handleFirestoreError(error, OperationType.GET, 'settings/about'));
 
     // Fetch Projects
-    const unsubProjects = onSnapshot(collection(db, 'projects'), (snapshot) => {
+    const qProjects = query(collection(db, 'projects'), orderBy('order', 'asc'));
+    const unsubProjects = onSnapshot(qProjects, (snapshot) => {
       if (!snapshot.empty) {
         setProjects(snapshot.docs.map(d => d.data() as Project));
       } else {
-        // Seed initial projects
+        const batch = writeBatch(db);
         INITIAL_PROJECTS.forEach(p => {
-          setDoc(doc(db, 'projects', p.id), p).catch(e => handleFirestoreError(e, OperationType.WRITE, `projects/${p.id}`));
+          batch.set(doc(db, 'projects', p.id), p);
         });
+        batch.commit().catch(e => handleFirestoreError(e, OperationType.WRITE, 'projects_batch'));
+        // Keep initial data in state until batch syncs
+        setProjects(INITIAL_PROJECTS);
       }
     }, (error) => handleFirestoreError(error, OperationType.GET, 'projects'));
 
@@ -59,13 +62,19 @@ export function usePortfolioData() {
     const unsubFestivals = onSnapshot(qFestivals, (snapshot) => {
       if (!snapshot.empty) {
         setFestivals(snapshot.docs.map(d => d.data() as FestivalItem));
+        setLoading(false);
       } else {
-        // Seed initial festivals
+        const batch = writeBatch(db);
         INITIAL_FESTIVALS.forEach(f => {
-          setDoc(doc(db, 'festivals', f.id), f).catch(e => handleFirestoreError(e, OperationType.WRITE, `festivals/${f.id}`));
+          batch.set(doc(db, 'festivals', f.id), f);
         });
+        batch.commit().then(() => {
+          // No need to set loading false here, the next snapshot will handle it
+        }).catch(e => handleFirestoreError(e, OperationType.WRITE, 'festivals_batch'));
+        
+        setFestivals(INITIAL_FESTIVALS);
+        setLoading(false);
       }
-      setLoading(false);
     }, (error) => handleFirestoreError(error, OperationType.GET, 'festivals'));
 
     return () => {
