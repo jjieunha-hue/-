@@ -49,7 +49,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
 
   return (
     <div className="fixed inset-0 z-[100] bg-white overflow-y-auto">
-      <div className="max-w-4xl mx-auto px-6 py-20">
+      <div className="max-w-7xl mx-auto px-6 py-20">
         <div className="flex items-center justify-between mb-12">
           <h2 className="text-4xl font-black tracking-tighter uppercase flex items-center gap-3">
             <Settings className="w-8 h-8" />

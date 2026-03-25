@@ -120,6 +120,33 @@ export const INITIAL_PROJECTS: Project[] = [
     order: 5
   },
   {
+    id: 'int3',
+    title: "동주중학교 옹벽 디자인 개선사업",
+    subtitle: "부산 사상구 동주중학교 옹벽 경관 개선 실시설계",
+    period: "2024.10",
+    description: "노후화된 동주중학교 옹벽의 디자인을 개선하여 쾌적한 도시 미관을 조성하고, 학교의 상징물과 학생들의 일상을 담아낸 경관 개선 프로젝트입니다. 좁은 보행 환경을 고려하여 보행자의 시야를 방해하지 않으면서도 학교의 정체성을 살린 디자인을 제안했습니다.",
+    details: [
+      "학교의 상징물인 느티나무(교목)와 개나리(교화), 해와 산 등을 아이콘화하여 부조 타일로 표현하고, 배경은 이형 모자이크 타일로 처리하여 입체감을 더했습니다.",
+      "학생들의 등교부터 하교까지의 하루를 시간 순서대로 구성하여 스토리텔링이 있는 벽면을 기획했습니다.",
+      "전체적으로 파스텔 톤의 밝고 따뜻한 색채 계획을 통해 지역사회와 조화로우면서도 학생들에게 친숙한 등하굣길 환경을 조성했습니다."
+    ],
+    tags: ["Public Design", "Landscape", "Environmental Design"],
+    category: 'interior',
+    imageUrl: "https://picsum.photos/seed/dongju-main/800/600",
+    completedImages: [
+      "https://picsum.photos/seed/dongju-site-1/1200/800",
+      "https://picsum.photos/seed/dongju-site-2/1200/800"
+    ],
+    designImages: [
+      "https://picsum.photos/seed/dongju-design-1/1200/800",
+      "https://picsum.photos/seed/dongju-design-2/1200/800",
+      "https://picsum.photos/seed/dongju-design-3/1200/800",
+      "https://picsum.photos/seed/dongju-design-4/1200/800"
+    ],
+    icon: 'fa-school',
+    order: 6
+  },
+  {
     id: 'int2',
     title: "IBK Bank Office Remodeling",
     subtitle: "부산 IBK 저축은행 본점 사무실 부분 리모델링",
@@ -133,20 +160,37 @@ export const INITIAL_PROJECTS: Project[] = [
     tags: ["Office Interior", "Office Remodeling"],
     category: 'interior',
     imageUrl: "https://picsum.photos/seed/ibk-bank-main/800/600",
-    detailImages: [
-      "https://picsum.photos/seed/ibk-bank-1/1200/800",
-      "https://picsum.photos/seed/ibk-bank-2/1200/800"
+    completedImages: [
+      "https://picsum.photos/seed/ibk-bank-site-1/1200/800",
+      "https://picsum.photos/seed/ibk-bank-site-2/1200/800",
+      "https://picsum.photos/seed/ibk-bank-site-3/1200/800"
+    ],
+    designImages: [
+      "https://picsum.photos/seed/ibk-bank-3d-1/1200/800",
+      "https://picsum.photos/seed/ibk-bank-3d-2/1200/800",
+      "https://picsum.photos/seed/ibk-bank-3d-3/1200/800",
+      "https://picsum.photos/seed/ibk-bank-3d-4/1200/800"
     ],
     icon: 'fa-landmark',
     order: 6
   },
   {
     id: 'others1',
-    title: "Logo Design Archive",
-    subtitle: "브랜드 아이덴티티 & 타이포그래피",
-    period: "2022-2024",
-    description: "기업 및 행사의 아이덴티티를 담은 로고 디자인 모음입니다.",
-    tags: ["Branding", "Logo"],
+    title: "41대 여운 : 餘運\n총 학생회\n선거운동본부",
+    subtitle: "로고 디자인",
+    period: "2024",
+    description: "제 41대 '여운 : 餘運' 총 학생회 선거운동본부의 아이덴티티를 구축하기 위한 로고 초안 프로젝트입니다. '여운'이 가진 의미를 세 가지 시각적 방향성으로 풀어내어 브랜드의 핵심 가치를 전달하고자 했습니다.",
+    details: [
+      "시안 1: 팔각형 형태의 도형 안에 '餘運' 한자를 깔끔하게 배치하여 심플하고 정갈한 형태의 로고를 표현했습니다.",
+      "시안 2: '餘運' 한자를 가운데에 넣어 강조하고, 뒤의 파도와 물을 연상시키는 원형 요소와 조화롭게 배치하여 유연한 이미지를 담았습니다.",
+      "시안 3: '餘運' 한자를 독특한 폰트와 물결 패턴을 이용하여 심플하면서도 레트로한 분위기를 자아내는 독창적인 로고로 구현했습니다."
+    ],
+    designImages: [
+      "https://picsum.photos/seed/yeoun-logo-1/1200/800",
+      "https://picsum.photos/seed/yeoun-logo-2/1200/800",
+      "https://picsum.photos/seed/yeoun-logo-3/1200/800"
+    ],
+    tags: ["Branding", "Logo Design", "Identity"],
     category: 'others',
     icon: 'fa-pen-nib',
     order: 7
@@ -156,7 +200,12 @@ export const INITIAL_PROJECTS: Project[] = [
     title: "Editorial Design",
     subtitle: "달력 & 프로모션 디자인",
     period: "2023",
-    description: "시즌별 프로모션을 위한 달력 및 인쇄물 통합 디자인입니다.",
+    description: "",
+    designImages: [
+      "https://picsum.photos/seed/calendar-1/1200/800",
+      "https://picsum.photos/seed/calendar-2/1200/800",
+      "https://picsum.photos/seed/calendar-3/1200/800"
+    ],
     tags: ["Editorial", "Graphic"],
     category: 'others',
     icon: 'fa-calendar-days',

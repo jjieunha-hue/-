@@ -12,11 +12,14 @@ import { Menu, X, ArrowRight, Github, Mail, Phone, ExternalLink, Settings } from
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function App() {
-  const { about, projects, festivals, loading, isAdmin, login } = usePortfolioData();
+  const { about, projects, festivals, loading, user, isAdmin, login } = usePortfolioData();
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [selectedFestival, setSelectedFestival] = useState<FestivalItem | null>(null);
   const [showAdmin, setShowAdmin] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordInput, setPasswordInput] = useState('');
+  const [passwordError, setPasswordError] = useState(false);
 
   const groupedProjects = useMemo(() => {
     return {
@@ -25,19 +28,23 @@ export default function App() {
       others: projects.filter(p => p.category === 'others'),
     };
   }, [projects]);
-  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
-  const [password, setPassword] = useState('');
 
   const handleAdminClick = () => {
-    const input = prompt("비밀번호를 입력하세요 (4845)");
-    if (input === '4845') {
-      if (!isAdmin) {
-        login();
-      } else {
-        setShowAdmin(true);
+    setShowPasswordModal(true);
+    setPasswordInput('');
+    setPasswordError(false);
+  };
+
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (passwordInput === '4845') {
+      setShowPasswordModal(false);
+      if (!user) {
+        await login();
       }
-    } else if (input !== null) {
-      alert("비밀번호가 틀렸습니다.");
+      setShowAdmin(true);
+    } else {
+      setPasswordError(true);
     }
   };
 
@@ -59,15 +66,20 @@ export default function App() {
         <nav className="fixed w-full z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
           <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
             <div className="text-2xl font-black tracking-tighter uppercase">{about.name}.</div>
-            <div className="hidden md:flex space-x-8 text-[10px] uppercase tracking-widest font-bold">
+            <div className="hidden md:flex items-center space-x-8 text-[10px] uppercase tracking-widest font-bold">
               <a href="#about" className="nav-link">About</a>
               <a href="#environmental" className="nav-link">Environmental</a>
               <a href="#festival" className="nav-link">Festival</a>
               <a href="#interior" className="nav-link">Interior</a>
               <a href="#others" className="nav-link">Others</a>
               <a href="#contact" className="nav-link">Contact</a>
-              <button onClick={handleAdminClick} className="text-gray-300 hover:text-black transition">
-                <Settings className="w-4 h-4" />
+              <button 
+                onClick={handleAdminClick} 
+                className="nav-link flex items-center gap-2 text-gray-300 hover:text-black transition-colors"
+                title="Admin Settings"
+              >
+                <Settings className="w-3.5 h-3.5" />
+                <span>Admin</span>
               </button>
             </div>
             <button 
@@ -94,8 +106,14 @@ export default function App() {
                   <a href="#interior" onClick={() => setIsMenuOpen(false)} className="nav-link inline-block">Interior</a>
                   <a href="#others" onClick={() => setIsMenuOpen(false)} className="nav-link inline-block">Others</a>
                   <a href="#contact" onClick={() => setIsMenuOpen(false)} className="nav-link inline-block">Contact</a>
-                  <button onClick={handleAdminClick} className="flex items-center gap-2 text-gray-300">
-                    <Settings className="w-4 h-4" /> Admin
+                  <button 
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      handleAdminClick();
+                    }} 
+                    className="flex items-center gap-2 text-black font-black"
+                  >
+                    <Settings className="w-4 h-4" /> Admin Panel
                   </button>
                 </div>
               </motion.div>
@@ -103,15 +121,106 @@ export default function App() {
           </AnimatePresence>
         </nav>
 
+        <AnimatePresence>
+          {showPasswordModal && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-sm flex items-center justify-center p-6"
+            >
+              <motion.div
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="bg-white p-10 max-w-sm w-full border border-gray-100"
+              >
+                <div className="flex justify-between items-center mb-8">
+                  <h3 className="text-xl font-black uppercase tracking-tighter italic">Admin Access</h3>
+                  <button onClick={() => setShowPasswordModal(false)} className="text-gray-300 hover:text-black transition">
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+                <form onSubmit={handlePasswordSubmit} className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Enter Password</label>
+                    <input
+                      type="password"
+                      autoFocus
+                      value={passwordInput}
+                      onChange={(e) => {
+                        setPasswordInput(e.target.value);
+                        setPasswordError(false);
+                      }}
+                      className={`w-full p-4 border ${passwordError ? 'border-red-500' : 'border-gray-100'} focus:border-black outline-none font-bold text-center tracking-[0.5em]`}
+                      placeholder="••••"
+                    />
+                    {passwordError && (
+                      <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest text-center mt-2">Incorrect Password</p>
+                    )}
+                  </div>
+                  <button
+                    type="submit"
+                    className="w-full py-4 bg-black text-white text-[10px] font-black uppercase tracking-widest italic hover:bg-gray-900 transition"
+                  >
+                    Verify & Continue
+                  </button>
+                </form>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Admin Panel */}
         <AnimatePresence>
-          {showAdmin && isAdmin && (
+          {showAdmin && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
+              className="fixed inset-0 z-[100] bg-white overflow-y-auto"
             >
-              <AdminPanel onClose={() => setShowAdmin(false)} />
+              {isAdmin ? (
+                <AdminPanel onClose={() => setShowAdmin(false)} />
+              ) : (
+                <div className="h-screen flex items-center justify-center p-8">
+                  <div className="max-w-md w-full text-center space-y-8">
+                    <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto">
+                      <X className="w-10 h-10 text-gray-300" />
+                    </div>
+                    <div className="space-y-4">
+                      <h2 className="text-3xl font-black uppercase tracking-tighter">
+                        {user ? 'Access Denied' : 'Authentication Required'}
+                      </h2>
+                      <p className="text-gray-400 font-light leading-relaxed">
+                        {user ? (
+                          <>
+                            You are logged in as <span className="font-bold text-black">{user.email}</span>.<br />
+                            This account does not have administrative privileges.
+                          </>
+                        ) : (
+                          'Please log in with an administrator account to access this panel.'
+                        )}
+                      </p>
+                    </div>
+                    <div className="flex flex-col gap-4">
+                      {!user && (
+                        <button 
+                          onClick={login}
+                          className="w-full py-4 bg-black text-white text-[10px] font-black uppercase tracking-widest italic hover:bg-gray-900 transition"
+                        >
+                          Log In with Google
+                        </button>
+                      )}
+                      <button 
+                        onClick={() => setShowAdmin(false)}
+                        className={`w-full py-4 ${user ? 'bg-black text-white' : 'bg-gray-100 text-black'} text-[10px] font-black uppercase tracking-widest italic hover:bg-gray-200 transition`}
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
@@ -246,9 +355,15 @@ export default function App() {
                   <div className="p-8 text-left">
                     <h3 className="text-2xl font-black mb-1 uppercase tracking-tighter">{project.title}</h3>
                     <p className="serif-italic text-gray-500 mb-6 text-lg">{project.subtitle}</p>
-                    <div className="mt-auto pt-4 border-t border-gray-100 flex justify-between items-center text-gray-400 font-bold italic text-sm">
-                      <span>{project.tags[0]} / {project.period}</span>
-                      <span className="group-hover:text-black transition">상세보기</span>
+                    <div className="mt-auto pt-6 border-t border-gray-100 flex justify-between items-end">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] uppercase text-gray-300 font-black italic mb-1">Project Info</span>
+                        <span className="text-sm font-bold text-gray-400 italic">{project.tags[0]} / {project.period}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-gray-300 group-hover:text-black transition-colors">
+                        <span className="text-[10px] font-black uppercase tracking-widest italic">상세보기</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -304,9 +419,15 @@ export default function App() {
                     <div className="p-8 text-left">
                       <h3 className="text-2xl font-black mb-1 uppercase tracking-tighter">{project.title}</h3>
                       <p className="serif-italic text-gray-500 mb-6 text-lg">{project.subtitle}</p>
-                      <div className="mt-auto pt-4 border-t border-gray-100 flex justify-between items-center text-gray-400 font-bold italic text-sm">
-                        <span>{project.tags[0]} / {project.period}</span>
-                        <span className="group-hover:text-black transition">상세보기</span>
+                      <div className="mt-auto pt-6 border-t border-gray-100 flex justify-between items-end">
+                        <div className="flex flex-col">
+                          <span className="text-[10px] uppercase text-gray-300 font-black italic mb-1">Project Info</span>
+                          <span className="text-sm font-bold text-gray-400 italic">{project.tags[0]} / {project.period}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-gray-300 group-hover:text-black transition-colors">
+                          <span className="text-[10px] font-black uppercase tracking-widest italic">상세보기</span>
+                          <ArrowRight className="w-3 h-3" />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -334,12 +455,7 @@ export default function App() {
               <div className="max-w-7xl mx-auto px-8 py-32 md:py-48">
                 {/* Header Section */}
                 <div className="mb-20">
-                  <div className="mb-12 flex flex-wrap gap-2">
-                    {selectedProject.tags.map(t => (
-                      <span key={t} className="border border-black px-2 py-1 text-[10px] font-black uppercase tracking-widest italic">{t}</span>
-                    ))}
-                  </div>
-                  <h2 className="serif text-6xl md:text-9xl font-black uppercase leading-[0.85] tracking-tighter mb-8">{selectedProject.title}</h2>
+                  <h2 className="serif text-6xl md:text-9xl font-black uppercase leading-tight tracking-tighter mb-8 whitespace-pre-line">{selectedProject.title}</h2>
                   <p className="serif-italic text-2xl md:text-4xl text-gray-400 italic">{selectedProject.subtitle}</p>
                 </div>
 
@@ -354,58 +470,93 @@ export default function App() {
                 </div>
 
                 {/* Info & Overview Section */}
-                <div className="mb-32 flex flex-col items-start">
-                  <div className="w-fit border-t border-gray-100 py-6 mb-10">
-                    <div className="grid grid-cols-2 gap-16">
-                      <div><span className="text-[10px] uppercase text-gray-300 font-black block mb-2 italic">Timeline</span><span className="text-xl font-bold">{selectedProject.period}</span></div>
-                      <div><span className="text-[10px] uppercase text-gray-300 font-black block mb-2 italic">Category</span><span className="text-xl font-bold uppercase">{selectedProject.category}</span></div>
+                <div className="mb-24 w-full">
+                  <div className="grid md:grid-cols-12 gap-12 border-t border-gray-100 pt-16">
+                    <div className="md:col-span-4 space-y-10">
+                      <div className="flex flex-col">
+                        <h4 className="text-[10px] uppercase text-gray-300 font-black block mb-4 italic">Project Info</h4>
+                        <span className="text-2xl font-bold italic text-gray-400 leading-none">{selectedProject.tags[0]} / {selectedProject.period}</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-8">
+                        <div>
+                          <h4 className="text-[10px] uppercase text-gray-300 font-black block mb-4 italic">Timeline</h4>
+                          <span className="text-xl font-bold leading-none">{selectedProject.period}</span>
+                        </div>
+                        <div>
+                          <h4 className="text-[10px] uppercase text-gray-300 font-black block mb-4 italic">Category</h4>
+                          <span className="text-xl font-bold uppercase leading-none">{selectedProject.category}</span>
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="text-[10px] uppercase text-gray-300 font-black block mb-4 italic">Tags</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedProject.tags.map(t => (
+                            <span key={t} className="text-sm font-bold uppercase tracking-tight text-gray-500">{t}</span>
+                          ))}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="w-full border-t border-gray-100 py-16 text-left">
-                    <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">Project Overview</h4>
-                    <div className="text-gray-700 leading-relaxed text-xl font-light space-y-10 text-justify break-keep">
-                      <p>{selectedProject.description}</p>
-                      {selectedProject.details?.map((detail, idx) => (
-                        <p key={idx}>{detail}</p>
-                      ))}
+                    
+                    <div className="md:col-span-8">
+                      <h4 className="text-[10px] uppercase text-gray-300 font-black mb-4 italic">Project Overview</h4>
+                      <div className="text-gray-700 leading-relaxed text-xl font-light space-y-8 text-justify break-keep">
+                        <p>{selectedProject.description}</p>
+                        {selectedProject.details?.map((detail, idx) => (
+                          <p key={idx}>{detail}</p>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Process & Details Section */}
                 {selectedProject.completedImages && selectedProject.completedImages.length > 0 && (
-                  <div className="pt-20 border-t border-gray-100 mb-20">
-                    <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">Completed Photos (완공사진)</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {selectedProject.completedImages.map((img, idx) => (
-                        <div key={idx} className="aspect-square bg-gray-50 overflow-hidden border border-gray-100">
-                          <img 
-                            src={img} 
-                            alt={`${selectedProject.title} completed ${idx + 1}`}
-                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
-                            referrerPolicy="no-referrer"
-                          />
+                  <div className="pt-16 border-t border-gray-100 mb-24">
+                    <div className="grid md:grid-cols-12 gap-12">
+                      <div className="md:col-span-4">
+                        <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">Completed Photos (완공사진)</h4>
+                      </div>
+                      <div className="md:col-span-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {selectedProject.completedImages.map((img, idx) => (
+                            <div key={idx} className="aspect-square bg-gray-50 overflow-hidden border border-gray-100">
+                              <img 
+                                src={img} 
+                                alt={`${selectedProject.title} completed ${idx + 1}`}
+                                className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                                referrerPolicy="no-referrer"
+                              />
+                            </div>
+                          ))}
                         </div>
-                      ))}
+                      </div>
                     </div>
                   </div>
                 )}
 
                 {selectedProject.designImages && selectedProject.designImages.length > 0 && (
-                  <div className="pt-20 border-t border-gray-100">
-                    <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">3D Designs (3D시안)</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {selectedProject.designImages.map((img, idx) => (
-                        <div key={idx} className="aspect-square bg-gray-50 overflow-hidden border border-gray-100">
-                          <img 
-                            src={img} 
-                            alt={`${selectedProject.title} design ${idx + 1}`}
-                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
-                            referrerPolicy="no-referrer"
-                          />
+                  <div className="pt-16 border-t border-gray-100">
+                    <div className="grid md:grid-cols-12 gap-12">
+                      <div className="md:col-span-4">
+                        <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">
+                          {selectedProject.id === 'int3' ? '2D & 3D Designs (2D/3D 시안)' : 
+                           selectedProject.category === 'others' ? '2D Designs (2D시안)' : '3D Designs (3D시안)'}
+                        </h4>
+                      </div>
+                      <div className="md:col-span-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {selectedProject.designImages.map((img, idx) => (
+                            <div key={idx} className="aspect-square bg-gray-50 overflow-hidden border border-gray-100">
+                              <img 
+                                src={img} 
+                                alt={`${selectedProject.title} design ${idx + 1}`}
+                                className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                                referrerPolicy="no-referrer"
+                              />
+                            </div>
+                          ))}
                         </div>
-                      ))}
+                      </div>
                     </div>
                   </div>
                 )}
