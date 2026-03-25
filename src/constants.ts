@@ -62,12 +62,33 @@ export const INITIAL_PROJECTS: Project[] = [
   },
   {
     id: 'dongju',
-    title: "Dongju Middle School",
-    subtitle: "감성과 안전을 담은 등하굣길 설계",
+    title: "동주중학교 옹벽 디자인 개선사업",
+    subtitle: "부산 사상구 동주중학교 옹벽 경관 개선 실시설계",
     period: "2024.10",
-    description: "동주중학교 일원 옹벽의 디자인을 개선하여 쾌적한 도시미관을 조성하는 프로젝트입니다. 'Slow step, Green energy' 컨셉으로 학교 상징물(느티나무, 개나리)을 패턴화하여 입체적인 가로 환경을 구축했습니다.",
-    tags: ["Public Design", "2024.10"],
+    description: "노후화된 동주중학교 옹벽의 디자인을 개선하여 쾌적한 도시 미관을 조성하고, 학교의 상징물과 학생들의 일상을 담아낸 경관 개선 프로젝트입니다. 좁은 보행 환경을 고려하여 보행자의 시야를 방해하지 않으면서도 학교의 정체성을 살린 디자인을 제안했습니다.",
+    details: [
+      "학교의 상징물인 느티나무(교목)와 개나리(교화), 해와 산 등을 아이콘화하여 부조 타일로 표현하고, 배경은 이형 모자이크 타일로 처리하여 입체감을 더했습니다.",
+      "학생들의 등교부터 하교까지의 하루를 시간 순서대로 구성하여 스토리텔링이 있는 벽면을 기획했습니다.",
+      "전체적으로 파스텔 톤의 밝고 따뜻한 색채 계획을 통해 지역사회와 조화로우면서도 학생들에게 친숙한 등하굣길 환경을 조성했습니다."
+    ],
+    tags: ["Public Design", "Landscape", "Environmental Design"],
     category: 'environmental',
+    imageUrl: "https://picsum.photos/seed/dongju-main/800/600",
+    completedImages: [
+      "https://picsum.photos/seed/dongju-site-1/1200/800",
+      "https://picsum.photos/seed/dongju-site-2/1200/800"
+    ],
+    design2DImages: [
+      "https://picsum.photos/seed/dongju-2d-1/1200/800",
+      "https://picsum.photos/seed/dongju-2d-2/1200/800",
+      "https://picsum.photos/seed/dongju-2d-3/1200/800"
+    ],
+    design3DImages: [
+      "https://picsum.photos/seed/dongju-3d-1/1200/800",
+      "https://picsum.photos/seed/dongju-3d-2/1200/800",
+      "https://picsum.photos/seed/dongju-3d-3/1200/800",
+      "https://picsum.photos/seed/dongju-3d-4/1200/800"
+    ],
     icon: 'fa-school',
     order: 4
   },
@@ -118,33 +139,6 @@ export const INITIAL_PROJECTS: Project[] = [
     ],
     icon: 'fa-building',
     order: 5
-  },
-  {
-    id: 'int3',
-    title: "동주중학교 옹벽 디자인 개선사업",
-    subtitle: "부산 사상구 동주중학교 옹벽 경관 개선 실시설계",
-    period: "2024.10",
-    description: "노후화된 동주중학교 옹벽의 디자인을 개선하여 쾌적한 도시 미관을 조성하고, 학교의 상징물과 학생들의 일상을 담아낸 경관 개선 프로젝트입니다. 좁은 보행 환경을 고려하여 보행자의 시야를 방해하지 않으면서도 학교의 정체성을 살린 디자인을 제안했습니다.",
-    details: [
-      "학교의 상징물인 느티나무(교목)와 개나리(교화), 해와 산 등을 아이콘화하여 부조 타일로 표현하고, 배경은 이형 모자이크 타일로 처리하여 입체감을 더했습니다.",
-      "학생들의 등교부터 하교까지의 하루를 시간 순서대로 구성하여 스토리텔링이 있는 벽면을 기획했습니다.",
-      "전체적으로 파스텔 톤의 밝고 따뜻한 색채 계획을 통해 지역사회와 조화로우면서도 학생들에게 친숙한 등하굣길 환경을 조성했습니다."
-    ],
-    tags: ["Public Design", "Landscape", "Environmental Design"],
-    category: 'interior',
-    imageUrl: "https://picsum.photos/seed/dongju-main/800/600",
-    completedImages: [
-      "https://picsum.photos/seed/dongju-site-1/1200/800",
-      "https://picsum.photos/seed/dongju-site-2/1200/800"
-    ],
-    designImages: [
-      "https://picsum.photos/seed/dongju-design-1/1200/800",
-      "https://picsum.photos/seed/dongju-design-2/1200/800",
-      "https://picsum.photos/seed/dongju-design-3/1200/800",
-      "https://picsum.photos/seed/dongju-design-4/1200/800"
-    ],
-    icon: 'fa-school',
-    order: 6
   },
   {
     id: 'int2',

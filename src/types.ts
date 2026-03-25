@@ -16,6 +16,8 @@ export interface Project {
   detailImages?: string[];
   completedImages?: string[];
   designImages?: string[];
+  design2DImages?: string[];
+  design3DImages?: string[];
   icon?: string;
   order: number;
 }

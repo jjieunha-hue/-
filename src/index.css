@@ -8,15 +8,14 @@
   --animate-marquee: marquee 20s linear infinite;
 
   @keyframes marquee {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-50%, 0, 0); }
   }
 }
 
 @layer base {
   body {
     @apply font-sans bg-white text-[#1a1a1a] antialiased;
-    scroll-behavior: smooth;
   }
 }
 
@@ -43,9 +42,17 @@
 
   .marquee-container {
     @apply overflow-hidden whitespace-nowrap bg-black text-white py-12 border-y border-white/10;
+    will-change: transform;
   }
 
   .marquee-content {
     @apply inline-block animate-marquee;
+    will-change: transform;
+    backface-visibility: hidden;
+  }
+
+  .project-card img {
+    will-change: transform;
+    backface-visibility: hidden;
   }
 }

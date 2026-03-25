@@ -20,6 +20,7 @@ export default function App() {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [passwordError, setPasswordError] = useState(false);
+  const [isPasswordAuthorized, setIsPasswordAuthorized] = useState(false);
 
   const groupedProjects = useMemo(() => {
     return {
@@ -39,6 +40,7 @@ export default function App() {
     e.preventDefault();
     if (passwordInput === '4845') {
       setShowPasswordModal(false);
+      setIsPasswordAuthorized(true);
       if (!user) {
         await login();
       }
@@ -179,8 +181,11 @@ export default function App() {
               exit={{ opacity: 0, y: 20 }}
               className="fixed inset-0 z-[100] bg-white overflow-y-auto"
             >
-              {isAdmin ? (
-                <AdminPanel onClose={() => setShowAdmin(false)} />
+              {isAdmin || isPasswordAuthorized ? (
+                <AdminPanel onClose={() => {
+                  setShowAdmin(false);
+                  setIsPasswordAuthorized(false);
+                }} />
               ) : (
                 <div className="h-screen flex items-center justify-center p-8">
                   <div className="max-w-md w-full text-center space-y-8">
@@ -226,7 +231,7 @@ export default function App() {
         </AnimatePresence>
 
         {/* Hero Section */}
-        <header className="h-screen flex flex-col items-center justify-center bg-black text-white px-6 text-center relative overflow-hidden">
+        <header className="min-h-screen flex flex-col items-center justify-center bg-black text-white px-6 py-32 text-center relative overflow-hidden">
           {/* Background Accent */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.03)_0%,transparent_70%)] pointer-events-none z-1"></div>
           
@@ -237,7 +242,7 @@ export default function App() {
             className="max-w-7xl w-full relative z-10"
           >
             <p className="text-sm md:text-lg tracking-[0.8em] mb-12 uppercase font-light opacity-40">Design Portfolio</p>
-            <h1 className="serif text-6xl md:text-[12rem] mb-12 leading-[0.9] tracking-tighter font-medium">
+            <h1 className="serif text-5xl md:text-[10rem] mb-12 leading-tight md:leading-[0.9] tracking-tighter font-medium">
               <span className="block">Spatial</span>
               <span className="block">Graphic</span>
               <span className="block">Experience</span>
@@ -534,12 +539,60 @@ export default function App() {
                   </div>
                 )}
 
+                {selectedProject.design2DImages && selectedProject.design2DImages.length > 0 && (
+                  <div className="pt-16 border-t border-gray-100 mb-24">
+                    <div className="grid md:grid-cols-12 gap-12">
+                      <div className="md:col-span-4">
+                        <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">2D Designs (2D 시안)</h4>
+                      </div>
+                      <div className="md:col-span-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {selectedProject.design2DImages.map((img, idx) => (
+                            <div key={idx} className="aspect-square bg-gray-50 overflow-hidden border border-gray-100">
+                              <img 
+                                src={img} 
+                                alt={`${selectedProject.title} 2d design ${idx + 1}`}
+                                className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                                referrerPolicy="no-referrer"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {selectedProject.design3DImages && selectedProject.design3DImages.length > 0 && (
+                  <div className="pt-16 border-t border-gray-100 mb-24">
+                    <div className="grid md:grid-cols-12 gap-12">
+                      <div className="md:col-span-4">
+                        <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">3D Designs (3D 시안)</h4>
+                      </div>
+                      <div className="md:col-span-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {selectedProject.design3DImages.map((img, idx) => (
+                            <div key={idx} className="aspect-square bg-gray-50 overflow-hidden border border-gray-100">
+                              <img 
+                                src={img} 
+                                alt={`${selectedProject.title} 3d design ${idx + 1}`}
+                                className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                                referrerPolicy="no-referrer"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {selectedProject.designImages && selectedProject.designImages.length > 0 && (
                   <div className="pt-16 border-t border-gray-100">
                     <div className="grid md:grid-cols-12 gap-12">
                       <div className="md:col-span-4">
                         <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">
-                          {selectedProject.id === 'int3' ? '2D & 3D Designs (2D/3D 시안)' : 
+                          {selectedProject.id === 'dongju' ? '2D & 3D Designs (2D/3D 시안)' : 
                            selectedProject.category === 'others' ? '2D Designs (2D시안)' : '3D Designs (3D시안)'}
                         </h4>
                       </div>
