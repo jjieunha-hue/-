@@ -1,0 +1,41 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    // Collection: settings/about
+    // Fields: name, title, highlight, description, phone, email, experiences[]
+    //
+    // Collection: projects
+    // Fields: id, title, subtitle, period, description, tags[], category, icon
+    //
+    // Collection: festivals
+    // Fields: id, title, sub, order
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (request.auth.token.email == "jjieunha@gmail.com" && request.auth.token.email_verified == true);
+    }
+
+    match /settings/about {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /projects/{projectId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /festivals/{festivalId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+  }
+}

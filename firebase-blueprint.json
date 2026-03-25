@@ -1,0 +1,69 @@
+{
+  "entities": {
+    "about": {
+      "title": "About Info",
+      "description": "Personal information and experiences",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "title": { "type": "string" },
+        "highlight": { "type": "string" },
+        "description": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "experiences": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "company": { "type": "string" },
+              "period": { "type": "string" },
+              "opacity": { "type": "number" }
+            }
+          }
+        }
+      }
+    },
+    "project": {
+      "title": "Project",
+      "description": "Portfolio project item",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "period": { "type": "string" },
+        "description": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "category": { "type": "string", "enum": ["environmental", "interior", "others"] },
+        "icon": { "type": "string" }
+      }
+    },
+    "festival": {
+      "title": "Festival Item",
+      "description": "Festival list item",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "sub": { "type": "string" },
+        "order": { "type": "number" }
+      }
+    }
+  },
+  "firestore": {
+    "/settings/about": {
+      "schema": "about",
+      "description": "Global about information"
+    },
+    "/projects/{projectId}": {
+      "schema": "project",
+      "description": "Portfolio projects"
+    },
+    "/festivals/{festivalId}": {
+      "schema": "festival",
+      "description": "Festival list items"
+    }
+  }
+}
