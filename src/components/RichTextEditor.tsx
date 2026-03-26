@@ -1,3 +1,4 @@
+import React, { useMemo } from 'react';
 import ReactQuill, { Quill } from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 
@@ -32,6 +33,14 @@ interface RichTextEditorProps {
 }
 
 const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeholder }) => {
+  // Decode entities in value to prevent double encoding
+  const decodedValue = useMemo(() => {
+    if (!value) return '';
+    const txt = document.createElement("textarea");
+    txt.innerHTML = value;
+    return txt.value;
+  }, [value]);
+
   const modules = {
     toolbar: [
       [{ 'font': ['pretendard', 'notosanskr', 'nanummyeongjo', 'playfair'] }],
@@ -44,6 +53,9 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
       [{ 'list': 'ordered' }, { 'list': 'bullet' }],
       ['link', 'clean']
     ],
+    clipboard: {
+      matchVisual: false,
+    },
   };
 
   const formats = [
@@ -55,12 +67,18 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
     'link'
   ];
 
+  const handleChange = (content: string) => {
+    // Replace &nbsp; with regular space to prevent literal &nbsp; from being saved
+    const cleaned = content.replace(/&nbsp;/g, ' ');
+    onChange(cleaned);
+  };
+
   return (
     <div className="rich-text-editor">
       <ReactQuill
         theme="snow"
-        value={value}
-        onChange={onChange}
+        value={decodedValue}
+        onChange={handleChange}
         modules={modules}
         formats={formats}
         placeholder={placeholder}

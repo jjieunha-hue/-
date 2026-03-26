@@ -313,8 +313,8 @@ export default function App() {
                 <ul className="space-y-4 text-sm font-light">
                   {about.experiences.map((exp) => (
                     <li key={exp.id} className={`flex flex-col mb-1 ${exp.opacity === 70 ? 'opacity-70' : exp.opacity === 50 ? 'opacity-50' : ''}`}>
-                      <span className="font-bold text-lg leading-tight uppercase">{exp.company}</span>
-                      <span className="text-gray-400 text-xs">{exp.period}</span>
+                      <span className="font-bold text-lg leading-tight uppercase" dangerouslySetInnerHTML={{ __html: exp.company }} />
+                      <span className="text-gray-400 text-xs" dangerouslySetInnerHTML={{ __html: exp.period }} />
                     </li>
                   ))}
                   
@@ -376,7 +376,7 @@ export default function App() {
                     <div className="mt-auto pt-6 border-t border-gray-100 flex justify-between items-end">
                       <div className="flex flex-col">
                         <span className="text-[10px] uppercase text-gray-300 font-black italic mb-1">Project Info</span>
-                        <span className="text-sm font-bold text-gray-400 italic">{project.tags[0]} / {project.period}</span>
+                        <span className="text-sm font-bold text-gray-400 italic" dangerouslySetInnerHTML={{ __html: `${project.tags[0]} / ${project.period}` }} />
                       </div>
                       <div className="flex items-center gap-2 text-gray-300 group-hover:text-black transition-colors">
                         <span className="text-[10px] font-black uppercase tracking-widest italic">상세보기</span>
@@ -458,7 +458,7 @@ export default function App() {
                       <div className="mt-auto pt-6 border-t border-gray-100 flex justify-between items-end">
                         <div className="flex flex-col">
                           <span className="text-[10px] uppercase text-gray-300 font-black italic mb-1">Project Info</span>
-                          <span className="text-sm font-bold text-gray-400 italic">{project.tags[0]} / {project.period}</span>
+                          <span className="text-sm font-bold text-gray-400 italic" dangerouslySetInnerHTML={{ __html: `${project.tags[0]} / ${project.period}` }} />
                         </div>
                         <div className="flex items-center gap-2 text-gray-300 group-hover:text-black transition-colors">
                           <span className="text-[10px] font-black uppercase tracking-widest italic">상세보기</span>
@@ -560,7 +560,7 @@ export default function App() {
                         ) : (
                           <div className="flex flex-wrap gap-2">
                             {selectedProject.tags.map(t => (
-                              <span key={t} className="text-sm font-bold uppercase tracking-tight text-gray-500">{t}</span>
+                              <span key={t} className="text-sm font-bold uppercase tracking-tight text-gray-500" dangerouslySetInnerHTML={{ __html: t }} />
                             ))}
                           </div>
                         )}
@@ -789,7 +789,7 @@ export default function App() {
                         ) : (
                           <div className="flex flex-wrap gap-2">
                             {selectedFestival.tags?.map(t => (
-                              <span key={t} className="text-sm font-bold uppercase tracking-tight text-gray-500">{t}</span>
+                              <span key={t} className="text-sm font-bold uppercase tracking-tight text-gray-500" dangerouslySetInnerHTML={{ __html: t }} />
                             ))}
                           </div>
                         )}

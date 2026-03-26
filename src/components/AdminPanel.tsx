@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { Project, FestivalItem, AboutInfo } from '../types';
 import { usePortfolioData } from '../hooks';
 import { auth } from '../firebase';
+import { stripHtml } from '../lib/utils';
 import { X, Save, Plus, Trash2, LogOut, Settings, Upload, Loader2 } from 'lucide-react';
 import RichTextEditor from './RichTextEditor';
 
@@ -518,7 +519,7 @@ function ProjectEditor({ project, onSave, uploadImage, login }: { project: Proje
   return (
     <div className="p-8 border border-gray-100 space-y-4">
       <div className="flex justify-between items-start">
-        <h3 className="text-xl font-black uppercase tracking-tighter">{project.title}</h3>
+        <h3 className="text-xl font-black uppercase tracking-tighter" dangerouslySetInnerHTML={{ __html: project.title }} />
         <div className="flex items-center gap-4">
           <span className="text-[10px] font-black uppercase bg-gray-100 px-2 py-1">{project.category}</span>
           {isDirty && (
@@ -543,7 +544,7 @@ function ProjectEditor({ project, onSave, uploadImage, login }: { project: Proje
           <label className="text-[10px] font-black uppercase text-gray-300 italic">Timeline (Period)</label>
           <RichTextEditor 
             value={localProject.periodRich || localProject.period || ''} 
-            onChange={(val) => setLocalProject({ ...localProject, periodRich: val, period: val.replace(/<[^>]*>/g, '') })}
+            onChange={(val) => setLocalProject({ ...localProject, periodRich: val, period: stripHtml(val) })}
           />
         </div>
         <div className="space-y-1">
@@ -569,7 +570,7 @@ function ProjectEditor({ project, onSave, uploadImage, login }: { project: Proje
           <label className="text-[10px] font-black uppercase text-gray-300 italic">Tags Display</label>
           <RichTextEditor 
             value={localProject.tagsRich || localProject.tags?.join(', ') || ''} 
-            onChange={(val) => setLocalProject({ ...localProject, tagsRich: val, tags: val.replace(/<[^>]*>/g, '').split(',').map(t => t.trim()).filter(Boolean) })}
+            onChange={(val) => setLocalProject({ ...localProject, tagsRich: val, tags: stripHtml(val).split(',').map(t => t.trim()).filter(Boolean) })}
           />
         </div>
       </div>
@@ -672,7 +673,7 @@ function FestivalEditor({ festival, onSave, uploadImage, login }: { festival: Fe
   return (
     <div className="p-8 border border-gray-100 space-y-4">
       <div className="flex justify-between items-start">
-        <h3 className="text-xl font-black uppercase tracking-tighter">{festival.title}</h3>
+        <h3 className="text-xl font-black uppercase tracking-tighter" dangerouslySetInnerHTML={{ __html: festival.title }} />
         <div className="flex items-center gap-4">
           <span className="text-[10px] font-black uppercase bg-gray-100 px-2 py-1">Order: {festival.order}</span>
           {isDirty && (
@@ -713,7 +714,7 @@ function FestivalEditor({ festival, onSave, uploadImage, login }: { festival: Fe
           <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Timeline</label>
           <RichTextEditor 
             value={localFestival.periodRich || localFestival.period || ''} 
-            onChange={(val) => setLocalFestival({ ...localFestival, periodRich: val, period: val.replace(/<[^>]*>/g, '') })}
+            onChange={(val) => setLocalFestival({ ...localFestival, periodRich: val, period: stripHtml(val) })}
           />
         </div>
         <div className="space-y-1">
@@ -727,7 +728,7 @@ function FestivalEditor({ festival, onSave, uploadImage, login }: { festival: Fe
           <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Tags Display</label>
           <RichTextEditor 
             value={localFestival.tagsRich || localFestival.tags?.join(', ') || ''} 
-            onChange={(val) => setLocalFestival({ ...localFestival, tagsRich: val, tags: val.replace(/<[^>]*>/g, '').split(',').map(t => t.trim()).filter(Boolean) })}
+            onChange={(val) => setLocalFestival({ ...localFestival, tagsRich: val, tags: stripHtml(val).split(',').map(t => t.trim()).filter(Boolean) })}
           />
         </div>
       </div>
