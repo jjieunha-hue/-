@@ -27,10 +27,16 @@ export interface FestivalItem {
   title: string;
   sub: string;
   order: number;
+  location?: string;
   description?: string;
+  details?: string[];
   period?: string;
   tags?: string[];
   imageUrl?: string;
+  completedImages?: string[];
+  design2DImages?: string[];
+  design3DImages?: string[];
+  detailImages?: string[];
 }
 
 export interface AboutInfo {
@@ -40,6 +46,10 @@ export interface AboutInfo {
   description: string;
   phone: string;
   email: string;
+  environmentalTitle?: string;
+  interiorTitle?: string;
+  othersTitle?: string;
+  festivalTitle?: string;
   social?: {
     instagram?: string;
     behance?: string;

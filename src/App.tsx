@@ -67,7 +67,11 @@ export default function App() {
         {/* Navigation */}
         <nav className="fixed w-full z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
           <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <div className="text-2xl font-black tracking-tighter uppercase">{about.name}.</div>
+            <div 
+              className="text-2xl font-black tracking-tighter uppercase cursor-pointer hover:opacity-70 transition-opacity"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              dangerouslySetInnerHTML={{ __html: about.name }}
+            />
             <div className="hidden md:flex items-center space-x-8 text-[10px] uppercase tracking-widest font-bold">
               <a href="#about" className="nav-link">About</a>
               <a href="#environmental" className="nav-link">Environmental</a>
@@ -284,14 +288,14 @@ export default function App() {
             <div className="md:col-span-7">
               <h2 className="section-title">ABOUT</h2>
               <div className="mt-8">
-                <h3 className="serif text-5xl md:text-8xl font-bold mb-10 leading-tight italic text-gray-100 select-none uppercase">Values</h3>
-                <div className="text-xl md:text-3xl font-bold mb-8 leading-tight">
-                  "{about.highlight.split('\n')[0]} <br />
-                  <span className="bg-black text-white px-2">하지은</span>입니다."
+                <h3 className="serif text-3xl md:text-8xl font-bold mb-10 leading-tight italic text-gray-100 select-none uppercase">Values</h3>
+                <div className="text-lg md:text-3xl font-bold mb-8 leading-tight whitespace-pre-wrap">
+                  <div dangerouslySetInnerHTML={{ __html: about.highlight }} />
                 </div>
-                <p className="text-gray-600 leading-relaxed text-lg max-w-2xl text-justify font-light mb-12">
-                  {about.description}
-                </p>
+                <div 
+                  className="text-gray-600 leading-relaxed text-lg max-w-2xl text-justify font-light mb-12 whitespace-pre-wrap"
+                  dangerouslySetInnerHTML={{ __html: about.description }}
+                />
               </div>
             </div>
 
@@ -340,7 +344,10 @@ export default function App() {
         {/* Environmental Section */}
         <section id="environmental" className="py-32 px-6">
           <div className="max-w-7xl mx-auto">
-            <h2 className="section-title uppercase">environmental</h2>
+            <h2 
+              className="section-title uppercase whitespace-pre-wrap"
+              dangerouslySetInnerHTML={{ __html: about.environmentalTitle || 'environmental' }}
+            />
             <div className="grid md:grid-cols-2 gap-10">
               {groupedProjects['environmental'].map((project) => (
                 <div 
@@ -351,15 +358,21 @@ export default function App() {
                   <div className="aspect-video bg-gray-50 overflow-hidden relative">
                     <img 
                       src={project.imageUrl || `https://picsum.photos/seed/${project.id}/800/600`} 
-                      alt={project.title}
+                      alt="Project"
                       className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
                       referrerPolicy="no-referrer"
                     />
                     <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
                   </div>
                   <div className="p-8 text-left">
-                    <h3 className="text-2xl font-black mb-1 uppercase tracking-tighter">{project.title}</h3>
-                    <p className="serif-italic text-gray-500 mb-6 text-lg">{project.subtitle}</p>
+                    <h3 
+                      className="text-2xl font-black mb-1 uppercase tracking-tighter whitespace-pre-wrap"
+                      dangerouslySetInnerHTML={{ __html: project.title }}
+                    />
+                    <div 
+                      className="serif-italic text-gray-500 mb-6 text-lg whitespace-pre-wrap"
+                      dangerouslySetInnerHTML={{ __html: project.subtitle }}
+                    />
                     <div className="mt-auto pt-6 border-t border-gray-100 flex justify-between items-end">
                       <div className="flex flex-col">
                         <span className="text-[10px] uppercase text-gray-300 font-black italic mb-1">Project Info</span>
@@ -379,7 +392,10 @@ export default function App() {
 
         {/* Festival Section */}
         <section id="festival" className="py-32 px-6 max-w-7xl mx-auto">
-          <h2 className="section-title">FESTIVAL</h2>
+          <h2 
+            className="section-title uppercase whitespace-pre-wrap"
+            dangerouslySetInnerHTML={{ __html: about.festivalTitle || 'FESTIVAL' }}
+          />
           <div className="grid grid-cols-1">
             {festivals.map((item, idx) => (
               <div 
@@ -389,10 +405,16 @@ export default function App() {
               >
                 <div className="flex items-center space-x-8">
                   <span className="text-xs font-black opacity-20 group-hover:opacity-100 transition">{(idx + 1).toString().padStart(2, '0')}</span>
-                  <h3 className="text-xl md:text-2xl font-bold uppercase tracking-tight">{item.title}</h3>
+                  <h3 
+                    className="text-xl md:text-2xl font-bold uppercase tracking-tight whitespace-pre-wrap"
+                    dangerouslySetInnerHTML={{ __html: item.title }}
+                  />
                 </div>
                 <div className="flex items-center gap-4 mt-2 md:mt-0">
-                  <span className="serif-italic text-gray-400 italic">{item.sub}</span>
+                  <div 
+                    className="serif-italic text-gray-400 italic whitespace-pre-wrap"
+                    dangerouslySetInnerHTML={{ __html: item.sub }}
+                  />
                   <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all transform translate-x-[-10px] group-hover:translate-x-0" />
                 </div>
               </div>
@@ -404,7 +426,10 @@ export default function App() {
         {(['interior', 'others'] as const).map((cat) => (
           <section key={cat} id={cat} className={`py-32 px-6 ${cat === 'interior' ? 'bg-gray-50' : ''}`}>
             <div className="max-w-7xl mx-auto">
-              <h2 className="section-title uppercase">{cat}</h2>
+              <h2 
+                className="section-title uppercase whitespace-pre-wrap"
+                dangerouslySetInnerHTML={{ __html: cat === 'interior' ? (about.interiorTitle || 'interior') : (about.othersTitle || 'others') }}
+              />
               <div className="grid md:grid-cols-2 gap-10">
                 {groupedProjects[cat].map((project) => (
                   <div 
@@ -415,15 +440,21 @@ export default function App() {
                     <div className="aspect-video bg-gray-50 overflow-hidden relative">
                       <img 
                         src={project.imageUrl || `https://picsum.photos/seed/${project.id}/800/600`} 
-                        alt={project.title}
+                        alt="Project"
                         className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
                         referrerPolicy="no-referrer"
                       />
                       <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
                     </div>
                     <div className="p-8 text-left">
-                      <h3 className="text-2xl font-black mb-1 uppercase tracking-tighter">{project.title}</h3>
-                      <p className="serif-italic text-gray-500 mb-6 text-lg">{project.subtitle}</p>
+                      <h3 
+                        className="text-2xl font-black mb-1 uppercase tracking-tighter whitespace-pre-wrap"
+                        dangerouslySetInnerHTML={{ __html: project.title }}
+                      />
+                      <div 
+                        className="serif-italic text-gray-500 mb-6 text-lg whitespace-pre-wrap"
+                        dangerouslySetInnerHTML={{ __html: project.subtitle }}
+                      />
                       <div className="mt-auto pt-6 border-t border-gray-100 flex justify-between items-end">
                         <div className="flex flex-col">
                           <span className="text-[10px] uppercase text-gray-300 font-black italic mb-1">Project Info</span>
@@ -460,15 +491,21 @@ export default function App() {
               <div className="max-w-7xl mx-auto px-8 py-32 md:py-48">
                 {/* Header Section */}
                 <div className="mb-20">
-                  <h2 className="serif text-6xl md:text-9xl font-black uppercase leading-tight tracking-tighter mb-8 whitespace-pre-line">{selectedProject.title}</h2>
-                  <p className="serif-italic text-2xl md:text-4xl text-gray-400 italic">{selectedProject.subtitle}</p>
+                  <h2 
+                    className="serif text-4xl md:text-9xl font-black uppercase leading-tight tracking-tighter mb-8 whitespace-pre-wrap"
+                    dangerouslySetInnerHTML={{ __html: selectedProject.title }}
+                  />
+                  <div 
+                    className="serif-italic text-xl md:text-4xl text-gray-400 italic whitespace-pre-wrap"
+                    dangerouslySetInnerHTML={{ __html: selectedProject.subtitle }}
+                  />
                 </div>
 
                 {/* Main Image Section */}
                 <div className="aspect-[16/9] bg-gray-50 mb-20 overflow-hidden border border-gray-100">
                   <img 
                     src={selectedProject.imageUrl || `https://picsum.photos/seed/${selectedProject.id}-detail/1200/800`} 
-                    alt={selectedProject.title}
+                    alt="Project Detail"
                     className="w-full h-full object-cover"
                     referrerPolicy="no-referrer"
                   />
@@ -480,16 +517,16 @@ export default function App() {
                     <div className="md:col-span-4 space-y-10">
                       <div className="flex flex-col">
                         <h4 className="text-[10px] uppercase text-gray-300 font-black block mb-4 italic">Project Info</h4>
-                        <span className="text-2xl font-bold italic text-gray-400 leading-none">{selectedProject.tags[0]} / {selectedProject.period}</span>
+                        <span className="text-xl md:text-2xl font-bold italic text-gray-400 leading-none">{selectedProject.tags[0]} / {selectedProject.period}</span>
                       </div>
                       <div className="grid grid-cols-2 gap-8">
                         <div>
                           <h4 className="text-[10px] uppercase text-gray-300 font-black block mb-4 italic">Timeline</h4>
-                          <span className="text-xl font-bold leading-none">{selectedProject.period}</span>
+                          <span className="text-lg md:text-xl font-bold leading-none">{selectedProject.period}</span>
                         </div>
                         <div>
                           <h4 className="text-[10px] uppercase text-gray-300 font-black block mb-4 italic">Category</h4>
-                          <span className="text-xl font-bold uppercase leading-none">{selectedProject.category}</span>
+                          <span className="text-lg md:text-xl font-bold uppercase leading-none">{selectedProject.category}</span>
                         </div>
                       </div>
                       <div>
@@ -504,10 +541,10 @@ export default function App() {
                     
                     <div className="md:col-span-8">
                       <h4 className="text-[10px] uppercase text-gray-300 font-black mb-4 italic">Project Overview</h4>
-                      <div className="text-gray-700 leading-relaxed text-xl font-light space-y-8 text-justify break-keep">
-                        <p>{selectedProject.description}</p>
+                      <div className="text-gray-700 leading-relaxed text-xl font-light space-y-8 text-justify break-keep whitespace-pre-wrap">
+                        <div dangerouslySetInnerHTML={{ __html: selectedProject.description }} />
                         {selectedProject.details?.map((detail, idx) => (
-                          <p key={idx}>{detail}</p>
+                          <div key={idx} dangerouslySetInnerHTML={{ __html: detail }} />
                         ))}
                       </div>
                     </div>
@@ -660,11 +697,17 @@ export default function App() {
                         <span key={t} className="border border-black px-2 py-1 text-[10px] font-black uppercase tracking-widest italic">{t}</span>
                       ))}
                     </div>
-                    <h2 className="serif text-5xl md:text-8xl font-black uppercase leading-[0.85] tracking-tighter mb-8">{selectedFestival.title}</h2>
-                    <p className="serif-italic text-2xl md:text-3xl text-gray-400 mb-20 italic">{selectedFestival.sub}</p>
+                    <h2 
+                      className="serif text-3xl md:text-8xl font-black uppercase leading-[0.85] tracking-tighter mb-8 whitespace-pre-wrap"
+                      dangerouslySetInnerHTML={{ __html: selectedFestival.title }}
+                    />
+                    <div 
+                      className="serif-italic text-xl md:text-3xl text-gray-400 mb-20 italic whitespace-pre-wrap"
+                      dangerouslySetInnerHTML={{ __html: selectedFestival.sub }}
+                    />
                     <div className="grid grid-cols-2 gap-8 py-10 border-t border-gray-100">
-                      <div><span className="text-[10px] uppercase text-gray-300 font-black block mb-2 italic">Timeline</span><span className="text-xl font-bold">{selectedFestival.period || '-'}</span></div>
-                      <div><span className="text-[10px] uppercase text-gray-300 font-black block mb-2 italic">Type</span><span className="text-xl font-bold uppercase">Festival / Event</span></div>
+                      <div><span className="text-[10px] uppercase text-gray-300 font-black block mb-2 italic">Timeline</span><span className="text-lg md:text-xl font-bold">{selectedFestival.period || '-'}</span></div>
+                      <div><span className="text-[10px] uppercase text-gray-300 font-black block mb-2 italic">Location</span><span className="text-lg md:text-xl font-bold uppercase">{selectedFestival.location || 'SEOUL, KOREA'}</span></div>
                     </div>
                   </div>
                   <div className="md:col-span-7">
@@ -678,10 +721,122 @@ export default function App() {
                     </div>
                     <div className="max-w-xl">
                       <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 pb-4 border-b italic">Festival Overview</h4>
-                      <div className="text-gray-700 leading-relaxed text-xl font-light space-y-10 text-justify">{selectedFestival.description || '상세 설명이 준비 중입니다.'}</div>
+                      <div 
+                        className="text-gray-700 leading-relaxed text-xl font-light space-y-10 text-justify whitespace-pre-wrap"
+                        dangerouslySetInnerHTML={{ __html: selectedFestival.description || '상세 설명이 준비 중입니다.' }}
+                      />
                     </div>
                   </div>
                 </div>
+
+                {/* Additional Details */}
+                {selectedFestival.details && selectedFestival.details.length > 0 && (
+                  <div className="pt-32 border-t border-gray-100 mb-32">
+                    <div className="grid md:grid-cols-12 gap-12">
+                      <div className="md:col-span-4">
+                        <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">Project Details</h4>
+                      </div>
+                      <div className="md:col-span-8">
+                        <div className="space-y-12">
+                          {selectedFestival.details.map((detail, idx) => (
+                            <div key={idx} className="text-xl md:text-2xl font-light leading-relaxed text-gray-600" dangerouslySetInnerHTML={{ __html: detail }} />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Detailed Image Sections */}
+                {selectedFestival.completedImages && selectedFestival.completedImages.length > 0 && (
+                  <div className="pt-16 border-t border-gray-100 mb-24">
+                    <div className="grid md:grid-cols-12 gap-12">
+                      <div className="md:col-span-4">
+                        <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">Completed Photos (준공 사진)</h4>
+                      </div>
+                      <div className="md:col-span-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {selectedFestival.completedImages.map((img, idx) => (
+                            <div key={idx} className="aspect-square bg-gray-50 overflow-hidden border border-gray-100">
+                              <img 
+                                src={img} 
+                                alt={`${selectedFestival.title} completed ${idx + 1}`}
+                                className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                                referrerPolicy="no-referrer"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {selectedFestival.design2DImages && selectedFestival.design2DImages.length > 0 && (
+                  <div className="pt-16 border-t border-gray-100 mb-24">
+                    <div className="grid md:grid-cols-12 gap-12">
+                      <div className="md:col-span-4">
+                        <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">2D Designs (2D 시안)</h4>
+                      </div>
+                      <div className="md:col-span-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {selectedFestival.design2DImages.map((img, idx) => (
+                            <div key={idx} className="aspect-square bg-gray-50 overflow-hidden border border-gray-100">
+                              <img 
+                                src={img} 
+                                alt={`${selectedFestival.title} 2d design ${idx + 1}`}
+                                className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                                referrerPolicy="no-referrer"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {selectedFestival.design3DImages && selectedFestival.design3DImages.length > 0 && (
+                  <div className="pt-16 border-t border-gray-100 mb-24">
+                    <div className="grid md:grid-cols-12 gap-12">
+                      <div className="md:col-span-4">
+                        <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">3D Designs (3D 시안)</h4>
+                      </div>
+                      <div className="md:col-span-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {selectedFestival.design3DImages.map((img, idx) => (
+                            <div key={idx} className="aspect-square bg-gray-50 overflow-hidden border border-gray-100">
+                              <img 
+                                src={img} 
+                                alt={`${selectedFestival.title} 3d design ${idx + 1}`}
+                                className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                                referrerPolicy="no-referrer"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {selectedFestival.detailImages && selectedFestival.detailImages.length > 0 && (
+                  <div className="pt-20 border-t border-gray-100">
+                    <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">Process & Details</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {selectedFestival.detailImages.map((img, idx) => (
+                        <div key={idx} className="aspect-square bg-gray-50 overflow-hidden border border-gray-100">
+                          <img 
+                            src={img} 
+                            alt={`${selectedFestival.title} detail ${idx + 1}`}
+                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                            referrerPolicy="no-referrer"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </motion.div>
           )}
@@ -689,23 +844,8 @@ export default function App() {
 
         {/* Contact */}
         <footer id="contact" className="py-40 px-6 bg-white border-t border-gray-100">
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-center md:text-left">
-            <div>
-              <h2 className="text-6xl font-black tracking-tighter mb-4 uppercase">Contact.</h2>
-              <p className="serif-italic text-2xl text-gray-400 mb-8 italic">공간에 디자인 가치를 더합니다.</p>
-            </div>
-            <div className="md:text-right">
-              <p className="text-3xl font-black mb-2 tracking-tighter">{about.phone}</p>
-              <p className="text-xl text-gray-400 font-medium serif-italic mb-8">{about.email}</p>
-              <div className="flex items-center justify-center md:justify-end gap-6">
-                {about.social?.instagram && <a href={about.social.instagram} className="text-gray-300 hover:text-black transition"><i className="fa-brands fa-instagram text-xl"></i></a>}
-                {about.social?.behance && <a href={about.social.behance} className="text-gray-300 hover:text-black transition"><i className="fa-brands fa-behance text-xl"></i></a>}
-                {about.social?.notion && <a href={about.social.notion} className="text-gray-300 hover:text-black transition"><i className="fa-solid fa-note-sticky text-xl"></i></a>}
-              </div>
-            </div>
-          </div>
           <div className="max-w-7xl mx-auto mt-20 pt-8 border-t border-gray-50 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">© 2026 {about.name}. All Rights Reserved.</p>
+            <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">© 2026 <span dangerouslySetInnerHTML={{ __html: about.name }} />. All Rights Reserved.</p>
             <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">Designed for Spatial & Graphic Experience</p>
           </div>
         </footer>

@@ -20,6 +20,7 @@ export const INITIAL_ABOUT: AboutInfo = {
   experiences: [
     { id: 'exp1', company: "콜링씨앤디 (Calling C&D)", period: "2026.03 - 현재" },
     { id: 'exp2', company: "더가꿈 (The Gakkum)", period: "2025.11 - 2026.01" },
+    { id: 'exp_sid', company: "SID연구소", period: "2024.03 - 2024.11" },
     { id: 'exp3', company: "Wrecking Ball Art Community", period: "2022.07 - 2023.10", opacity: 70 },
     { id: 'exp4', company: "Raon Design Lab", period: "2019.10 - 2020.06", opacity: 70 },
     { id: 'exp5', company: "Dongmyung University", period: "2015.03 - 2019.02 Graduation", opacity: 50 },

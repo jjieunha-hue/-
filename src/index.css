@@ -17,6 +17,25 @@
   body {
     @apply font-sans bg-white text-[#1a1a1a] antialiased;
   }
+
+  /* Quill Font Families */
+  .ql-font-pretendard { font-family: 'Pretendard', sans-serif; }
+  .ql-font-notosanskr { font-family: 'Noto Sans KR', sans-serif; }
+  .ql-font-nanummyeongjo { font-family: 'Nanum Myeongjo', serif; }
+  .ql-font-playfair { font-family: 'Playfair Display', serif; }
+
+  /* Quill Font Sizes */
+  .ql-size-10px { font-size: 10px; }
+  .ql-size-12px { font-size: 12px; }
+  .ql-size-14px { font-size: 14px; }
+  .ql-size-16px { font-size: 16px; }
+  .ql-size-18px { font-size: 18px; }
+  .ql-size-20px { font-size: 20px; }
+  .ql-size-24px { font-size: 24px; }
+  .ql-size-30px { font-size: 30px; }
+  .ql-size-36px { font-size: 36px; }
+  .ql-size-48px { font-size: 48px; }
+  .ql-size-64px { font-size: 64px; }
 }
 
 @layer utilities {
@@ -24,7 +43,7 @@
   .serif-italic { font-family: var(--font-serif); font-style: italic; }
   
   .section-title {
-    @apply text-[3rem] font-[900] tracking-[-0.05em] border-b-2 border-black inline-block mb-8;
+    @apply text-4xl md:text-[3rem] font-[900] tracking-[-0.05em] border-b-2 border-black inline-block mb-8;
   }
 
   .nav-link {

@@ -3,11 +3,23 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Project, FestivalItem, AboutInfo } from '../types';
 import { usePortfolioData } from '../hooks';
 import { auth } from '../firebase';
 import { X, Save, Plus, Trash2, LogOut, Settings, Upload, Loader2 } from 'lucide-react';
+import RichTextEditor from './RichTextEditor';
+
+const convertGoogleDriveLink = (url: string) => {
+  if (!url) return '';
+  if (url.includes('drive.google.com')) {
+    const idMatch = url.match(/\/d\/(.+?)\//) || url.match(/id=(.+?)(&|$)/);
+    if (idMatch && idMatch[1]) {
+      return `https://docs.google.com/uc?export=view&id=${idMatch[1]}`;
+    }
+  }
+  return url;
+};
 
 interface AdminPanelProps {
   onClose: () => void;
@@ -15,7 +27,12 @@ interface AdminPanelProps {
 
 export default function AdminPanel({ onClose }: AdminPanelProps) {
   const { about, projects, festivals, updateAbout, updateProject, updateFestival, logout, uploadImage } = usePortfolioData();
-  const [activeTab, setActiveTab] = useState<'about' | 'projects' | 'festivals'>('about');
+  const [activeTab, setActiveTab] = useState<'about' | 'environmental' | 'interior' | 'others' | 'festivals'>('about');
+  const [aboutState, setAboutState] = useState<AboutInfo>(about);
+
+  useEffect(() => {
+    setAboutState(about);
+  }, [about]);
 
   const handleSyncProjects = async () => {
     if (confirm('모든 프로젝트 데이터를 초기 데이터(constants.ts)로 덮어쓰시겠습니까?')) {
@@ -27,25 +44,26 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
     }
   };
 
-  const handleUpdateAbout = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleUpdateAbout = (e: React.FormEvent) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const updatedAbout: AboutInfo = {
-      ...about,
-      name: formData.get('name') as string,
-      title: formData.get('title') as string,
-      highlight: formData.get('highlight') as string,
-      description: formData.get('description') as string,
-      phone: formData.get('phone') as string,
-      email: formData.get('email') as string,
-      social: {
-        instagram: formData.get('instagram') as string,
-        behance: formData.get('behance') as string,
-        notion: formData.get('notion') as string,
-      }
-    };
-    updateAbout(updatedAbout);
+    updateAbout(aboutState);
     alert('저장되었습니다.');
+  };
+
+  const addExperience = () => {
+    const newExp = { id: `exp_${Date.now()}`, company: 'New Experience', period: '2024.01 - 2024.12' };
+    setAboutState({ ...aboutState, experiences: [...aboutState.experiences, newExp] });
+  };
+
+  const removeExperience = (id: string) => {
+    setAboutState({ ...aboutState, experiences: aboutState.experiences.filter(e => e.id !== id) });
+  };
+
+  const updateExperience = (id: string, field: string, value: any) => {
+    setAboutState({
+      ...aboutState,
+      experiences: aboutState.experiences.map(e => e.id === id ? { ...e, [field]: value } : e)
+    });
   };
 
   return (
@@ -69,9 +87,9 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
           </div>
         </div>
 
-        <div className="flex gap-8 mb-12 border-b border-gray-100 items-center justify-between">
-          <div className="flex gap-8">
-            {(['about', 'projects', 'festivals'] as const).map((tab) => (
+        <div className="flex gap-8 mb-12 border-b border-gray-100 items-center justify-between overflow-x-auto">
+          <div className="flex gap-8 whitespace-nowrap">
+            {(['about', 'environmental', 'interior', 'others', 'festivals'] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -83,7 +101,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
               </button>
             ))}
           </div>
-          {activeTab === 'projects' && (
+          {(activeTab === 'environmental' || activeTab === 'interior' || activeTab === 'others') && (
             <button 
               onClick={handleSyncProjects}
               className="mb-4 text-[10px] font-black uppercase bg-gray-100 px-3 py-1 hover:bg-black hover:text-white transition"
@@ -98,43 +116,95 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
             <div className="grid grid-cols-2 gap-8">
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Name</label>
-                <input name="name" defaultValue={about.name} className="w-full p-4 border border-gray-100 focus:border-black outline-none font-bold" />
+                <RichTextEditor value={aboutState.name} onChange={(val) => setAboutState({...aboutState, name: val})} />
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Title</label>
-                <input name="title" defaultValue={about.title} className="w-full p-4 border border-gray-100 focus:border-black outline-none font-bold" />
+                <RichTextEditor value={aboutState.title} onChange={(val) => setAboutState({...aboutState, title: val})} />
               </div>
             </div>
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Highlight</label>
-              <textarea name="highlight" defaultValue={about.highlight} rows={2} className="w-full p-4 border border-gray-100 focus:border-black outline-none font-bold" />
+              <RichTextEditor value={aboutState.highlight} onChange={(val) => setAboutState({...aboutState, highlight: val})} />
             </div>
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description</label>
-              <textarea name="description" defaultValue={about.description} rows={5} className="w-full p-4 border border-gray-100 focus:border-black outline-none font-light leading-relaxed" />
+              <RichTextEditor value={aboutState.description} onChange={(val) => setAboutState({...aboutState, description: val})} />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-8">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Environmental Category Title</label>
+                <RichTextEditor value={aboutState.environmentalTitle || 'ENVIRONMENTAL'} onChange={(val) => setAboutState({...aboutState, environmentalTitle: val})} />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Interior Category Title</label>
+                <RichTextEditor value={aboutState.interiorTitle || 'INTERIOR'} onChange={(val) => setAboutState({...aboutState, interiorTitle: val})} />
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-8">
               <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Others Category Title</label>
+                <RichTextEditor value={aboutState.othersTitle || 'OTHERS'} onChange={(val) => setAboutState({...aboutState, othersTitle: val})} />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Festival Category Title</label>
+                <RichTextEditor value={aboutState.festivalTitle || 'FESTIVAL'} onChange={(val) => setAboutState({...aboutState, festivalTitle: val})} />
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Experience Timeline</label>
+                <button type="button" onClick={addExperience} className="text-[10px] font-black uppercase bg-gray-100 px-2 py-1 flex items-center gap-1">
+                  <Plus className="w-3 h-3" /> Add
+                </button>
+              </div>
+              <div className="space-y-2">
+                {aboutState.experiences.map((exp) => (
+                  <div key={exp.id} className="flex gap-4 items-center bg-gray-50 p-2 border border-gray-100">
+                    <input 
+                      value={exp.company} 
+                      onChange={(e) => updateExperience(exp.id, 'company', e.target.value)} 
+                      className="flex-1 p-2 bg-white border border-gray-100 outline-none text-sm font-bold"
+                      placeholder="Company Name"
+                    />
+                    <input 
+                      value={exp.period} 
+                      onChange={(e) => updateExperience(exp.id, 'period', e.target.value)} 
+                      className="w-40 p-2 bg-white border border-gray-100 outline-none text-xs"
+                      placeholder="Period"
+                    />
+                    <button type="button" onClick={() => removeExperience(exp.id)} className="p-2 text-red-500 hover:bg-red-50">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-8">
+              <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Phone</label>
-                <input name="phone" defaultValue={about.phone} className="w-full p-4 border border-gray-100 focus:border-black outline-none font-bold" />
+                <input value={aboutState.phone} onChange={(e) => setAboutState({...aboutState, phone: e.target.value})} className="w-full p-4 border border-gray-100 focus:border-black outline-none font-bold" />
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Email</label>
-                <input name="email" defaultValue={about.email} className="w-full p-4 border border-gray-100 focus:border-black outline-none font-bold" />
+                <input value={aboutState.email} onChange={(e) => setAboutState({...aboutState, email: e.target.value})} className="w-full p-4 border border-gray-100 focus:border-black outline-none font-bold" />
               </div>
             </div>
             <div className="grid grid-cols-3 gap-8">
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Instagram</label>
-                <input name="instagram" defaultValue={about.social?.instagram} className="w-full p-4 border border-gray-100 focus:border-black outline-none font-bold" />
+                <input value={aboutState.social?.instagram || ''} onChange={(e) => setAboutState({...aboutState, social: {...aboutState.social, instagram: e.target.value}})} className="w-full p-4 border border-gray-100 focus:border-black outline-none font-bold" />
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Behance</label>
-                <input name="behance" defaultValue={about.social?.behance} className="w-full p-4 border border-gray-100 focus:border-black outline-none font-bold" />
+                <input value={aboutState.social?.behance || ''} onChange={(e) => setAboutState({...aboutState, social: {...aboutState.social, behance: e.target.value}})} className="w-full p-4 border border-gray-100 focus:border-black outline-none font-bold" />
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Notion</label>
-                <input name="notion" defaultValue={about.social?.notion} className="w-full p-4 border border-gray-100 focus:border-black outline-none font-bold" />
+                <input value={aboutState.social?.notion || ''} onChange={(e) => setAboutState({...aboutState, social: {...aboutState.social, notion: e.target.value}})} className="w-full p-4 border border-gray-100 focus:border-black outline-none font-bold" />
               </div>
             </div>
             <button type="submit" className="w-full py-4 bg-black text-white font-bold uppercase tracking-widest flex items-center justify-center gap-2">
@@ -143,9 +213,9 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
           </form>
         )}
 
-        {activeTab === 'projects' && (
+        {(activeTab === 'environmental' || activeTab === 'interior' || activeTab === 'others') && (
           <div className="space-y-12">
-            {projects.map((project) => (
+            {projects.filter(p => p.category === activeTab).map((project) => (
               <ProjectEditor key={project.id} project={project} onSave={updateProject} />
             ))}
           </div>
@@ -164,7 +234,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
 }
 
 function ImageUpload({ onUpload, label, multiple = false }: { onUpload: (url: string) => void, label: string, multiple?: boolean }) {
-  const { uploadImage } = usePortfolioData();
+  const { uploadImage, login } = usePortfolioData();
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
 
@@ -173,7 +243,9 @@ function ImageUpload({ onUpload, label, multiple = false }: { onUpload: (url: st
     if (!files || files.length === 0) return;
 
     if (!auth.currentUser) {
-      alert("로그인이 필요합니다.");
+      if (confirm("이미지 업로드를 위해 구글 로그인이 필요합니다. 로그인 하시겠습니까?")) {
+        login();
+      }
       return;
     }
 
@@ -262,21 +334,51 @@ function ProjectEditor({ project, onSave }: { project: Project, onSave: (p: Proj
           )}
         </div>
       </div>
+      <div className="grid grid-cols-3 gap-4">
+        <div className="space-y-1">
+          <label className="text-[10px] font-black uppercase text-gray-300 italic">Timeline (Period)</label>
+          <input 
+            value={localProject.period} 
+            onChange={(e) => setLocalProject({ ...localProject, period: e.target.value })}
+            className="w-full p-2 border border-gray-50 outline-none focus:border-black text-sm"
+            placeholder="e.g. 2024.10"
+          />
+        </div>
+        <div className="space-y-1">
+          <label className="text-[10px] font-black uppercase text-gray-300 italic">Category</label>
+          <select 
+            value={localProject.category} 
+            onChange={(e) => setLocalProject({ ...localProject, category: e.target.value as any })}
+            className="w-full p-2 border border-gray-50 outline-none focus:border-black text-sm font-bold uppercase"
+          >
+            <option value="environmental">Environmental</option>
+            <option value="interior">Interior</option>
+            <option value="others">Others</option>
+          </select>
+        </div>
+        <div className="space-y-1">
+          <label className="text-[10px] font-black uppercase text-gray-300 italic">Tags (comma separated)</label>
+          <input 
+            value={localProject.tags.join(', ')} 
+            onChange={(e) => setLocalProject({ ...localProject, tags: e.target.value.split(',').map(t => t.trim()).filter(Boolean) })}
+            className="w-full p-2 border border-gray-50 outline-none focus:border-black text-sm"
+            placeholder="Public Design, Landscape..."
+          />
+        </div>
+      </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1">
           <label className="text-[10px] font-black uppercase text-gray-300 italic">Title</label>
-          <input 
+          <RichTextEditor 
             value={localProject.title} 
-            onChange={(e) => setLocalProject({ ...localProject, title: e.target.value })}
-            className="w-full p-2 border border-gray-50 outline-none focus:border-black text-sm font-bold"
+            onChange={(val) => setLocalProject({ ...localProject, title: val })}
           />
         </div>
         <div className="space-y-1">
           <label className="text-[10px] font-black uppercase text-gray-300 italic">Subtitle</label>
-          <input 
+          <RichTextEditor 
             value={localProject.subtitle} 
-            onChange={(e) => setLocalProject({ ...localProject, subtitle: e.target.value })}
-            className="w-full p-2 border border-gray-50 outline-none focus:border-black text-sm"
+            onChange={(val) => setLocalProject({ ...localProject, subtitle: val })}
           />
         </div>
       </div>
@@ -285,7 +387,7 @@ function ProjectEditor({ project, onSave }: { project: Project, onSave: (p: Proj
         <div className="flex gap-4">
           <input 
             value={localProject.imageUrl || ''} 
-            onChange={(e) => setLocalProject({ ...localProject, imageUrl: e.target.value })}
+            onChange={(e) => setLocalProject({ ...localProject, imageUrl: convertGoogleDriveLink(e.target.value) })}
             className="flex-1 p-2 border border-gray-50 outline-none focus:border-black text-sm"
             placeholder="Main image URL"
           />
@@ -297,21 +399,16 @@ function ProjectEditor({ project, onSave }: { project: Project, onSave: (p: Proj
       </div>
       <div className="space-y-1">
         <label className="text-[10px] font-black uppercase text-gray-300 italic">Short Description</label>
-        <textarea 
+        <RichTextEditor 
           value={localProject.description} 
-          onChange={(e) => setLocalProject({ ...localProject, description: e.target.value })}
-          className="w-full p-2 border border-gray-50 outline-none focus:border-black text-sm font-light"
-          rows={2}
+          onChange={(val) => setLocalProject({ ...localProject, description: val })}
         />
       </div>
       <div className="space-y-1">
         <label className="text-[10px] font-black uppercase text-gray-300 italic">Detailed Paragraphs (one per line)</label>
-        <textarea 
-          value={localProject.details?.join('\n') || ''} 
-          onChange={(e) => setLocalProject({ ...localProject, details: e.target.value.split('\n').filter(l => l.trim()) })}
-          className="w-full p-2 border border-gray-50 outline-none focus:border-black text-sm font-light"
-          rows={4}
-          placeholder="Detailed description paragraphs..."
+        <RichTextEditor 
+          value={localProject.details?.join('<br>') || ''} 
+          onChange={(val) => setLocalProject({ ...localProject, details: [val] })}
         />
       </div>
       <div className="space-y-1">
@@ -319,7 +416,7 @@ function ProjectEditor({ project, onSave }: { project: Project, onSave: (p: Proj
         <div className="flex gap-4">
           <textarea 
             value={localProject.completedImages?.join('\n') || ''} 
-            onChange={(e) => setLocalProject({ ...localProject, completedImages: e.target.value.split('\n').filter(l => l.trim()) })}
+            onChange={(e) => setLocalProject({ ...localProject, completedImages: e.target.value.split('\n').map(l => convertGoogleDriveLink(l.trim())).filter(Boolean) })}
             className="flex-1 p-2 border border-gray-50 outline-none focus:border-black text-sm font-light"
             rows={6}
             placeholder="Completed photo URLs..."
@@ -339,7 +436,7 @@ function ProjectEditor({ project, onSave }: { project: Project, onSave: (p: Proj
         <div className="flex gap-4">
           <textarea 
             value={localProject.design2DImages?.join('\n') || ''} 
-            onChange={(e) => setLocalProject({ ...localProject, design2DImages: e.target.value.split('\n').filter(l => l.trim()) })}
+            onChange={(e) => setLocalProject({ ...localProject, design2DImages: e.target.value.split('\n').map(l => convertGoogleDriveLink(l.trim())).filter(Boolean) })}
             className="flex-1 p-2 border border-gray-50 outline-none focus:border-black text-sm font-light"
             rows={4}
             placeholder="2D design URLs..."
@@ -359,7 +456,7 @@ function ProjectEditor({ project, onSave }: { project: Project, onSave: (p: Proj
         <div className="flex gap-4">
           <textarea 
             value={localProject.design3DImages?.join('\n') || ''} 
-            onChange={(e) => setLocalProject({ ...localProject, design3DImages: e.target.value.split('\n').filter(l => l.trim()) })}
+            onChange={(e) => setLocalProject({ ...localProject, design3DImages: e.target.value.split('\n').map(l => convertGoogleDriveLink(l.trim())).filter(Boolean) })}
             className="flex-1 p-2 border border-gray-50 outline-none focus:border-black text-sm font-light"
             rows={4}
             placeholder="3D design URLs..."
@@ -379,7 +476,7 @@ function ProjectEditor({ project, onSave }: { project: Project, onSave: (p: Proj
         <div className="flex gap-4">
           <textarea 
             value={localProject.detailImages?.join('\n') || ''} 
-            onChange={(e) => setLocalProject({ ...localProject, detailImages: e.target.value.split('\n').filter(l => l.trim()) })}
+            onChange={(e) => setLocalProject({ ...localProject, detailImages: e.target.value.split('\n').map(l => convertGoogleDriveLink(l.trim())).filter(Boolean) })}
             className="flex-1 p-2 border border-gray-50 outline-none focus:border-black text-sm font-light"
             rows={4}
             placeholder="Additional image URLs..."
@@ -421,27 +518,25 @@ function FestivalEditor({ festival, onSave }: { festival: FestivalItem, onSave: 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Title</label>
-          <input 
+          <RichTextEditor 
             value={localFestival.title} 
-            onChange={(e) => setLocalFestival({ ...localFestival, title: e.target.value })}
-            className="w-full p-2 border border-gray-50 outline-none focus:border-black text-sm font-bold"
+            onChange={(val) => setLocalFestival({ ...localFestival, title: val })}
           />
         </div>
         <div className="space-y-2">
           <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Subtitle</label>
-          <input 
+          <RichTextEditor 
             value={localFestival.sub} 
-            onChange={(e) => setLocalFestival({ ...localFestival, sub: e.target.value })}
-            className="w-full p-2 border border-gray-50 outline-none focus:border-black text-sm text-gray-400"
+            onChange={(val) => setLocalFestival({ ...localFestival, sub: val })}
           />
         </div>
       </div>
       <div className="space-y-2">
-        <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Image URL</label>
+        <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Main Image URL</label>
         <div className="flex gap-4">
           <input 
             value={localFestival.imageUrl || ''} 
-            onChange={(e) => setLocalFestival({ ...localFestival, imageUrl: e.target.value })}
+            onChange={(e) => setLocalFestival({ ...localFestival, imageUrl: convertGoogleDriveLink(e.target.value) })}
             className="flex-1 p-2 border border-gray-50 outline-none focus:border-black text-sm"
             placeholder="Festival image URL"
           />
@@ -451,23 +546,38 @@ function FestivalEditor({ festival, onSave }: { festival: FestivalItem, onSave: 
           />
         </div>
       </div>
-      <div className="space-y-2">
-        <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Timeline</label>
-        <input 
-          value={localFestival.period || ''} 
-          onChange={(e) => setLocalFestival({ ...localFestival, period: e.target.value })}
-          className="w-full p-2 border border-gray-50 outline-none focus:border-black text-sm"
-          placeholder="e.g. 2023.05"
-        />
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Location</label>
+          <input 
+            value={localFestival.location || ''} 
+            onChange={(e) => setLocalFestival({ ...localFestival, location: e.target.value })}
+            className="w-full p-2 border border-gray-50 outline-none focus:border-black text-sm"
+            placeholder="e.g. Seoul, Korea"
+          />
+        </div>
+        <div className="space-y-2">
+          <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Timeline</label>
+          <input 
+            value={localFestival.period || ''} 
+            onChange={(e) => setLocalFestival({ ...localFestival, period: e.target.value })}
+            className="w-full p-2 border border-gray-50 outline-none focus:border-black text-sm"
+            placeholder="e.g. 2023.05"
+          />
+        </div>
       </div>
       <div className="space-y-2">
         <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description</label>
-        <textarea 
+        <RichTextEditor 
           value={localFestival.description || ''} 
-          onChange={(e) => setLocalFestival({ ...localFestival, description: e.target.value })}
-          className="w-full p-2 border border-gray-50 outline-none focus:border-black text-sm font-light"
-          rows={3}
-          placeholder="Festival description..."
+          onChange={(val) => setLocalFestival({ ...localFestival, description: val })}
+        />
+      </div>
+      <div className="space-y-2">
+        <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Detailed Paragraphs (one per line)</label>
+        <RichTextEditor 
+          value={localFestival.details?.join('<br>') || ''} 
+          onChange={(val) => setLocalFestival({ ...localFestival, details: [val] })}
         />
       </div>
       <div className="space-y-2">
@@ -478,6 +588,86 @@ function FestivalEditor({ festival, onSave }: { festival: FestivalItem, onSave: 
           className="w-full p-2 border border-gray-50 outline-none focus:border-black text-sm"
           placeholder="Branding, Festival, 2023"
         />
+      </div>
+      <div className="space-y-1">
+        <label className="text-[10px] font-black uppercase text-gray-300 italic">Completed Photos (one per line)</label>
+        <div className="flex gap-4">
+          <textarea 
+            value={localFestival.completedImages?.join('\n') || ''} 
+            onChange={(e) => setLocalFestival({ ...localFestival, completedImages: e.target.value.split('\n').map(l => convertGoogleDriveLink(l.trim())).filter(Boolean) })}
+            className="flex-1 p-2 border border-gray-50 outline-none focus:border-black text-sm font-light"
+            rows={4}
+            placeholder="Completed photo URLs..."
+          />
+          <ImageUpload 
+            label="Add Photo" 
+            multiple={true}
+            onUpload={(url) => setLocalFestival(prev => ({ 
+              ...prev, 
+              completedImages: [...(prev.completedImages || []), url] 
+            }))} 
+          />
+        </div>
+      </div>
+      <div className="space-y-1">
+        <label className="text-[10px] font-black uppercase text-gray-300 italic">2D Designs (one per line)</label>
+        <div className="flex gap-4">
+          <textarea 
+            value={localFestival.design2DImages?.join('\n') || ''} 
+            onChange={(e) => setLocalFestival({ ...localFestival, design2DImages: e.target.value.split('\n').map(l => convertGoogleDriveLink(l.trim())).filter(Boolean) })}
+            className="flex-1 p-2 border border-gray-50 outline-none focus:border-black text-sm font-light"
+            rows={4}
+            placeholder="2D design URLs..."
+          />
+          <ImageUpload 
+            label="Add 2D" 
+            multiple={true}
+            onUpload={(url) => setLocalFestival(prev => ({ 
+              ...prev, 
+              design2DImages: [...(prev.design2DImages || []), url] 
+            }))} 
+          />
+        </div>
+      </div>
+      <div className="space-y-1">
+        <label className="text-[10px] font-black uppercase text-gray-300 italic">3D Designs (one per line)</label>
+        <div className="flex gap-4">
+          <textarea 
+            value={localFestival.design3DImages?.join('\n') || ''} 
+            onChange={(e) => setLocalFestival({ ...localFestival, design3DImages: e.target.value.split('\n').map(l => convertGoogleDriveLink(l.trim())).filter(Boolean) })}
+            className="flex-1 p-2 border border-gray-50 outline-none focus:border-black text-sm font-light"
+            rows={4}
+            placeholder="3D design URLs..."
+          />
+          <ImageUpload 
+            label="Add 3D" 
+            multiple={true}
+            onUpload={(url) => setLocalFestival(prev => ({ 
+              ...prev, 
+              design3DImages: [...(prev.design3DImages || []), url] 
+            }))} 
+          />
+        </div>
+      </div>
+      <div className="space-y-1">
+        <label className="text-[10px] font-black uppercase text-gray-300 italic">Legacy Detail Images (one per line)</label>
+        <div className="flex gap-4">
+          <textarea 
+            value={localFestival.detailImages?.join('\n') || ''} 
+            onChange={(e) => setLocalFestival({ ...localFestival, detailImages: e.target.value.split('\n').map(l => convertGoogleDriveLink(l.trim())).filter(Boolean) })}
+            className="flex-1 p-2 border border-gray-50 outline-none focus:border-black text-sm font-light"
+            rows={4}
+            placeholder="Additional image URLs..."
+          />
+          <ImageUpload 
+            label="Add Image" 
+            multiple={true}
+            onUpload={(url) => setLocalFestival(prev => ({ 
+              ...prev, 
+              detailImages: [...(prev.detailImages || []), url] 
+            }))} 
+          />
+        </div>
       </div>
     </div>
   );
