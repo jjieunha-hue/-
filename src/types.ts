@@ -8,10 +8,13 @@ export interface Project {
   title: string;
   subtitle: string;
   period: string;
+  periodRich?: string;
   description: string;
   details?: string[]; // Multiple paragraphs or bullet points
   tags: string[];
+  tagsRich?: string;
   category: 'environmental' | 'interior' | 'others';
+  categoryRich?: string;
   imageUrl?: string;
   detailImages?: string[];
   completedImages?: string[];
@@ -31,9 +34,13 @@ export interface FestivalItem {
   description?: string;
   details?: string[];
   period?: string;
+  periodRich?: string;
+  categoryRich?: string;
   tags?: string[];
+  tagsRich?: string;
   imageUrl?: string;
   completedImages?: string[];
+  designImages?: string[];
   design2DImages?: string[];
   design3DImages?: string[];
   detailImages?: string[];

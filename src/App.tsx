@@ -512,30 +512,46 @@ export default function App() {
                 </div>
 
                 {/* Info & Overview Section */}
-                <div className="mb-24 w-full">
-                  <div className="grid md:grid-cols-12 gap-12 border-t border-gray-100 pt-16">
-                    <div className="md:col-span-4 space-y-10">
+                <div className="mb-16 w-full">
+                  <div className="grid md:grid-cols-12 gap-12 border-t border-gray-100 pt-10">
+                    <div className="md:col-span-4 space-y-6">
                       <div className="flex flex-col">
                         <h4 className="text-[10px] uppercase text-gray-300 font-black block mb-4 italic">Project Info</h4>
-                        <span className="text-xl md:text-2xl font-bold italic text-gray-400 leading-none">{selectedProject.tags[0]} / {selectedProject.period}</span>
+                        <div 
+                          className="text-xl md:text-2xl font-bold italic text-gray-400 leading-none"
+                          dangerouslySetInnerHTML={{ __html: selectedProject.categoryRich || selectedProject.category }}
+                        />
                       </div>
                       <div className="grid grid-cols-2 gap-8">
                         <div>
                           <h4 className="text-[10px] uppercase text-gray-300 font-black block mb-4 italic">Timeline</h4>
-                          <span className="text-lg md:text-xl font-bold leading-none">{selectedProject.period}</span>
+                          <div 
+                            className="text-lg md:text-xl font-bold leading-none"
+                            dangerouslySetInnerHTML={{ __html: selectedProject.periodRich || selectedProject.period }}
+                          />
                         </div>
                         <div>
                           <h4 className="text-[10px] uppercase text-gray-300 font-black block mb-4 italic">Category</h4>
-                          <span className="text-lg md:text-xl font-bold uppercase leading-none">{selectedProject.category}</span>
+                          <div 
+                            className="text-lg md:text-xl font-bold uppercase leading-none"
+                            dangerouslySetInnerHTML={{ __html: selectedProject.categoryRich || selectedProject.category }}
+                          />
                         </div>
                       </div>
                       <div>
                         <h4 className="text-[10px] uppercase text-gray-300 font-black block mb-4 italic">Tags</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {selectedProject.tags.map(t => (
-                            <span key={t} className="text-sm font-bold uppercase tracking-tight text-gray-500">{t}</span>
-                          ))}
-                        </div>
+                        {selectedProject.tagsRich ? (
+                          <div 
+                            className="text-sm font-bold uppercase tracking-tight text-gray-500"
+                            dangerouslySetInnerHTML={{ __html: selectedProject.tagsRich }}
+                          />
+                        ) : (
+                          <div className="flex flex-wrap gap-2">
+                            {selectedProject.tags.map(t => (
+                              <span key={t} className="text-sm font-bold uppercase tracking-tight text-gray-500">{t}</span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
                     
@@ -690,62 +706,80 @@ export default function App() {
                 <X className="w-6 h-6" />
               </button>
               <div className="max-w-7xl mx-auto px-8 py-32 md:py-48">
-                <div className="grid md:grid-cols-12 gap-20">
-                  <div className="md:col-span-5">
-                    <div className="mb-12 flex flex-wrap gap-2">
-                      {selectedFestival.tags?.map(t => (
-                        <span key={t} className="border border-black px-2 py-1 text-[10px] font-black uppercase tracking-widest italic">{t}</span>
-                      ))}
+                {/* Header Section */}
+                <div className="mb-20">
+                  <h2 
+                    className="serif text-4xl md:text-9xl font-black uppercase leading-[0.85] tracking-tighter mb-8 whitespace-pre-wrap"
+                    dangerouslySetInnerHTML={{ __html: selectedFestival.title }}
+                  />
+                  <div 
+                    className="serif-italic text-xl md:text-4xl text-gray-400 italic whitespace-pre-wrap"
+                    dangerouslySetInnerHTML={{ __html: selectedFestival.sub }}
+                  />
+                </div>
+
+                {/* Main Image Section */}
+                <div className="aspect-[16/9] bg-gray-50 mb-20 overflow-hidden border border-gray-100">
+                  <img 
+                    src={selectedFestival.imageUrl || `https://picsum.photos/seed/${selectedFestival.id}-detail/1200/800`} 
+                    alt="Festival Detail"
+                    className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+
+                {/* Info & Overview Section */}
+                <div className="mb-16 w-full">
+                  <div className="grid md:grid-cols-12 gap-12 border-t border-gray-100 pt-10">
+                    <div className="md:col-span-4 space-y-6">
+                      <div className="flex flex-col">
+                        <h4 className="text-[10px] uppercase text-gray-300 font-black block mb-4 italic">Festival Info</h4>
+                        <div 
+                          className="text-xl md:text-2xl font-bold italic text-gray-400 leading-none"
+                          dangerouslySetInnerHTML={{ __html: selectedFestival.categoryRich || 'FESTIVAL' }}
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-8">
+                        <div>
+                          <h4 className="text-[10px] uppercase text-gray-300 font-black block mb-4 italic">Timeline</h4>
+                          <div 
+                            className="text-lg md:text-xl font-bold leading-none"
+                            dangerouslySetInnerHTML={{ __html: selectedFestival.periodRich || selectedFestival.period || '-' }}
+                          />
+                        </div>
+                        <div>
+                          <h4 className="text-[10px] uppercase text-gray-300 font-black block mb-4 italic">Location</h4>
+                          <span className="text-lg md:text-xl font-bold uppercase leading-none">{selectedFestival.location || 'SEOUL, KOREA'}</span>
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="text-[10px] uppercase text-gray-300 font-black block mb-4 italic">Tags</h4>
+                        {selectedFestival.tagsRich ? (
+                          <div 
+                            className="text-sm font-bold uppercase tracking-tight text-gray-500"
+                            dangerouslySetInnerHTML={{ __html: selectedFestival.tagsRich }}
+                          />
+                        ) : (
+                          <div className="flex flex-wrap gap-2">
+                            {selectedFestival.tags?.map(t => (
+                              <span key={t} className="text-sm font-bold uppercase tracking-tight text-gray-500">{t}</span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <h2 
-                      className="serif text-3xl md:text-8xl font-black uppercase leading-[0.85] tracking-tighter mb-8 whitespace-pre-wrap"
-                      dangerouslySetInnerHTML={{ __html: selectedFestival.title }}
-                    />
-                    <div 
-                      className="serif-italic text-xl md:text-3xl text-gray-400 mb-20 italic whitespace-pre-wrap"
-                      dangerouslySetInnerHTML={{ __html: selectedFestival.sub }}
-                    />
-                    <div className="grid grid-cols-2 gap-8 py-10 border-t border-gray-100">
-                      <div><span className="text-[10px] uppercase text-gray-300 font-black block mb-2 italic">Timeline</span><span className="text-lg md:text-xl font-bold">{selectedFestival.period || '-'}</span></div>
-                      <div><span className="text-[10px] uppercase text-gray-300 font-black block mb-2 italic">Location</span><span className="text-lg md:text-xl font-bold uppercase">{selectedFestival.location || 'SEOUL, KOREA'}</span></div>
-                    </div>
-                  </div>
-                  <div className="md:col-span-7">
-                    <div className="aspect-[16/10] bg-gray-50 mb-20 overflow-hidden border border-gray-100">
-                      <img 
-                        src={selectedFestival.imageUrl || `https://picsum.photos/seed/${selectedFestival.id}-detail/1200/800`} 
-                        alt={selectedFestival.title}
-                        className="w-full h-full object-cover"
-                        referrerPolicy="no-referrer"
-                      />
-                    </div>
-                    <div className="max-w-xl">
-                      <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 pb-4 border-b italic">Festival Overview</h4>
-                      <div 
-                        className="text-gray-700 leading-relaxed text-xl font-light space-y-10 text-justify whitespace-pre-wrap"
-                        dangerouslySetInnerHTML={{ __html: selectedFestival.description || '상세 설명이 준비 중입니다.' }}
-                      />
+                    
+                    <div className="md:col-span-8">
+                      <h4 className="text-[10px] uppercase text-gray-300 font-black mb-4 italic">Festival Overview</h4>
+                      <div className="text-gray-700 leading-relaxed text-xl font-light space-y-8 text-justify break-keep whitespace-pre-wrap">
+                        <div dangerouslySetInnerHTML={{ __html: selectedFestival.description || '상세 설명이 준비 중입니다.' }} />
+                        {selectedFestival.details?.map((detail, idx) => (
+                          <div key={idx} dangerouslySetInnerHTML={{ __html: detail }} />
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
-
-                {/* Additional Details */}
-                {selectedFestival.details && selectedFestival.details.length > 0 && (
-                  <div className="pt-32 border-t border-gray-100 mb-32">
-                    <div className="grid md:grid-cols-12 gap-12">
-                      <div className="md:col-span-4">
-                        <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">Project Details</h4>
-                      </div>
-                      <div className="md:col-span-8">
-                        <div className="space-y-12">
-                          {selectedFestival.details.map((detail, idx) => (
-                            <div key={idx} className="text-xl md:text-2xl font-light leading-relaxed text-gray-600" dangerouslySetInnerHTML={{ __html: detail }} />
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
 
                 {/* Detailed Image Sections */}
                 {selectedFestival.completedImages && selectedFestival.completedImages.length > 0 && (
@@ -820,6 +854,30 @@ export default function App() {
                   </div>
                 )}
 
+                {selectedFestival.designImages && selectedFestival.designImages.length > 0 && (
+                  <div className="pt-16 border-t border-gray-100 mb-24">
+                    <div className="grid md:grid-cols-12 gap-12">
+                      <div className="md:col-span-4">
+                        <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">Design Images (기타 시안)</h4>
+                      </div>
+                      <div className="md:col-span-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {selectedFestival.designImages.map((img, idx) => (
+                            <div key={idx} className="aspect-square bg-gray-50 overflow-hidden border border-gray-100">
+                              <img 
+                                src={img} 
+                                alt={`${selectedFestival.title} design ${idx + 1}`}
+                                className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                                referrerPolicy="no-referrer"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {selectedFestival.detailImages && selectedFestival.detailImages.length > 0 && (
                   <div className="pt-20 border-t border-gray-100">
                     <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">Process & Details</h4>
@@ -842,9 +900,44 @@ export default function App() {
           )}
         </AnimatePresence>
 
-        {/* Contact */}
-        <footer id="contact" className="py-40 px-6 bg-white border-t border-gray-100">
-          <div className="max-w-7xl mx-auto mt-20 pt-8 border-t border-gray-50 flex flex-col md:flex-row justify-between items-center gap-4">
+        {/* Contact Section */}
+        <section id="contact" className="py-40 px-6 bg-black text-white overflow-hidden relative">
+          <div className="max-w-7xl mx-auto relative z-10">
+            <h2 className="text-[10vw] font-black uppercase tracking-tighter leading-[0.8] mb-20 opacity-20">LET'S TALK</h2>
+            <div className="grid md:grid-cols-2 gap-20">
+              <div>
+                <p className="text-3xl md:text-5xl font-bold mb-12 leading-tight">
+                  공간의 가치를 함께 <br />
+                  만들어갈 파트너를 기다립니다.
+                </p>
+                <div className="space-y-8">
+                  <div>
+                    <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest block mb-4 italic">Phone</span>
+                    <a href={`tel:${about.phone}`} className="text-4xl md:text-6xl font-black hover:text-gray-400 transition-colors">{about.phone}</a>
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest block mb-4 italic">Email</span>
+                    <a href={`mailto:${about.email}`} className="text-2xl md:text-4xl font-medium serif-italic hover:text-gray-400 transition-colors">{about.email}</a>
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col justify-end">
+                <div className="flex gap-8 text-xs font-black uppercase tracking-widest italic mb-20">
+                  <a href={about.social?.instagram} target="_blank" rel="noopener noreferrer" className="hover:line-through">Instagram</a>
+                  <a href={about.social?.behance} target="_blank" rel="noopener noreferrer" className="hover:line-through">Behance</a>
+                  <a href={about.social?.notion} target="_blank" rel="noopener noreferrer" className="hover:line-through">Notion</a>
+                </div>
+                <div className="h-[1px] w-full bg-white opacity-10"></div>
+              </div>
+            </div>
+          </div>
+          {/* Decorative element */}
+          <div className="absolute -bottom-20 -right-20 text-[30vw] font-black opacity-5 select-none pointer-events-none">HI</div>
+        </section>
+
+        {/* Footer */}
+        <footer className="py-20 px-6 bg-white border-t border-gray-100">
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">© 2026 <span dangerouslySetInnerHTML={{ __html: about.name }} />. All Rights Reserved.</p>
             <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">Designed for Spatial & Graphic Experience</p>
           </div>

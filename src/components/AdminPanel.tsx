@@ -26,7 +26,7 @@ interface AdminPanelProps {
 }
 
 export default function AdminPanel({ onClose }: AdminPanelProps) {
-  const { about, projects, festivals, updateAbout, updateProject, updateFestival, logout, uploadImage } = usePortfolioData();
+  const { about, projects, festivals, updateAbout, updateProject, updateFestival, logout, uploadImage, login } = usePortfolioData();
   const [activeTab, setActiveTab] = useState<'about' | 'environmental' | 'interior' | 'others' | 'festivals'>('about');
   const [aboutState, setAboutState] = useState<AboutInfo>(about);
 
@@ -97,7 +97,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                   activeTab === tab ? 'border-b-2 border-black text-black' : 'text-gray-400'
                 }`}
               >
-                {tab}
+                {tab === 'about' ? 'About & Contact' : tab}
               </button>
             ))}
           </div>
@@ -216,7 +216,13 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
         {(activeTab === 'environmental' || activeTab === 'interior' || activeTab === 'others') && (
           <div className="space-y-12">
             {projects.filter(p => p.category === activeTab).map((project) => (
-              <ProjectEditor key={project.id} project={project} onSave={updateProject} />
+              <ProjectEditor 
+                key={project.id} 
+                project={project} 
+                onSave={updateProject} 
+                uploadImage={uploadImage}
+                login={login}
+              />
             ))}
           </div>
         )}
@@ -224,7 +230,13 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
         {activeTab === 'festivals' && (
           <div className="space-y-12">
             {festivals.map((f) => (
-              <FestivalEditor key={f.id} festival={f} onSave={updateFestival} />
+              <FestivalEditor 
+                key={f.id} 
+                festival={f} 
+                onSave={updateFestival} 
+                uploadImage={uploadImage}
+                login={login}
+              />
             ))}
           </div>
         )}
@@ -233,8 +245,21 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
   );
 }
 
-function ImageUpload({ onUpload, label, multiple = false }: { onUpload: (url: string) => void, label: string, multiple?: boolean }) {
-  const { uploadImage, login } = usePortfolioData();
+function ImageUpload({ 
+  onUpload, 
+  label, 
+  multiple = false, 
+  compact = false,
+  uploadImage,
+  login
+}: { 
+  onUpload: (url: string) => void, 
+  label: string, 
+  multiple?: boolean, 
+  compact?: boolean,
+  uploadImage: (file: File, path: string, onProgress?: (p: number) => void) => Promise<string>,
+  login: () => Promise<void>
+}) {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
 
@@ -258,11 +283,8 @@ function ImageUpload({ onUpload, label, multiple = false }: { onUpload: (url: st
         const file = files[i];
         const path = `portfolio/${Date.now()}_${file.name}`;
         
-        // Use the progress callback for individual file progress if needed
-        // For now we still show overall progress
         const url = await uploadImage(file, path, (p) => {
-          // Individual file progress could be used here
-          console.log(`File ${i + 1} progress: ${p}%`);
+          setProgress(Math.round(((completedFiles + (p / 100)) / totalFiles) * 100));
         });
         
         onUpload(url);
@@ -272,17 +294,53 @@ function ImageUpload({ onUpload, label, multiple = false }: { onUpload: (url: st
     } catch (error: any) {
       console.error("Upload failed", error);
       let errorMessage = "알 수 없는 오류가 발생했습니다.";
+      
       if (error?.code === 'storage/unauthorized') {
-        errorMessage = "서버 권한이 없습니다. Storage 규칙을 확인해주세요.";
+        errorMessage = "서버 권한이 없습니다. (Storage Rules 확인 필요)";
+      } else if (error?.code === 'storage/canceled') {
+        errorMessage = "업로드가 취소되었습니다.";
+      } else if (error?.code === 'storage/unknown') {
+        errorMessage = "알 수 없는 서버 오류가 발생했습니다.";
       } else if (error?.message) {
         errorMessage = error.message;
       }
-      alert(`이미지 업로드에 실패했습니다: ${errorMessage}\n\n상세 정보: ${JSON.stringify(error)}`);
+      
+      alert(`이미지 업로드 실패!\n\n원인: ${errorMessage}\n\n로그인 상태를 확인하거나 파일 용량을 확인해주세요.`);
     } finally {
       setUploading(false);
       setProgress(0);
     }
   };
+
+  if (compact) {
+    return (
+      <label className={`w-full h-full flex flex-col items-center justify-center border-2 border-dashed border-gray-100 hover:border-black hover:bg-gray-50 cursor-pointer transition-all relative overflow-hidden ${uploading ? 'pointer-events-none' : ''}`}>
+        {uploading ? (
+          <>
+            <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
+            <span className="text-[8px] font-black uppercase mt-1">{progress}%</span>
+            <div 
+              className="absolute bottom-0 left-0 h-1 bg-black transition-all duration-300" 
+              style={{ width: `${progress}%` }}
+            />
+          </>
+        ) : (
+          <>
+            <Plus className="w-5 h-5 text-gray-300" />
+            <span className="text-[8px] font-black uppercase mt-1">{label}</span>
+          </>
+        )}
+        <input 
+          type="file" 
+          className="hidden" 
+          accept="image/*" 
+          onChange={handleFileChange} 
+          disabled={uploading} 
+          multiple={multiple}
+        />
+      </label>
+    );
+  }
 
   return (
     <div className="space-y-2 pb-4">
@@ -314,12 +372,131 @@ function ImageUpload({ onUpload, label, multiple = false }: { onUpload: (url: st
   );
 }
 
-function ProjectEditor({ project, onSave }: { project: Project, onSave: (p: Project) => void }) {
+function ImageManager({ 
+  label, 
+  images = [], 
+  onImagesChange,
+  uploadImage,
+  login
+}: { 
+  label: string; 
+  images?: string[]; 
+  onImagesChange: (imgs: string[]) => void; 
+  uploadImage: (file: File, path: string, onProgress?: (p: number) => void) => Promise<string>,
+  login: () => Promise<void>
+}) {
+  const [newUrl, setNewUrl] = useState('');
+  const [showBulk, setShowBulk] = useState(false);
+  const safeImages = images || [];
+
+  const removeImage = (index: number) => {
+    const newImages = [...safeImages];
+    newImages.splice(index, 1);
+    onImagesChange(newImages);
+  };
+
+  const addImage = (url: string) => {
+    onImagesChange([...safeImages, url]);
+  };
+
+  const handleAddUrl = () => {
+    if (newUrl.trim()) {
+      addImage(convertGoogleDriveLink(newUrl.trim()));
+      setNewUrl('');
+    }
+  };
+
+  return (
+    <div className="space-y-3 pt-4 border-t border-gray-50">
+      <div className="flex justify-between items-center">
+        <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest block">{label}</label>
+        <span className="text-[8px] font-black uppercase text-gray-300 italic">{safeImages.length} Photos</span>
+      </div>
+      
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        {safeImages.map((url, idx) => (
+          <div key={idx} className="group relative aspect-square bg-gray-50 border border-gray-100 overflow-hidden">
+            <img 
+              src={url} 
+              alt={`${label} ${idx + 1}`} 
+              className="w-full h-full object-cover"
+              referrerPolicy="no-referrer"
+            />
+            <button 
+              type="button"
+              onClick={() => removeImage(idx)}
+              className="absolute top-1 right-1 p-1 bg-black text-white opacity-0 group-hover:opacity-100 transition-opacity z-10"
+              title="Remove image"
+            >
+              <Trash2 className="w-3 h-3" />
+            </button>
+            <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-[8px] text-white p-1 truncate opacity-0 group-hover:opacity-100">
+              {url}
+            </div>
+          </div>
+        ))}
+        
+        {/* Upload Button */}
+        <div className="aspect-square">
+          <ImageUpload 
+            label="Upload File" 
+            multiple={true} 
+            onUpload={addImage} 
+            compact={true}
+            uploadImage={uploadImage}
+            login={login}
+          />
+        </div>
+      </div>
+
+      {/* URL Input Section */}
+      <div className="flex gap-2">
+        <input 
+          type="text"
+          value={newUrl}
+          onChange={(e) => setNewUrl(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleAddUrl()}
+          placeholder="Paste image URL here..."
+          className="flex-1 p-2 border border-gray-100 outline-none focus:border-black text-[10px]"
+        />
+        <button 
+          type="button"
+          onClick={handleAddUrl}
+          className="px-4 py-2 bg-black text-white text-[10px] font-black uppercase whitespace-nowrap"
+        >
+          Add URL
+        </button>
+      </div>
+
+      {/* Bulk Editor Toggle */}
+      <div className="pt-2">
+        <button 
+          type="button"
+          onClick={() => setShowBulk(!showBulk)}
+          className="text-[8px] font-black uppercase text-gray-300 hover:text-black transition-colors"
+        >
+          {showBulk ? 'Hide Bulk URL Editor' : 'Show Bulk URL Editor (Advanced)'}
+        </button>
+        {showBulk && (
+          <textarea 
+            value={safeImages.join('\n')} 
+            onChange={(e) => onImagesChange(e.target.value.split('\n').map(l => convertGoogleDriveLink(l.trim())).filter(Boolean))}
+            className="w-full mt-2 p-2 border border-gray-50 outline-none focus:border-black text-[10px] font-mono text-gray-400 bg-gray-50/30"
+            rows={4}
+            placeholder="Paste multiple URLs here (one per line)..."
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ProjectEditor({ project, onSave, uploadImage, login }: { project: Project, onSave: (p: Project) => void, uploadImage: any, login: any }) {
   const [localProject, setLocalProject] = useState(project);
   const isDirty = JSON.stringify(localProject) !== JSON.stringify(project);
 
   return (
-    <div className="p-8 border border-gray-100 space-y-6">
+    <div className="p-8 border border-gray-100 space-y-4">
       <div className="flex justify-between items-start">
         <h3 className="text-xl font-black uppercase tracking-tighter">{project.title}</h3>
         <div className="flex items-center gap-4">
@@ -334,50 +511,53 @@ function ProjectEditor({ project, onSave }: { project: Project, onSave: (p: Proj
           )}
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-3">
         <div className="space-y-1">
           <label className="text-[10px] font-black uppercase text-gray-300 italic">Timeline (Period)</label>
-          <input 
-            value={localProject.period} 
-            onChange={(e) => setLocalProject({ ...localProject, period: e.target.value })}
-            className="w-full p-2 border border-gray-50 outline-none focus:border-black text-sm"
-            placeholder="e.g. 2024.10"
+          <RichTextEditor 
+            value={localProject.periodRich || localProject.period || ''} 
+            onChange={(val) => setLocalProject({ ...localProject, periodRich: val, period: val.replace(/<[^>]*>/g, '') })}
           />
         </div>
         <div className="space-y-1">
-          <label className="text-[10px] font-black uppercase text-gray-300 italic">Category</label>
-          <select 
-            value={localProject.category} 
-            onChange={(e) => setLocalProject({ ...localProject, category: e.target.value as any })}
-            className="w-full p-2 border border-gray-50 outline-none focus:border-black text-sm font-bold uppercase"
-          >
-            <option value="environmental">Environmental</option>
-            <option value="interior">Interior</option>
-            <option value="others">Others</option>
-          </select>
+          <label className="text-[10px] font-black uppercase text-gray-300 italic">Category Display</label>
+          <RichTextEditor 
+            value={localProject.categoryRich || localProject.category || ''} 
+            onChange={(val) => setLocalProject({ ...localProject, categoryRich: val })}
+          />
+          <div className="pt-2">
+            <label className="text-[8px] font-black uppercase text-gray-300 italic">Logic Category (for filtering)</label>
+            <select 
+              value={localProject.category} 
+              onChange={(e) => setLocalProject({ ...localProject, category: e.target.value as any })}
+              className="w-full p-1 border border-gray-50 outline-none focus:border-black text-[10px] font-bold uppercase"
+            >
+              <option value="environmental">Environmental</option>
+              <option value="interior">Interior</option>
+              <option value="others">Others</option>
+            </select>
+          </div>
         </div>
         <div className="space-y-1">
-          <label className="text-[10px] font-black uppercase text-gray-300 italic">Tags (comma separated)</label>
-          <input 
-            value={localProject.tags.join(', ')} 
-            onChange={(e) => setLocalProject({ ...localProject, tags: e.target.value.split(',').map(t => t.trim()).filter(Boolean) })}
-            className="w-full p-2 border border-gray-50 outline-none focus:border-black text-sm"
-            placeholder="Public Design, Landscape..."
+          <label className="text-[10px] font-black uppercase text-gray-300 italic">Tags Display</label>
+          <RichTextEditor 
+            value={localProject.tagsRich || localProject.tags?.join(', ') || ''} 
+            onChange={(val) => setLocalProject({ ...localProject, tagsRich: val, tags: val.replace(/<[^>]*>/g, '').split(',').map(t => t.trim()).filter(Boolean) })}
           />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1">
           <label className="text-[10px] font-black uppercase text-gray-300 italic">Title</label>
           <RichTextEditor 
-            value={localProject.title} 
+            value={localProject.title || ''} 
             onChange={(val) => setLocalProject({ ...localProject, title: val })}
           />
         </div>
         <div className="space-y-1">
           <label className="text-[10px] font-black uppercase text-gray-300 italic">Subtitle</label>
           <RichTextEditor 
-            value={localProject.subtitle} 
+            value={localProject.subtitle || ''} 
             onChange={(val) => setLocalProject({ ...localProject, subtitle: val })}
           />
         </div>
@@ -394,13 +574,15 @@ function ProjectEditor({ project, onSave }: { project: Project, onSave: (p: Proj
           <ImageUpload 
             label="Upload Main Image" 
             onUpload={(url) => setLocalProject(prev => ({ ...prev, imageUrl: url }))} 
+            uploadImage={uploadImage}
+            login={login}
           />
         </div>
       </div>
       <div className="space-y-1">
         <label className="text-[10px] font-black uppercase text-gray-300 italic">Short Description</label>
         <RichTextEditor 
-          value={localProject.description} 
+          value={localProject.description || ''} 
           onChange={(val) => setLocalProject({ ...localProject, description: val })}
         />
       </div>
@@ -411,96 +593,57 @@ function ProjectEditor({ project, onSave }: { project: Project, onSave: (p: Proj
           onChange={(val) => setLocalProject({ ...localProject, details: [val] })}
         />
       </div>
-      <div className="space-y-1">
-        <label className="text-[10px] font-black uppercase text-gray-300 italic">Completed Photos (one per line)</label>
-        <div className="flex gap-4">
-          <textarea 
-            value={localProject.completedImages?.join('\n') || ''} 
-            onChange={(e) => setLocalProject({ ...localProject, completedImages: e.target.value.split('\n').map(l => convertGoogleDriveLink(l.trim())).filter(Boolean) })}
-            className="flex-1 p-2 border border-gray-50 outline-none focus:border-black text-sm font-light"
-            rows={6}
-            placeholder="Completed photo URLs..."
-          />
-          <ImageUpload 
-            label="Add Photo" 
-            multiple={true}
-            onUpload={(url) => setLocalProject(prev => ({ 
-              ...prev, 
-              completedImages: [...(prev.completedImages || []), url] 
-            }))} 
-          />
-        </div>
-      </div>
-      <div className="space-y-1">
-        <label className="text-[10px] font-black uppercase text-gray-300 italic">2D Designs (one per line)</label>
-        <div className="flex gap-4">
-          <textarea 
-            value={localProject.design2DImages?.join('\n') || ''} 
-            onChange={(e) => setLocalProject({ ...localProject, design2DImages: e.target.value.split('\n').map(l => convertGoogleDriveLink(l.trim())).filter(Boolean) })}
-            className="flex-1 p-2 border border-gray-50 outline-none focus:border-black text-sm font-light"
-            rows={4}
-            placeholder="2D design URLs..."
-          />
-          <ImageUpload 
-            label="Add 2D" 
-            multiple={true}
-            onUpload={(url) => setLocalProject(prev => ({ 
-              ...prev, 
-              design2DImages: [...(prev.design2DImages || []), url] 
-            }))} 
-          />
-        </div>
-      </div>
-      <div className="space-y-1">
-        <label className="text-[10px] font-black uppercase text-gray-300 italic">3D Designs (one per line)</label>
-        <div className="flex gap-4">
-          <textarea 
-            value={localProject.design3DImages?.join('\n') || ''} 
-            onChange={(e) => setLocalProject({ ...localProject, design3DImages: e.target.value.split('\n').map(l => convertGoogleDriveLink(l.trim())).filter(Boolean) })}
-            className="flex-1 p-2 border border-gray-50 outline-none focus:border-black text-sm font-light"
-            rows={4}
-            placeholder="3D design URLs..."
-          />
-          <ImageUpload 
-            label="Add 3D" 
-            multiple={true}
-            onUpload={(url) => setLocalProject(prev => ({ 
-              ...prev, 
-              design3DImages: [...(prev.design3DImages || []), url] 
-            }))} 
-          />
-        </div>
-      </div>
-      <div className="space-y-1">
-        <label className="text-[10px] font-black uppercase text-gray-300 italic">Legacy Detail Images (one per line)</label>
-        <div className="flex gap-4">
-          <textarea 
-            value={localProject.detailImages?.join('\n') || ''} 
-            onChange={(e) => setLocalProject({ ...localProject, detailImages: e.target.value.split('\n').map(l => convertGoogleDriveLink(l.trim())).filter(Boolean) })}
-            className="flex-1 p-2 border border-gray-50 outline-none focus:border-black text-sm font-light"
-            rows={4}
-            placeholder="Additional image URLs..."
-          />
-          <ImageUpload 
-            label="Add Image" 
-            multiple={true}
-            onUpload={(url) => setLocalProject(prev => ({ 
-              ...prev, 
-              detailImages: [...(prev.detailImages || []), url] 
-            }))} 
-          />
-        </div>
+      <div className="space-y-4">
+        <ImageManager 
+          label="Completed Photos (완공사진)"
+          images={localProject.completedImages}
+          onImagesChange={(imgs) => setLocalProject({ ...localProject, completedImages: imgs })}
+          uploadImage={uploadImage}
+          login={login}
+        />
+        
+        <ImageManager 
+          label="2D Designs (2D 시안)"
+          images={localProject.design2DImages}
+          onImagesChange={(imgs) => setLocalProject({ ...localProject, design2DImages: imgs })}
+          uploadImage={uploadImage}
+          login={login}
+        />
+
+        <ImageManager 
+          label="3D Designs (3D 시안)"
+          images={localProject.design3DImages}
+          onImagesChange={(imgs) => setLocalProject({ ...localProject, design3DImages: imgs })}
+          uploadImage={uploadImage}
+          login={login}
+        />
+
+        <ImageManager 
+          label="Design Images (기타 시안)"
+          images={localProject.designImages}
+          onImagesChange={(imgs) => setLocalProject({ ...localProject, designImages: imgs })}
+          uploadImage={uploadImage}
+          login={login}
+        />
+
+        <ImageManager 
+          label="Legacy Detail Images (추가 사진)"
+          images={localProject.detailImages}
+          onImagesChange={(imgs) => setLocalProject({ ...localProject, detailImages: imgs })}
+          uploadImage={uploadImage}
+          login={login}
+        />
       </div>
     </div>
   );
 }
 
-function FestivalEditor({ festival, onSave }: { festival: FestivalItem, onSave: (f: FestivalItem) => void }) {
+function FestivalEditor({ festival, onSave, uploadImage, login }: { festival: FestivalItem, onSave: (f: FestivalItem) => void, uploadImage: any, login: any }) {
   const [localFestival, setLocalFestival] = useState(festival);
   const isDirty = JSON.stringify(localFestival) !== JSON.stringify(festival);
 
   return (
-    <div className="p-8 border border-gray-100 space-y-6">
+    <div className="p-8 border border-gray-100 space-y-4">
       <div className="flex justify-between items-start">
         <h3 className="text-xl font-black uppercase tracking-tighter">{festival.title}</h3>
         <div className="flex items-center gap-4">
@@ -515,19 +658,42 @@ function FestivalEditor({ festival, onSave }: { festival: FestivalItem, onSave: 
           )}
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1">
           <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Title</label>
           <RichTextEditor 
-            value={localFestival.title} 
+            value={localFestival.title || ''} 
             onChange={(val) => setLocalFestival({ ...localFestival, title: val })}
           />
         </div>
-        <div className="space-y-2">
+        <div className="space-y-1">
           <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Subtitle</label>
           <RichTextEditor 
-            value={localFestival.sub} 
+            value={localFestival.sub || ''} 
             onChange={(val) => setLocalFestival({ ...localFestival, sub: val })}
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-3">
+        <div className="space-y-1">
+          <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Timeline</label>
+          <RichTextEditor 
+            value={localFestival.periodRich || localFestival.period || ''} 
+            onChange={(val) => setLocalFestival({ ...localFestival, periodRich: val, period: val.replace(/<[^>]*>/g, '') })}
+          />
+        </div>
+        <div className="space-y-1">
+          <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Category Display</label>
+          <RichTextEditor 
+            value={localFestival.categoryRich || ''} 
+            onChange={(val) => setLocalFestival({ ...localFestival, categoryRich: val })}
+          />
+        </div>
+        <div className="space-y-1">
+          <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Tags Display</label>
+          <RichTextEditor 
+            value={localFestival.tagsRich || localFestival.tags?.join(', ') || ''} 
+            onChange={(val) => setLocalFestival({ ...localFestival, tagsRich: val, tags: val.replace(/<[^>]*>/g, '').split(',').map(t => t.trim()).filter(Boolean) })}
           />
         </div>
       </div>
@@ -543,11 +709,13 @@ function FestivalEditor({ festival, onSave }: { festival: FestivalItem, onSave: 
           <ImageUpload 
             label="Upload Image" 
             onUpload={(url) => setLocalFestival(prev => ({ ...prev, imageUrl: url }))} 
+            uploadImage={uploadImage}
+            login={login}
           />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1">
           <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Location</label>
           <input 
             value={localFestival.location || ''} 
@@ -556,24 +724,24 @@ function FestivalEditor({ festival, onSave }: { festival: FestivalItem, onSave: 
             placeholder="e.g. Seoul, Korea"
           />
         </div>
-        <div className="space-y-2">
-          <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Timeline</label>
+        <div className="space-y-1">
+          <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Order</label>
           <input 
-            value={localFestival.period || ''} 
-            onChange={(e) => setLocalFestival({ ...localFestival, period: e.target.value })}
+            type="number"
+            value={localFestival.order} 
+            onChange={(e) => setLocalFestival({ ...localFestival, order: parseInt(e.target.value) })}
             className="w-full p-2 border border-gray-50 outline-none focus:border-black text-sm"
-            placeholder="e.g. 2023.05"
           />
         </div>
       </div>
-      <div className="space-y-2">
+      <div className="space-y-1">
         <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description</label>
         <RichTextEditor 
           value={localFestival.description || ''} 
           onChange={(val) => setLocalFestival({ ...localFestival, description: val })}
         />
       </div>
-      <div className="space-y-2">
+      <div className="space-y-1">
         <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Detailed Paragraphs (one per line)</label>
         <RichTextEditor 
           value={localFestival.details?.join('<br>') || ''} 
@@ -589,85 +757,46 @@ function FestivalEditor({ festival, onSave }: { festival: FestivalItem, onSave: 
           placeholder="Branding, Festival, 2023"
         />
       </div>
-      <div className="space-y-1">
-        <label className="text-[10px] font-black uppercase text-gray-300 italic">Completed Photos (one per line)</label>
-        <div className="flex gap-4">
-          <textarea 
-            value={localFestival.completedImages?.join('\n') || ''} 
-            onChange={(e) => setLocalFestival({ ...localFestival, completedImages: e.target.value.split('\n').map(l => convertGoogleDriveLink(l.trim())).filter(Boolean) })}
-            className="flex-1 p-2 border border-gray-50 outline-none focus:border-black text-sm font-light"
-            rows={4}
-            placeholder="Completed photo URLs..."
-          />
-          <ImageUpload 
-            label="Add Photo" 
-            multiple={true}
-            onUpload={(url) => setLocalFestival(prev => ({ 
-              ...prev, 
-              completedImages: [...(prev.completedImages || []), url] 
-            }))} 
-          />
-        </div>
-      </div>
-      <div className="space-y-1">
-        <label className="text-[10px] font-black uppercase text-gray-300 italic">2D Designs (one per line)</label>
-        <div className="flex gap-4">
-          <textarea 
-            value={localFestival.design2DImages?.join('\n') || ''} 
-            onChange={(e) => setLocalFestival({ ...localFestival, design2DImages: e.target.value.split('\n').map(l => convertGoogleDriveLink(l.trim())).filter(Boolean) })}
-            className="flex-1 p-2 border border-gray-50 outline-none focus:border-black text-sm font-light"
-            rows={4}
-            placeholder="2D design URLs..."
-          />
-          <ImageUpload 
-            label="Add 2D" 
-            multiple={true}
-            onUpload={(url) => setLocalFestival(prev => ({ 
-              ...prev, 
-              design2DImages: [...(prev.design2DImages || []), url] 
-            }))} 
-          />
-        </div>
-      </div>
-      <div className="space-y-1">
-        <label className="text-[10px] font-black uppercase text-gray-300 italic">3D Designs (one per line)</label>
-        <div className="flex gap-4">
-          <textarea 
-            value={localFestival.design3DImages?.join('\n') || ''} 
-            onChange={(e) => setLocalFestival({ ...localFestival, design3DImages: e.target.value.split('\n').map(l => convertGoogleDriveLink(l.trim())).filter(Boolean) })}
-            className="flex-1 p-2 border border-gray-50 outline-none focus:border-black text-sm font-light"
-            rows={4}
-            placeholder="3D design URLs..."
-          />
-          <ImageUpload 
-            label="Add 3D" 
-            multiple={true}
-            onUpload={(url) => setLocalFestival(prev => ({ 
-              ...prev, 
-              design3DImages: [...(prev.design3DImages || []), url] 
-            }))} 
-          />
-        </div>
-      </div>
-      <div className="space-y-1">
-        <label className="text-[10px] font-black uppercase text-gray-300 italic">Legacy Detail Images (one per line)</label>
-        <div className="flex gap-4">
-          <textarea 
-            value={localFestival.detailImages?.join('\n') || ''} 
-            onChange={(e) => setLocalFestival({ ...localFestival, detailImages: e.target.value.split('\n').map(l => convertGoogleDriveLink(l.trim())).filter(Boolean) })}
-            className="flex-1 p-2 border border-gray-50 outline-none focus:border-black text-sm font-light"
-            rows={4}
-            placeholder="Additional image URLs..."
-          />
-          <ImageUpload 
-            label="Add Image" 
-            multiple={true}
-            onUpload={(url) => setLocalFestival(prev => ({ 
-              ...prev, 
-              detailImages: [...(prev.detailImages || []), url] 
-            }))} 
-          />
-        </div>
+      <div className="space-y-4">
+        <ImageManager 
+          label="Completed Photos (준공 사진)"
+          images={localFestival.completedImages}
+          onImagesChange={(imgs) => setLocalFestival({ ...localFestival, completedImages: imgs })}
+          uploadImage={uploadImage}
+          login={login}
+        />
+        
+        <ImageManager 
+          label="2D Designs (2D 시안)"
+          images={localFestival.design2DImages}
+          onImagesChange={(imgs) => setLocalFestival({ ...localFestival, design2DImages: imgs })}
+          uploadImage={uploadImage}
+          login={login}
+        />
+
+        <ImageManager 
+          label="3D Designs (3D 시안)"
+          images={localFestival.design3DImages}
+          onImagesChange={(imgs) => setLocalFestival({ ...localFestival, design3DImages: imgs })}
+          uploadImage={uploadImage}
+          login={login}
+        />
+
+        <ImageManager 
+          label="Design Images (기타 시안)"
+          images={localFestival.designImages}
+          onImagesChange={(imgs) => setLocalFestival({ ...localFestival, designImages: imgs })}
+          uploadImage={uploadImage}
+          login={login}
+        />
+
+        <ImageManager 
+          label="Legacy Detail Images (추가 사진)"
+          images={localFestival.detailImages}
+          onImagesChange={(imgs) => setLocalFestival({ ...localFestival, detailImages: imgs })}
+          uploadImage={uploadImage}
+          login={login}
+        />
       </div>
     </div>
   );

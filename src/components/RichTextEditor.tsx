@@ -11,6 +11,20 @@ const Size = Quill.import('formats/size') as any;
 Size.whitelist = ['10px', '12px', '14px', '16px', '18px', '20px', '24px', '30px', '36px', '48px', '64px'];
 Quill.register(Size, true);
 
+// Register custom line heights
+const Parchment = Quill.import('parchment') as any;
+const LineHeightStyle = new Parchment.StyleAttributor('lineheight', 'line-height', {
+  scope: Parchment.Scope.INLINE,
+  whitelist: ['1.0', '1.2', '1.4', '1.5', '1.6', '1.8', '2.0', '2.5', '3.0']
+});
+Quill.register(LineHeightStyle, true);
+
+const LetterSpacingStyle = new Parchment.StyleAttributor('letterspacing', 'letter-spacing', {
+  scope: Parchment.Scope.INLINE,
+  whitelist: ['-0.05em', '-0.02em', '0', '0.02em', '0.05em', '0.1em', '0.2em']
+});
+Quill.register(LetterSpacingStyle, true);
+
 interface RichTextEditorProps {
   value: string;
   onChange: (content: string) => void;
@@ -22,6 +36,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
     toolbar: [
       [{ 'font': ['pretendard', 'notosanskr', 'nanummyeongjo', 'playfair'] }],
       [{ 'size': ['10px', '12px', '14px', '16px', '18px', '20px', '24px', '30px', '36px', '48px', '64px'] }],
+      [{ 'lineheight': ['1.0', '1.2', '1.4', '1.5', '1.6', '1.8', '2.0', '2.5', '3.0'] }],
+      [{ 'letterspacing': ['-0.05em', '-0.02em', '0', '0.02em', '0.05em', '0.1em', '0.2em'] }],
       ['bold', 'italic', 'underline', 'strike'],
       [{ 'color': [] }, { 'background': [] }],
       [{ 'align': [] }],
@@ -31,7 +47,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
   };
 
   const formats = [
-    'font', 'size',
+    'font', 'size', 'lineheight', 'letterspacing',
     'bold', 'italic', 'underline', 'strike',
     'color', 'background',
     'align',
@@ -80,6 +96,18 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
         .rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-label::before,
         .rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-item::before {
           content: attr(data-value) !important;
+        }
+
+        /* Line heights */
+        .rich-text-editor .ql-snow .ql-picker.ql-lineheight .ql-picker-label::before,
+        .rich-text-editor .ql-snow .ql-picker.ql-lineheight .ql-picker-item::before {
+          content: 'Line: ' attr(data-value) !important;
+        }
+
+        /* Letter spacing */
+        .rich-text-editor .ql-snow .ql-picker.ql-letterspacing .ql-picker-label::before,
+        .rich-text-editor .ql-snow .ql-picker.ql-letterspacing .ql-picker-item::before {
+          content: 'Space: ' attr(data-value) !important;
         }
       `}</style>
     </div>

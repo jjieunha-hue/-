@@ -36,6 +36,20 @@ export const INITIAL_PROJECTS: Project[] = [
     description: "공사 현장의 삭막한 울타리를 김해 수로왕릉, 한옥체험관 등 지역의 역사적 랜드마크를 활용한 갤러리로 변모시킨 프로젝트입니다.",
     tags: ["Public Art", "2019"],
     category: 'environmental',
+    imageUrl: "https://picsum.photos/seed/nsquare-main/800/600",
+    completedImages: [
+      "https://picsum.photos/seed/nsquare-site-1/1200/800"
+    ],
+    design2DImages: [
+      "https://picsum.photos/seed/nsquare-2d-1/1200/800",
+      "https://picsum.photos/seed/nsquare-2d-2/1200/800",
+      "https://picsum.photos/seed/nsquare-2d-3/1200/800",
+      "https://picsum.photos/seed/nsquare-2d-4/1200/800",
+      "https://picsum.photos/seed/nsquare-2d-5/1200/800",
+      "https://picsum.photos/seed/nsquare-2d-6/1200/800",
+      "https://picsum.photos/seed/nsquare-2d-7/1200/800",
+      "https://picsum.photos/seed/nsquare-2d-8/1200/800"
+    ],
     icon: 'fa-monument',
     order: 1
   },
@@ -47,6 +61,17 @@ export const INITIAL_PROJECTS: Project[] = [
     description: "마하트마 간디 탄생 150주년을 기념하여 인도 정부에서 기증받은 동상을 중심으로 사색의 공간을 기획했습니다. 김해 연지공원 내에 조성되었습니다.",
     tags: ["Spatial Design", "2019-2020"],
     category: 'environmental',
+    imageUrl: "https://picsum.photos/seed/gandhi-main/800/600",
+    completedImages: [
+      "https://picsum.photos/seed/gandhi-site-1/1200/800"
+    ],
+    design2DImages: [
+      "https://picsum.photos/seed/gandhi-2d-1/1200/800",
+      "https://picsum.photos/seed/gandhi-2d-2/1200/800"
+    ],
+    design3DImages: [
+      "https://picsum.photos/seed/gandhi-3d-1/1200/800"
+    ],
     icon: 'fa-peace',
     order: 2
   },
@@ -58,6 +83,18 @@ export const INITIAL_PROJECTS: Project[] = [
     description: "주민참여예산 사업의 일환으로 진행된 마을 재생 프로젝트입니다. '화목하고 정이 넘치는 마을' 키워드를 담은 벽화 디자인입니다.",
     tags: ["Wall Design", "2020"],
     category: 'environmental',
+    imageUrl: "https://picsum.photos/seed/oedeok-main/800/600",
+    completedImages: [
+      "https://picsum.photos/seed/oedeok-site-1/1200/800"
+    ],
+    design2DImages: [
+      "https://picsum.photos/seed/oedeok-2d-1/1200/800",
+      "https://picsum.photos/seed/oedeok-2d-2/1200/800",
+      "https://picsum.photos/seed/oedeok-2d-3/1200/800",
+      "https://picsum.photos/seed/oedeok-2d-4/1200/800",
+      "https://picsum.photos/seed/oedeok-2d-5/1200/800",
+      "https://picsum.photos/seed/oedeok-2d-6/1200/800"
+    ],
     icon: 'fa-house-chimney',
     order: 3
   },
@@ -75,20 +112,20 @@ export const INITIAL_PROJECTS: Project[] = [
     tags: ["Public Design", "Landscape", "Environmental Design"],
     category: 'environmental',
     imageUrl: "https://picsum.photos/seed/dongju-main/800/600",
-    completedImages: [
-      "https://picsum.photos/seed/dongju-site-1/1200/800",
-      "https://picsum.photos/seed/dongju-site-2/1200/800"
-    ],
     design2DImages: [
       "https://picsum.photos/seed/dongju-2d-1/1200/800",
-      "https://picsum.photos/seed/dongju-2d-2/1200/800",
-      "https://picsum.photos/seed/dongju-2d-3/1200/800"
+      "https://picsum.photos/seed/dongju-2d-2/1200/800"
     ],
     design3DImages: [
       "https://picsum.photos/seed/dongju-3d-1/1200/800",
       "https://picsum.photos/seed/dongju-3d-2/1200/800",
       "https://picsum.photos/seed/dongju-3d-3/1200/800",
-      "https://picsum.photos/seed/dongju-3d-4/1200/800"
+      "https://picsum.photos/seed/dongju-3d-4/1200/800",
+      "https://picsum.photos/seed/dongju-3d-5/1200/800",
+      "https://picsum.photos/seed/dongju-3d-6/1200/800",
+      "https://picsum.photos/seed/dongju-3d-7/1200/800",
+      "https://picsum.photos/seed/dongju-3d-8/1200/800",
+      "https://picsum.photos/seed/dongju-3d-9/1200/800"
     ],
     icon: 'fa-school',
     order: 4
@@ -123,20 +160,16 @@ export const INITIAL_PROJECTS: Project[] = [
       "https://picsum.photos/seed/employment-center-site-13/1200/800",
       "https://picsum.photos/seed/employment-center-site-14/1200/800",
       "https://picsum.photos/seed/employment-center-site-15/1200/800",
-      "https://picsum.photos/seed/employment-center-site-16/1200/800",
-      "https://picsum.photos/seed/employment-center-site-17/1200/800"
+      "https://picsum.photos/seed/employment-center-site-16/1200/800"
     ],
-    designImages: [
+    design3DImages: [
       "https://picsum.photos/seed/employment-center-3d-1/1200/800",
       "https://picsum.photos/seed/employment-center-3d-2/1200/800",
       "https://picsum.photos/seed/employment-center-3d-3/1200/800",
       "https://picsum.photos/seed/employment-center-3d-4/1200/800",
       "https://picsum.photos/seed/employment-center-3d-5/1200/800",
       "https://picsum.photos/seed/employment-center-3d-6/1200/800",
-      "https://picsum.photos/seed/employment-center-3d-7/1200/800",
-      "https://picsum.photos/seed/employment-center-3d-8/1200/800",
-      "https://picsum.photos/seed/employment-center-3d-9/1200/800",
-      "https://picsum.photos/seed/employment-center-3d-10/1200/800"
+      "https://picsum.photos/seed/employment-center-3d-7/1200/800"
     ],
     icon: 'fa-building',
     order: 5
@@ -157,10 +190,9 @@ export const INITIAL_PROJECTS: Project[] = [
     imageUrl: "https://picsum.photos/seed/ibk-bank-main/800/600",
     completedImages: [
       "https://picsum.photos/seed/ibk-bank-site-1/1200/800",
-      "https://picsum.photos/seed/ibk-bank-site-2/1200/800",
-      "https://picsum.photos/seed/ibk-bank-site-3/1200/800"
+      "https://picsum.photos/seed/ibk-bank-site-2/1200/800"
     ],
-    designImages: [
+    design3DImages: [
       "https://picsum.photos/seed/ibk-bank-3d-1/1200/800",
       "https://picsum.photos/seed/ibk-bank-3d-2/1200/800",
       "https://picsum.photos/seed/ibk-bank-3d-3/1200/800",
