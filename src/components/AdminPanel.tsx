@@ -144,6 +144,26 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
             </div>
             <div className="grid grid-cols-2 gap-8">
               <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Project Info Label</label>
+                <RichTextEditor value={aboutState.projectInfoLabel || 'Project Info'} onChange={(val) => setAboutState({...aboutState, projectInfoLabel: val})} />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Timeline Label</label>
+                <RichTextEditor value={aboutState.timelineLabel || 'Timeline'} onChange={(val) => setAboutState({...aboutState, timelineLabel: val})} />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-8">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Category Label</label>
+                <RichTextEditor value={aboutState.categoryLabel || 'Category'} onChange={(val) => setAboutState({...aboutState, categoryLabel: val})} />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Tags Label</label>
+                <RichTextEditor value={aboutState.tagsLabel || 'Tags'} onChange={(val) => setAboutState({...aboutState, tagsLabel: val})} />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-8">
+              <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Others Category Title</label>
                 <RichTextEditor value={aboutState.othersTitle || 'OTHERS'} onChange={(val) => setAboutState({...aboutState, othersTitle: val})} />
               </div>
@@ -511,7 +531,14 @@ function ProjectEditor({ project, onSave, uploadImage, login }: { project: Proje
           )}
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-4 gap-3">
+        <div className="space-y-1">
+          <label className="text-[10px] font-black uppercase text-gray-300 italic">Project Info Display</label>
+          <RichTextEditor 
+            value={localProject.projectInfoRich || localProject.categoryRich || localProject.category || ''} 
+            onChange={(val) => setLocalProject({ ...localProject, projectInfoRich: val })}
+          />
+        </div>
         <div className="space-y-1">
           <label className="text-[10px] font-black uppercase text-gray-300 italic">Timeline (Period)</label>
           <RichTextEditor 
@@ -674,7 +701,14 @@ function FestivalEditor({ festival, onSave, uploadImage, login }: { festival: Fe
           />
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-4 gap-3">
+        <div className="space-y-1">
+          <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Project Info Display</label>
+          <RichTextEditor 
+            value={localFestival.projectInfoRich || localFestival.categoryRich || 'FESTIVAL'} 
+            onChange={(val) => setLocalFestival({ ...localFestival, projectInfoRich: val })}
+          />
+        </div>
         <div className="space-y-1">
           <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Timeline</label>
           <RichTextEditor 

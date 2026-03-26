@@ -514,32 +514,44 @@ export default function App() {
                 {/* Info & Overview Section */}
                 <div className="mb-16 w-full">
                   <div className="grid md:grid-cols-12 gap-12 border-t border-gray-100 pt-10">
-                    <div className="md:col-span-4 space-y-6">
+                    <div className="md:col-span-4 space-y-4">
                       <div className="flex flex-col">
-                        <h4 className="text-[10px] uppercase text-gray-300 font-black block mb-4 italic">Project Info</h4>
+                        <h4 
+                          className="text-[10px] uppercase text-gray-300 font-black block mb-1 italic whitespace-pre-wrap"
+                          dangerouslySetInnerHTML={{ __html: about.projectInfoLabel || 'Project Info' }}
+                        />
                         <div 
-                          className="text-xl md:text-2xl font-bold italic text-gray-400 leading-none"
-                          dangerouslySetInnerHTML={{ __html: selectedProject.categoryRich || selectedProject.category }}
+                          className="text-xl md:text-2xl font-bold italic text-gray-400 leading-tight"
+                          dangerouslySetInnerHTML={{ __html: selectedProject.projectInfoRich || selectedProject.categoryRich || selectedProject.category }}
                         />
                       </div>
-                      <div className="grid grid-cols-2 gap-8">
+                      <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <h4 className="text-[10px] uppercase text-gray-300 font-black block mb-4 italic">Timeline</h4>
+                          <h4 
+                            className="text-[10px] uppercase text-gray-300 font-black block mb-1 italic whitespace-pre-wrap"
+                            dangerouslySetInnerHTML={{ __html: about.timelineLabel || 'Timeline' }}
+                          />
                           <div 
-                            className="text-lg md:text-xl font-bold leading-none"
+                            className="text-lg md:text-xl font-bold leading-tight"
                             dangerouslySetInnerHTML={{ __html: selectedProject.periodRich || selectedProject.period }}
                           />
                         </div>
                         <div>
-                          <h4 className="text-[10px] uppercase text-gray-300 font-black block mb-4 italic">Category</h4>
+                          <h4 
+                            className="text-[10px] uppercase text-gray-300 font-black block mb-1 italic whitespace-pre-wrap"
+                            dangerouslySetInnerHTML={{ __html: about.categoryLabel || 'Category' }}
+                          />
                           <div 
-                            className="text-lg md:text-xl font-bold uppercase leading-none"
+                            className="text-lg md:text-xl font-bold uppercase leading-tight"
                             dangerouslySetInnerHTML={{ __html: selectedProject.categoryRich || selectedProject.category }}
                           />
                         </div>
                       </div>
                       <div>
-                        <h4 className="text-[10px] uppercase text-gray-300 font-black block mb-4 italic">Tags</h4>
+                        <h4 
+                          className="text-[10px] uppercase text-gray-300 font-black block mb-1 italic whitespace-pre-wrap"
+                          dangerouslySetInnerHTML={{ __html: about.tagsLabel || 'Tags' }}
+                        />
                         {selectedProject.tagsRich ? (
                           <div 
                             className="text-sm font-bold uppercase tracking-tight text-gray-500"
@@ -731,29 +743,44 @@ export default function App() {
                 {/* Info & Overview Section */}
                 <div className="mb-16 w-full">
                   <div className="grid md:grid-cols-12 gap-12 border-t border-gray-100 pt-10">
-                    <div className="md:col-span-4 space-y-6">
+                    <div className="md:col-span-4 space-y-4">
                       <div className="flex flex-col">
-                        <h4 className="text-[10px] uppercase text-gray-300 font-black block mb-4 italic">Festival Info</h4>
+                        <h4 
+                          className="text-[10px] uppercase text-gray-300 font-black block mb-1 italic whitespace-pre-wrap"
+                          dangerouslySetInnerHTML={{ __html: about.projectInfoLabel || 'Project Info' }}
+                        />
                         <div 
-                          className="text-xl md:text-2xl font-bold italic text-gray-400 leading-none"
-                          dangerouslySetInnerHTML={{ __html: selectedFestival.categoryRich || 'FESTIVAL' }}
+                          className="text-xl md:text-2xl font-bold italic text-gray-400 leading-tight"
+                          dangerouslySetInnerHTML={{ __html: selectedFestival.projectInfoRich || selectedFestival.categoryRich || 'FESTIVAL' }}
                         />
                       </div>
-                      <div className="grid grid-cols-2 gap-8">
+                      <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <h4 className="text-[10px] uppercase text-gray-300 font-black block mb-4 italic">Timeline</h4>
+                          <h4 
+                            className="text-[10px] uppercase text-gray-300 font-black block mb-1 italic whitespace-pre-wrap"
+                            dangerouslySetInnerHTML={{ __html: about.timelineLabel || 'Timeline' }}
+                          />
                           <div 
-                            className="text-lg md:text-xl font-bold leading-none"
+                            className="text-lg md:text-xl font-bold leading-tight"
                             dangerouslySetInnerHTML={{ __html: selectedFestival.periodRich || selectedFestival.period || '-' }}
                           />
                         </div>
                         <div>
-                          <h4 className="text-[10px] uppercase text-gray-300 font-black block mb-4 italic">Location</h4>
-                          <span className="text-lg md:text-xl font-bold uppercase leading-none">{selectedFestival.location || 'SEOUL, KOREA'}</span>
+                          <h4 
+                            className="text-[10px] uppercase text-gray-300 font-black block mb-1 italic whitespace-pre-wrap"
+                            dangerouslySetInnerHTML={{ __html: about.categoryLabel || 'Category' }}
+                          />
+                          <div 
+                            className="text-lg md:text-xl font-bold uppercase leading-tight"
+                            dangerouslySetInnerHTML={{ __html: selectedFestival.categoryRich || 'FESTIVAL' }}
+                          />
                         </div>
                       </div>
                       <div>
-                        <h4 className="text-[10px] uppercase text-gray-300 font-black block mb-4 italic">Tags</h4>
+                        <h4 
+                          className="text-[10px] uppercase text-gray-300 font-black block mb-1 italic whitespace-pre-wrap"
+                          dangerouslySetInnerHTML={{ __html: about.tagsLabel || 'Tags' }}
+                        />
                         {selectedFestival.tagsRich ? (
                           <div 
                             className="text-sm font-bold uppercase tracking-tight text-gray-500"

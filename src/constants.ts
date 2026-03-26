@@ -17,6 +17,10 @@ export const INITIAL_ABOUT: AboutInfo = {
     behance: "https://behance.net",
     notion: "https://notion.so"
   },
+  projectInfoLabel: 'Project Info',
+  timelineLabel: 'Timeline',
+  categoryLabel: 'Category',
+  tagsLabel: 'Tags',
   experiences: [
     { id: 'exp1', company: "콜링씨앤디 (Calling C&D)", period: "2026.03 - 현재" },
     { id: 'exp2', company: "더가꿈 (The Gakkum)", period: "2025.11 - 2026.01" },
@@ -36,6 +40,7 @@ export const INITIAL_PROJECTS: Project[] = [
     description: "공사 현장의 삭막한 울타리를 김해 수로왕릉, 한옥체험관 등 지역의 역사적 랜드마크를 활용한 갤러리로 변모시킨 프로젝트입니다.",
     tags: ["Public Art", "2019"],
     category: 'environmental',
+    projectInfoRich: 'Environmental Design',
     imageUrl: "https://picsum.photos/seed/nsquare-main/800/600",
     completedImages: [
       "https://picsum.photos/seed/nsquare-site-1/1200/800"

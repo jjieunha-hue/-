@@ -15,6 +15,7 @@ export interface Project {
   tagsRich?: string;
   category: 'environmental' | 'interior' | 'others';
   categoryRich?: string;
+  projectInfoRich?: string;
   imageUrl?: string;
   detailImages?: string[];
   completedImages?: string[];
@@ -36,6 +37,7 @@ export interface FestivalItem {
   period?: string;
   periodRich?: string;
   categoryRich?: string;
+  projectInfoRich?: string;
   tags?: string[];
   tagsRich?: string;
   imageUrl?: string;
@@ -57,6 +59,10 @@ export interface AboutInfo {
   interiorTitle?: string;
   othersTitle?: string;
   festivalTitle?: string;
+  projectInfoLabel?: string;
+  timelineLabel?: string;
+  categoryLabel?: string;
+  tagsLabel?: string;
   social?: {
     instagram?: string;
     behance?: string;
