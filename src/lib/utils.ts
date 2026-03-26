@@ -12,8 +12,8 @@ export function cn(...inputs: ClassValue[]) {
 
 export function stripHtml(html: string) {
   if (!html) return '';
-  // Replace &nbsp; with regular space
-  const cleaned = html.replace(/&nbsp;/g, ' ');
+  // Replace &nbsp; and double-encoded &nbsp; with regular space
+  const cleaned = html.replace(/&nbsp;/g, ' ').replace(/&amp;nbsp;/g, ' ');
   // Strip HTML tags
   return cleaned.replace(/<[^>]*>/g, '').trim();
 }

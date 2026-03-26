@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, memo } from 'react';
 import { Project, FestivalItem, AboutInfo } from '../types';
 import { usePortfolioData } from '../hooks';
 import { auth } from '../firebase';
@@ -266,7 +266,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
   );
 }
 
-function ImageUpload({ 
+const ImageUpload = memo(({ 
   onUpload, 
   label, 
   multiple = false, 
@@ -280,7 +280,7 @@ function ImageUpload({
   compact?: boolean,
   uploadImage: (file: File, path: string, onProgress?: (p: number) => void) => Promise<string>,
   login: () => Promise<void>
-}) {
+}) => {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
 
@@ -391,9 +391,9 @@ function ImageUpload({
       </div>
     </div>
   );
-}
+});
 
-function ImageManager({ 
+const ImageManager = memo(({ 
   label, 
   images = [], 
   onImagesChange,
@@ -405,7 +405,7 @@ function ImageManager({
   onImagesChange: (imgs: string[]) => void; 
   uploadImage: (file: File, path: string, onProgress?: (p: number) => void) => Promise<string>,
   login: () => Promise<void>
-}) {
+}) => {
   const [newUrl, setNewUrl] = useState('');
   const [showBulk, setShowBulk] = useState(false);
   const safeImages = images || [];
@@ -510,11 +510,11 @@ function ImageManager({
       </div>
     </div>
   );
-}
+});
 
-function ProjectEditor({ project, onSave, uploadImage, login }: { project: Project, onSave: (p: Project) => void, uploadImage: any, login: any }) {
+const ProjectEditor = memo(({ project, onSave, uploadImage, login }: { project: Project, onSave: (p: Project) => void, uploadImage: any, login: any }) => {
   const [localProject, setLocalProject] = useState(project);
-  const isDirty = JSON.stringify(localProject) !== JSON.stringify(project);
+  const isDirty = useMemo(() => JSON.stringify(localProject) !== JSON.stringify(project), [localProject, project]);
 
   return (
     <div className="p-8 border border-gray-100 space-y-4">
@@ -664,11 +664,11 @@ function ProjectEditor({ project, onSave, uploadImage, login }: { project: Proje
       </div>
     </div>
   );
-}
+});
 
-function FestivalEditor({ festival, onSave, uploadImage, login }: { festival: FestivalItem, onSave: (f: FestivalItem) => void, uploadImage: any, login: any }) {
+const FestivalEditor = memo(({ festival, onSave, uploadImage, login }: { festival: FestivalItem, onSave: (f: FestivalItem) => void, uploadImage: any, login: any }) => {
   const [localFestival, setLocalFestival] = useState(festival);
-  const isDirty = JSON.stringify(localFestival) !== JSON.stringify(festival);
+  const isDirty = useMemo(() => JSON.stringify(localFestival) !== JSON.stringify(festival), [localFestival, festival]);
 
   return (
     <div className="p-8 border border-gray-100 space-y-4">
@@ -835,4 +835,4 @@ function FestivalEditor({ festival, onSave, uploadImage, login }: { festival: Fe
       </div>
     </div>
   );
-}
+});

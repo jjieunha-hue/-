@@ -4,14 +4,14 @@
  */
 
 import { useState, useMemo } from 'react';
-import { usePortfolioData } from './hooks';
+import { PortfolioProvider, usePortfolioData } from './hooks';
 import { Project, FestivalItem } from './types';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import AdminPanel from './components/AdminPanel';
 import { Menu, X, ArrowRight, Github, Mail, Phone, ExternalLink, Settings } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
-export default function App() {
+function AppContent() {
   const { about, projects, festivals, loading, user, isAdmin, login } = usePortfolioData();
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [selectedFestival, setSelectedFestival] = useState<FestivalItem | null>(null);
@@ -971,5 +971,13 @@ export default function App() {
         </footer>
       </div>
     </ErrorBoundary>
+  );
+}
+
+export default function App() {
+  return (
+    <PortfolioProvider>
+      <AppContent />
+    </PortfolioProvider>
   );
 }

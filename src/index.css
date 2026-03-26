@@ -74,4 +74,48 @@
     will-change: transform;
     backface-visibility: hidden;
   }
+
+  /* Rich Text Editor Styles */
+  .rich-text-editor .ql-container {
+    min-height: 150px;
+    font-size: 16px;
+  }
+  .rich-text-editor .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="pretendard"]::before,
+  .rich-text-editor .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="pretendard"]::before {
+    content: 'Pretendard';
+    font-family: 'Pretendard';
+  }
+  .rich-text-editor .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="notosanskr"]::before,
+  .rich-text-editor .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="notosanskr"]::before {
+    content: 'Noto Sans KR';
+    font-family: 'Noto Sans KR';
+  }
+  .rich-text-editor .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="nanummyeongjo"]::before,
+  .rich-text-editor .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="nanummyeongjo"]::before {
+    content: '나눔명조';
+    font-family: 'Nanum Myeongjo';
+  }
+  .rich-text-editor .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="playfair"]::before,
+  .rich-text-editor .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="playfair"]::before {
+    content: 'Playfair';
+    font-family: 'Playfair Display';
+  }
+  
+  /* Font sizes */
+  .rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-label::before,
+  .rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-item::before {
+    content: attr(data-value) !important;
+  }
+
+  /* Line heights */
+  .rich-text-editor .ql-snow .ql-picker.ql-lineheight .ql-picker-label::before,
+  .rich-text-editor .ql-snow .ql-picker.ql-lineheight .ql-picker-item::before {
+    content: 'Line: ' attr(data-value) !important;
+  }
+
+  /* Letter spacing */
+  .rich-text-editor .ql-snow .ql-picker.ql-letterspacing .ql-picker-label::before,
+  .rich-text-editor .ql-snow .ql-picker.ql-letterspacing .ql-picker-item::before {
+    content: 'Space: ' attr(data-value) !important;
+  }
 }

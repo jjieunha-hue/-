@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { 
   collection, 
   onSnapshot, 
@@ -19,7 +19,24 @@ import { db, auth, storage, OperationType, handleFirestoreError } from './fireba
 import { Project, FestivalItem, AboutInfo } from './types';
 import { INITIAL_ABOUT, INITIAL_PROJECTS, INITIAL_FESTIVALS } from './constants';
 
-export function usePortfolioData() {
+type PortfolioContextType = {
+  about: AboutInfo;
+  projects: Project[];
+  festivals: FestivalItem[];
+  loading: boolean;
+  user: User | null;
+  isAdmin: boolean;
+  login: () => Promise<void>;
+  logout: () => Promise<void>;
+  updateAbout: (newData: AboutInfo) => Promise<void>;
+  updateProject: (project: Project) => Promise<void>;
+  updateFestival: (festival: FestivalItem) => Promise<void>;
+  uploadImage: (file: File, path: string, onProgress?: (p: number) => void) => Promise<string>;
+};
+
+const PortfolioContext = createContext<PortfolioContextType | null>(null);
+
+function usePortfolioDataInternal() {
   const [about, setAbout] = useState<AboutInfo>(INITIAL_ABOUT);
   const [projects, setProjects] = useState<Project[]>([]);
   const [festivals, setFestivals] = useState<FestivalItem[]>([]);
@@ -53,7 +70,6 @@ export function usePortfolioData() {
           batch.set(doc(db, 'projects', p.id), p);
         });
         batch.commit().catch(e => handleFirestoreError(e, OperationType.WRITE, 'projects_batch'));
-        // Keep initial data in state until batch syncs
         setProjects(INITIAL_PROJECTS);
       }
     }, (error) => handleFirestoreError(error, OperationType.GET, 'projects'));
@@ -70,7 +86,7 @@ export function usePortfolioData() {
           batch.set(doc(db, 'festivals', f.id), f);
         });
         batch.commit().then(() => {
-          // No need to set loading false here, the next snapshot will handle it
+          // No need to set loading false here
         }).catch(e => handleFirestoreError(e, OperationType.WRITE, 'festivals_batch'));
         
         setFestivals(INITIAL_FESTIVALS);
@@ -167,4 +183,21 @@ export function usePortfolioData() {
     updateFestival,
     uploadImage
   };
+}
+
+export function PortfolioProvider({ children }: { children: React.ReactNode }) {
+  const data = usePortfolioDataInternal();
+  return (
+    <PortfolioContext.Provider value={data}>
+      {children}
+    </PortfolioContext.Provider>
+  );
+}
+
+export function usePortfolioData() {
+  const context = useContext(PortfolioContext);
+  if (!context) {
+    throw new Error('usePortfolioData must be used within a PortfolioProvider');
+  }
+  return context;
 }

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, memo } from 'react';
 import ReactQuill, { Quill } from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 
@@ -32,16 +32,21 @@ interface RichTextEditorProps {
   placeholder?: string;
 }
 
-const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeholder }) => {
-  // Decode entities in value to prevent double encoding
+const RichTextEditor: React.FC<RichTextEditorProps> = memo(({ value, onChange, placeholder }) => {
+  // Decode common entities in value to prevent double encoding and avoid document.createElement in render
   const decodedValue = useMemo(() => {
     if (!value) return '';
-    const txt = document.createElement("textarea");
-    txt.innerHTML = value;
-    return txt.value;
+    return value
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'");
   }, [value]);
 
-  const modules = {
+  const modules = useMemo(() => ({
     toolbar: [
       [{ 'font': ['pretendard', 'notosanskr', 'nanummyeongjo', 'playfair'] }],
       [{ 'size': ['10px', '12px', '14px', '16px', '18px', '20px', '24px', '30px', '36px', '48px', '64px'] }],
@@ -56,20 +61,20 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
     clipboard: {
       matchVisual: false,
     },
-  };
+  }), []);
 
-  const formats = [
+  const formats = useMemo(() => [
     'font', 'size', 'lineheight', 'letterspacing',
     'bold', 'italic', 'underline', 'strike',
     'color', 'background',
     'align',
-    'list', 'bullet',
+    'list',
     'link'
-  ];
+  ], []);
 
   const handleChange = (content: string) => {
-    // Replace &nbsp; with regular space to prevent literal &nbsp; from being saved
-    const cleaned = content.replace(/&nbsp;/g, ' ');
+    // Replace &nbsp; and double-encoded &nbsp; with regular space to prevent literal &nbsp; from being saved
+    const cleaned = content.replace(/&nbsp;/g, ' ').replace(/&amp;nbsp;/g, ' ');
     onChange(cleaned);
   };
 
@@ -84,52 +89,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeh
         placeholder={placeholder}
         className="bg-white"
       />
-      <style>{`
-        .rich-text-editor .ql-container {
-          min-height: 150px;
-          font-size: 16px;
-        }
-        .rich-text-editor .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="pretendard"]::before,
-        .rich-text-editor .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="pretendard"]::before {
-          content: 'Pretendard';
-          font-family: 'Pretendard';
-        }
-        .rich-text-editor .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="notosanskr"]::before,
-        .rich-text-editor .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="notosanskr"]::before {
-          content: 'Noto Sans KR';
-          font-family: 'Noto Sans KR';
-        }
-        .rich-text-editor .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="nanummyeongjo"]::before,
-        .rich-text-editor .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="nanummyeongjo"]::before {
-          content: '나눔명조';
-          font-family: 'Nanum Myeongjo';
-        }
-        .rich-text-editor .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="playfair"]::before,
-        .rich-text-editor .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="playfair"]::before {
-          content: 'Playfair';
-          font-family: 'Playfair Display';
-        }
-        
-        /* Font sizes */
-        .rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-label::before,
-        .rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-item::before {
-          content: attr(data-value) !important;
-        }
-
-        /* Line heights */
-        .rich-text-editor .ql-snow .ql-picker.ql-lineheight .ql-picker-label::before,
-        .rich-text-editor .ql-snow .ql-picker.ql-lineheight .ql-picker-item::before {
-          content: 'Line: ' attr(data-value) !important;
-        }
-
-        /* Letter spacing */
-        .rich-text-editor .ql-snow .ql-picker.ql-letterspacing .ql-picker-label::before,
-        .rich-text-editor .ql-snow .ql-picker.ql-letterspacing .ql-picker-item::before {
-          content: 'Space: ' attr(data-value) !important;
-        }
-      `}</style>
     </div>
   );
-};
+});
 
 export default RichTextEditor;
