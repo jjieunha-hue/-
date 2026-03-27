@@ -33,19 +33,6 @@ interface RichTextEditorProps {
 }
 
 const RichTextEditor: React.FC<RichTextEditorProps> = memo(({ value, onChange, placeholder }) => {
-  // Decode common entities in value to prevent double encoding and avoid document.createElement in render
-  const decodedValue = useMemo(() => {
-    if (!value) return '';
-    return value
-      .replace(/&nbsp;/g, ' ')
-      .replace(/&amp;nbsp;/g, ' ')
-      .replace(/&amp;/g, '&')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'");
-  }, [value]);
-
   const modules = useMemo(() => ({
     toolbar: [
       [{ 'font': ['pretendard', 'notosanskr', 'nanummyeongjo', 'playfair'] }],
@@ -73,16 +60,17 @@ const RichTextEditor: React.FC<RichTextEditorProps> = memo(({ value, onChange, p
   ], []);
 
   const handleChange = (content: string) => {
-    // Replace &nbsp; and double-encoded &nbsp; with regular space to prevent literal &nbsp; from being saved
-    const cleaned = content.replace(/&nbsp;/g, ' ').replace(/&amp;nbsp;/g, ' ');
-    onChange(cleaned);
+    // Only call onChange if the content actually changed to avoid unnecessary parent updates
+    if (content !== value) {
+      onChange(content);
+    }
   };
 
   return (
     <div className="rich-text-editor">
       <ReactQuill
         theme="snow"
-        value={decodedValue}
+        value={value || ''}
         onChange={handleChange}
         modules={modules}
         formats={formats}

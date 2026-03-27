@@ -29,11 +29,7 @@ interface AdminPanelProps {
 export default function AdminPanel({ onClose }: AdminPanelProps) {
   const { about, projects, festivals, updateAbout, updateProject, updateFestival, logout, uploadImage, login } = usePortfolioData();
   const [activeTab, setActiveTab] = useState<'about' | 'environmental' | 'interior' | 'others' | 'festivals'>('about');
-  const [aboutState, setAboutState] = useState<AboutInfo>(about);
-
-  useEffect(() => {
-    setAboutState(about);
-  }, [about]);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const handleSyncProjects = async () => {
     if (confirm('모든 프로젝트 데이터를 초기 데이터(constants.ts)로 덮어쓰시겠습니까?')) {
@@ -43,28 +39,6 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
       }
       alert('동기화되었습니다.');
     }
-  };
-
-  const handleUpdateAbout = (e: React.FormEvent) => {
-    e.preventDefault();
-    updateAbout(aboutState);
-    alert('저장되었습니다.');
-  };
-
-  const addExperience = () => {
-    const newExp = { id: `exp_${Date.now()}`, company: 'New Experience', period: '2024.01 - 2024.12' };
-    setAboutState({ ...aboutState, experiences: [...aboutState.experiences, newExp] });
-  };
-
-  const removeExperience = (id: string) => {
-    setAboutState({ ...aboutState, experiences: aboutState.experiences.filter(e => e.id !== id) });
-  };
-
-  const updateExperience = (id: string, field: string, value: any) => {
-    setAboutState({
-      ...aboutState,
-      experiences: aboutState.experiences.map(e => e.id === id ? { ...e, [field]: value } : e)
-    });
   };
 
   return (
@@ -113,26 +87,123 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
         </div>
 
         {activeTab === 'about' && (
-          <form onSubmit={handleUpdateAbout} className="space-y-8">
+          <AboutEditor about={about} onSave={updateAbout} />
+        )}
+
+        {(activeTab === 'environmental' || activeTab === 'interior' || activeTab === 'others') && (
+          <div className="space-y-4">
+            {projects.filter(p => p.category === activeTab).map((project) => (
+              <ProjectEditor 
+                key={project.id} 
+                project={project} 
+                onSave={updateProject} 
+                uploadImage={uploadImage}
+                login={login}
+                isExpanded={expandedId === project.id}
+                onToggle={() => setExpandedId(expandedId === project.id ? null : project.id)}
+              />
+            ))}
+          </div>
+        )}
+
+        {activeTab === 'festivals' && (
+          <div className="space-y-4">
+            {festivals.map((f) => (
+              <FestivalEditor 
+                key={f.id} 
+                festival={f} 
+                onSave={updateFestival} 
+                uploadImage={uploadImage}
+                login={login}
+                isExpanded={expandedId === f.id}
+                onToggle={() => setExpandedId(expandedId === f.id ? null : f.id)}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+const AboutEditor = memo(({ about, onSave }: { about: AboutInfo, onSave: (a: AboutInfo) => void }) => {
+  const [aboutState, setAboutState] = useState<AboutInfo>(about);
+  const [expandedSection, setExpandedSection] = useState<string | null>('basic');
+
+  useEffect(() => {
+    setAboutState(about);
+  }, [about]);
+
+  const handleUpdateAbout = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave(aboutState);
+    alert('저장되었습니다.');
+  };
+
+  const addExperience = () => {
+    const newExp = { id: `exp_${Date.now()}`, company: 'New Experience', period: '2024.01 - 2024.12' };
+    setAboutState({ ...aboutState, experiences: [...(aboutState.experiences || []), newExp] });
+  };
+
+  const removeExperience = (id: string) => {
+    setAboutState({ ...aboutState, experiences: aboutState.experiences.filter(e => e.id !== id) });
+  };
+
+  const updateExperience = (id: string, field: string, value: any) => {
+    setAboutState({
+      ...aboutState,
+      experiences: aboutState.experiences.map(e => e.id === id ? { ...e, [field]: value } : e)
+    });
+  };
+
+  return (
+    <form onSubmit={handleUpdateAbout} className="space-y-6">
+      {/* Basic Info Section */}
+      <div className="border border-gray-100">
+        <button 
+          type="button"
+          onClick={() => setExpandedSection(expandedSection === 'basic' ? null : 'basic')}
+          className="w-full p-4 flex justify-between items-center bg-gray-50 hover:bg-gray-100 transition-colors"
+        >
+          <span className="text-xs font-black uppercase tracking-widest">Basic Information</span>
+          <span className="text-[10px] font-bold text-gray-400">{expandedSection === 'basic' ? 'Collapse' : 'Expand'}</span>
+        </button>
+        {expandedSection === 'basic' && (
+          <div className="p-6 space-y-8 border-t border-gray-100">
             <div className="grid grid-cols-2 gap-8">
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Name</label>
-                <RichTextEditor value={aboutState.name} onChange={(val) => setAboutState({...aboutState, name: val})} />
+                <RichTextEditor value={aboutState.name || ''} onChange={(val) => setAboutState({...aboutState, name: val})} />
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Title</label>
-                <RichTextEditor value={aboutState.title} onChange={(val) => setAboutState({...aboutState, title: val})} />
+                <RichTextEditor value={aboutState.title || ''} onChange={(val) => setAboutState({...aboutState, title: val})} />
               </div>
             </div>
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Highlight</label>
-              <RichTextEditor value={aboutState.highlight} onChange={(val) => setAboutState({...aboutState, highlight: val})} />
+              <RichTextEditor value={aboutState.highlight || ''} onChange={(val) => setAboutState({...aboutState, highlight: val})} />
             </div>
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description</label>
-              <RichTextEditor value={aboutState.description} onChange={(val) => setAboutState({...aboutState, description: val})} />
+              <RichTextEditor value={aboutState.description || ''} onChange={(val) => setAboutState({...aboutState, description: val})} />
             </div>
-            
+          </div>
+        )}
+      </div>
+
+      {/* Labels & Titles Section */}
+      <div className="border border-gray-100">
+        <button 
+          type="button"
+          onClick={() => setExpandedSection(expandedSection === 'labels' ? null : 'labels')}
+          className="w-full p-4 flex justify-between items-center bg-gray-50 hover:bg-gray-100 transition-colors"
+        >
+          <span className="text-xs font-black uppercase tracking-widest">Labels & Category Titles</span>
+          <span className="text-[10px] font-bold text-gray-400">{expandedSection === 'labels' ? 'Collapse' : 'Expand'}</span>
+        </button>
+        {expandedSection === 'labels' && (
+          <div className="p-6 space-y-8 border-t border-gray-100">
             <div className="grid grid-cols-2 gap-8">
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Environmental Category Title</label>
@@ -173,98 +244,99 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                 <RichTextEditor value={aboutState.festivalTitle || 'FESTIVAL'} onChange={(val) => setAboutState({...aboutState, festivalTitle: val})} />
               </div>
             </div>
+          </div>
+        )}
+      </div>
 
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Experience Timeline</label>
-                <button type="button" onClick={addExperience} className="text-[10px] font-black uppercase bg-gray-100 px-2 py-1 flex items-center gap-1">
-                  <Plus className="w-3 h-3" /> Add
-                </button>
-              </div>
-              <div className="space-y-2">
-                {aboutState.experiences.map((exp) => (
-                  <div key={exp.id} className="flex gap-4 items-center bg-gray-50 p-2 border border-gray-100">
-                    <input 
-                      value={exp.company} 
-                      onChange={(e) => updateExperience(exp.id, 'company', e.target.value)} 
-                      className="flex-1 p-2 bg-white border border-gray-100 outline-none text-sm font-bold"
-                      placeholder="Company Name"
-                    />
-                    <input 
-                      value={exp.period} 
-                      onChange={(e) => updateExperience(exp.id, 'period', e.target.value)} 
-                      className="w-40 p-2 bg-white border border-gray-100 outline-none text-xs"
-                      placeholder="Period"
-                    />
-                    <button type="button" onClick={() => removeExperience(exp.id)} className="p-2 text-red-500 hover:bg-red-50">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                ))}
-              </div>
+      {/* Experience Section */}
+      <div className="border border-gray-100">
+        <button 
+          type="button"
+          onClick={() => setExpandedSection(expandedSection === 'experience' ? null : 'experience')}
+          className="w-full p-4 flex justify-between items-center bg-gray-50 hover:bg-gray-100 transition-colors"
+        >
+          <span className="text-xs font-black uppercase tracking-widest">Experience Timeline</span>
+          <span className="text-[10px] font-bold text-gray-400">{expandedSection === 'experience' ? 'Collapse' : 'Expand'}</span>
+        </button>
+        {expandedSection === 'experience' && (
+          <div className="p-6 space-y-4 border-t border-gray-100">
+            <div className="flex items-center justify-between">
+              <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Experience Items</label>
+              <button type="button" onClick={addExperience} className="text-[10px] font-black uppercase bg-gray-100 px-2 py-1 flex items-center gap-1">
+                <Plus className="w-3 h-3" /> Add
+              </button>
             </div>
+            <div className="space-y-2">
+              {(aboutState.experiences || []).map((exp) => (
+                <div key={exp.id} className="flex gap-4 items-center bg-gray-50 p-2 border border-gray-100">
+                  <input 
+                    value={exp.company || ''} 
+                    onChange={(e) => updateExperience(exp.id, 'company', e.target.value)} 
+                    className="flex-1 p-2 bg-white border border-gray-100 outline-none text-sm font-bold"
+                    placeholder="Company Name"
+                  />
+                  <input 
+                    value={exp.period || ''} 
+                    onChange={(e) => updateExperience(exp.id, 'period', e.target.value)} 
+                    className="w-40 p-2 bg-white border border-gray-100 outline-none text-xs"
+                    placeholder="Period"
+                  />
+                  <button type="button" onClick={() => removeExperience(exp.id)} className="p-2 text-red-500 hover:bg-red-50">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
 
+      {/* Contact & Social Section */}
+      <div className="border border-gray-100">
+        <button 
+          type="button"
+          onClick={() => setExpandedSection(expandedSection === 'contact' ? null : 'contact')}
+          className="w-full p-4 flex justify-between items-center bg-gray-50 hover:bg-gray-100 transition-colors"
+        >
+          <span className="text-xs font-black uppercase tracking-widest">Contact & Social</span>
+          <span className="text-[10px] font-bold text-gray-400">{expandedSection === 'contact' ? 'Collapse' : 'Expand'}</span>
+        </button>
+        {expandedSection === 'contact' && (
+          <div className="p-6 space-y-8 border-t border-gray-100">
             <div className="grid grid-cols-2 gap-8">
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Phone</label>
-                <input value={aboutState.phone} onChange={(e) => setAboutState({...aboutState, phone: e.target.value})} className="w-full p-4 border border-gray-100 focus:border-black outline-none font-bold" />
+                <input value={aboutState.phone || ''} onChange={(e) => setAboutState({...aboutState, phone: e.target.value})} className="w-full p-4 border border-gray-100 focus:border-black outline-none font-bold" />
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Email</label>
-                <input value={aboutState.email} onChange={(e) => setAboutState({...aboutState, email: e.target.value})} className="w-full p-4 border border-gray-100 focus:border-black outline-none font-bold" />
+                <input value={aboutState.email || ''} onChange={(e) => setAboutState({...aboutState, email: e.target.value})} className="w-full p-4 border border-gray-100 focus:border-black outline-none font-bold" />
               </div>
             </div>
             <div className="grid grid-cols-3 gap-8">
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Instagram</label>
-                <input value={aboutState.social?.instagram || ''} onChange={(e) => setAboutState({...aboutState, social: {...aboutState.social, instagram: e.target.value}})} className="w-full p-4 border border-gray-100 focus:border-black outline-none font-bold" />
+                <input value={aboutState.social?.instagram || ''} onChange={(e) => setAboutState({...aboutState, social: {...(aboutState.social || {}), instagram: e.target.value}})} className="w-full p-4 border border-gray-100 focus:border-black outline-none font-bold" />
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Behance</label>
-                <input value={aboutState.social?.behance || ''} onChange={(e) => setAboutState({...aboutState, social: {...aboutState.social, behance: e.target.value}})} className="w-full p-4 border border-gray-100 focus:border-black outline-none font-bold" />
+                <input value={aboutState.social?.behance || ''} onChange={(e) => setAboutState({...aboutState, social: {...(aboutState.social || {}), behance: e.target.value}})} className="w-full p-4 border border-gray-100 focus:border-black outline-none font-bold" />
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Notion</label>
-                <input value={aboutState.social?.notion || ''} onChange={(e) => setAboutState({...aboutState, social: {...aboutState.social, notion: e.target.value}})} className="w-full p-4 border border-gray-100 focus:border-black outline-none font-bold" />
+                <input value={aboutState.social?.notion || ''} onChange={(e) => setAboutState({...aboutState, social: {...(aboutState.social || {}), notion: e.target.value}})} className="w-full p-4 border border-gray-100 focus:border-black outline-none font-bold" />
               </div>
             </div>
-            <button type="submit" className="w-full py-4 bg-black text-white font-bold uppercase tracking-widest flex items-center justify-center gap-2">
-              <Save className="w-4 h-4" /> Save Changes
-            </button>
-          </form>
-        )}
-
-        {(activeTab === 'environmental' || activeTab === 'interior' || activeTab === 'others') && (
-          <div className="space-y-12">
-            {projects.filter(p => p.category === activeTab).map((project) => (
-              <ProjectEditor 
-                key={project.id} 
-                project={project} 
-                onSave={updateProject} 
-                uploadImage={uploadImage}
-                login={login}
-              />
-            ))}
-          </div>
-        )}
-
-        {activeTab === 'festivals' && (
-          <div className="space-y-12">
-            {festivals.map((f) => (
-              <FestivalEditor 
-                key={f.id} 
-                festival={f} 
-                onSave={updateFestival} 
-                uploadImage={uploadImage}
-                login={login}
-              />
-            ))}
           </div>
         )}
       </div>
-    </div>
+
+      <button type="submit" className="w-full py-4 bg-black text-white font-bold uppercase tracking-widest flex items-center justify-center gap-2">
+        <Save className="w-4 h-4" /> Save Changes
+      </button>
+    </form>
   );
-}
+});
 
 const ImageUpload = memo(({ 
   onUpload, 
@@ -512,327 +584,389 @@ const ImageManager = memo(({
   );
 });
 
-const ProjectEditor = memo(({ project, onSave, uploadImage, login }: { project: Project, onSave: (p: Project) => void, uploadImage: any, login: any }) => {
+const ProjectEditor = memo(({ 
+  project, 
+  onSave, 
+  uploadImage, 
+  login,
+  isExpanded,
+  onToggle
+}: { 
+  project: Project, 
+  onSave: (p: Project) => void, 
+  uploadImage: any, 
+  login: any,
+  isExpanded: boolean,
+  onToggle: () => void
+}) => {
   const [localProject, setLocalProject] = useState(project);
-  const isDirty = useMemo(() => JSON.stringify(localProject) !== JSON.stringify(project), [localProject, project]);
+  
+  useEffect(() => {
+    setLocalProject(project);
+  }, [project]);
+
+  const isDirty = useMemo(() => {
+    // Simple shallow comparison for performance if possible, but deep is needed here.
+    // We only run this when expanded to save cycles.
+    if (!isExpanded) return false;
+    return JSON.stringify(localProject) !== JSON.stringify(project);
+  }, [localProject, project, isExpanded]);
 
   return (
-    <div className="p-8 border border-gray-100 space-y-4">
-      <div className="flex justify-between items-start">
-        <h3 className="text-xl font-black uppercase tracking-tighter" dangerouslySetInnerHTML={{ __html: project.title }} />
+    <div className={`border border-gray-100 transition-all ${isExpanded ? 'p-8 space-y-4' : 'p-4 hover:bg-gray-50'}`}>
+      <div className="flex justify-between items-center cursor-pointer" onClick={onToggle}>
         <div className="flex items-center gap-4">
+          <h3 className="text-lg font-black uppercase tracking-tighter" dangerouslySetInnerHTML={{ __html: project.title }} />
           <span className="text-[10px] font-black uppercase bg-gray-100 px-2 py-1">{project.category}</span>
+        </div>
+        <div className="flex items-center gap-4">
           {isDirty && (
             <button 
-              onClick={() => onSave(localProject)}
+              onClick={(e) => { e.stopPropagation(); onSave(localProject); }}
               className="text-[10px] font-black uppercase bg-black text-white px-2 py-1 flex items-center gap-1"
             >
               <Save className="w-3 h-3" /> Save
             </button>
           )}
+          <span className="text-xs font-bold text-gray-400">{isExpanded ? 'Collapse' : 'Expand to Edit'}</span>
         </div>
       </div>
-      <div className="grid grid-cols-4 gap-3">
-        <div className="space-y-1">
-          <label className="text-[10px] font-black uppercase text-gray-300 italic">Project Info Display</label>
-          <RichTextEditor 
-            value={localProject.projectInfoRich || localProject.categoryRich || localProject.category || ''} 
-            onChange={(val) => setLocalProject({ ...localProject, projectInfoRich: val })}
-          />
-        </div>
-        <div className="space-y-1">
-          <label className="text-[10px] font-black uppercase text-gray-300 italic">Timeline (Period)</label>
-          <RichTextEditor 
-            value={localProject.periodRich || localProject.period || ''} 
-            onChange={(val) => setLocalProject({ ...localProject, periodRich: val, period: stripHtml(val) })}
-          />
-        </div>
-        <div className="space-y-1">
-          <label className="text-[10px] font-black uppercase text-gray-300 italic">Category Display</label>
-          <RichTextEditor 
-            value={localProject.categoryRich || localProject.category || ''} 
-            onChange={(val) => setLocalProject({ ...localProject, categoryRich: val })}
-          />
-          <div className="pt-2">
-            <label className="text-[8px] font-black uppercase text-gray-300 italic">Logic Category (for filtering)</label>
-            <select 
-              value={localProject.category} 
-              onChange={(e) => setLocalProject({ ...localProject, category: e.target.value as any })}
-              className="w-full p-1 border border-gray-50 outline-none focus:border-black text-[10px] font-bold uppercase"
-            >
-              <option value="environmental">Environmental</option>
-              <option value="interior">Interior</option>
-              <option value="others">Others</option>
-            </select>
+
+      {isExpanded && (
+        <div className="space-y-4 pt-4 border-t border-gray-50">
+          <div className="grid grid-cols-4 gap-3">
+            <div className="space-y-1">
+              <label className="text-[10px] font-black uppercase text-gray-300 italic">Project Info Display</label>
+              <RichTextEditor 
+                value={localProject.projectInfoRich || localProject.categoryRich || localProject.category || ''} 
+                onChange={(val) => setLocalProject({ ...localProject, projectInfoRich: val })}
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-black uppercase text-gray-300 italic">Timeline (Period)</label>
+              <RichTextEditor 
+                value={localProject.periodRich || localProject.period || ''} 
+                onChange={(val) => setLocalProject({ ...localProject, periodRich: val, period: stripHtml(val) })}
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-black uppercase text-gray-300 italic">Category Display</label>
+              <RichTextEditor 
+                value={localProject.categoryRich || localProject.category || ''} 
+                onChange={(val) => setLocalProject({ ...localProject, categoryRich: val })}
+              />
+              <div className="pt-2">
+                <label className="text-[8px] font-black uppercase text-gray-300 italic">Logic Category (for filtering)</label>
+                <select 
+                  value={localProject.category} 
+                  onChange={(e) => setLocalProject({ ...localProject, category: e.target.value as any })}
+                  className="w-full p-1 border border-gray-50 outline-none focus:border-black text-[10px] font-bold uppercase"
+                >
+                  <option value="environmental">Environmental</option>
+                  <option value="interior">Interior</option>
+                  <option value="others">Others</option>
+                </select>
+              </div>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-black uppercase text-gray-300 italic">Tags Display</label>
+              <RichTextEditor 
+                value={localProject.tagsRich || localProject.tags?.join(', ') || ''} 
+                onChange={(val) => setLocalProject({ ...localProject, tagsRich: val, tags: stripHtml(val).split(',').map(t => t.trim()).filter(Boolean) })}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <label className="text-[10px] font-black uppercase text-gray-300 italic">Title</label>
+              <RichTextEditor 
+                value={localProject.title || ''} 
+                onChange={(val) => setLocalProject({ ...localProject, title: val })}
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-black uppercase text-gray-300 italic">Subtitle</label>
+              <RichTextEditor 
+                value={localProject.subtitle || ''} 
+                onChange={(val) => setLocalProject({ ...localProject, subtitle: val })}
+              />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <label className="text-[10px] font-black uppercase text-gray-300 italic">Main Image URL</label>
+            <div className="flex gap-4">
+              <input 
+                value={localProject.imageUrl || ''} 
+                onChange={(e) => setLocalProject({ ...localProject, imageUrl: convertGoogleDriveLink(e.target.value) })}
+                className="flex-1 p-2 border border-gray-50 outline-none focus:border-black text-sm"
+                placeholder="Main image URL"
+              />
+              <ImageUpload 
+                label="Upload Main Image" 
+                onUpload={(url) => setLocalProject(prev => ({ ...prev, imageUrl: url }))} 
+                uploadImage={uploadImage}
+                login={login}
+              />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <label className="text-[10px] font-black uppercase text-gray-300 italic">Short Description</label>
+            <RichTextEditor 
+              value={localProject.description || ''} 
+              onChange={(val) => setLocalProject({ ...localProject, description: val })}
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-[10px] font-black uppercase text-gray-300 italic">Detailed Paragraphs (one per line)</label>
+            <RichTextEditor 
+              value={(localProject.details || []).join('<br>')} 
+              onChange={(val) => setLocalProject({ ...localProject, details: val.split('<br>').map(v => v.trim()).filter(Boolean) })}
+            />
+          </div>
+          <div className="space-y-4">
+            <ImageManager 
+              label="Completed Photos (완공사진)"
+              images={localProject.completedImages}
+              onImagesChange={(imgs) => setLocalProject({ ...localProject, completedImages: imgs })}
+              uploadImage={uploadImage}
+              login={login}
+            />
+            
+            <ImageManager 
+              label="2D Designs (2D 시안)"
+              images={localProject.design2DImages}
+              onImagesChange={(imgs) => setLocalProject({ ...localProject, design2DImages: imgs })}
+              uploadImage={uploadImage}
+              login={login}
+            />
+    
+            <ImageManager 
+              label="3D Designs (3D 시안)"
+              images={localProject.design3DImages}
+              onImagesChange={(imgs) => setLocalProject({ ...localProject, design3DImages: imgs })}
+              uploadImage={uploadImage}
+              login={login}
+            />
+    
+            <ImageManager 
+              label="Design Images (기타 시안)"
+              images={localProject.designImages}
+              onImagesChange={(imgs) => setLocalProject({ ...localProject, designImages: imgs })}
+              uploadImage={uploadImage}
+              login={login}
+            />
+    
+            <ImageManager 
+              label="Legacy Detail Images (추가 사진)"
+              images={localProject.detailImages}
+              onImagesChange={(imgs) => setLocalProject({ ...localProject, detailImages: imgs })}
+              uploadImage={uploadImage}
+              login={login}
+            />
           </div>
         </div>
-        <div className="space-y-1">
-          <label className="text-[10px] font-black uppercase text-gray-300 italic">Tags Display</label>
-          <RichTextEditor 
-            value={localProject.tagsRich || localProject.tags?.join(', ') || ''} 
-            onChange={(val) => setLocalProject({ ...localProject, tagsRich: val, tags: stripHtml(val).split(',').map(t => t.trim()).filter(Boolean) })}
-          />
-        </div>
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1">
-          <label className="text-[10px] font-black uppercase text-gray-300 italic">Title</label>
-          <RichTextEditor 
-            value={localProject.title || ''} 
-            onChange={(val) => setLocalProject({ ...localProject, title: val })}
-          />
-        </div>
-        <div className="space-y-1">
-          <label className="text-[10px] font-black uppercase text-gray-300 italic">Subtitle</label>
-          <RichTextEditor 
-            value={localProject.subtitle || ''} 
-            onChange={(val) => setLocalProject({ ...localProject, subtitle: val })}
-          />
-        </div>
-      </div>
-      <div className="space-y-1">
-        <label className="text-[10px] font-black uppercase text-gray-300 italic">Main Image URL</label>
-        <div className="flex gap-4">
-          <input 
-            value={localProject.imageUrl || ''} 
-            onChange={(e) => setLocalProject({ ...localProject, imageUrl: convertGoogleDriveLink(e.target.value) })}
-            className="flex-1 p-2 border border-gray-50 outline-none focus:border-black text-sm"
-            placeholder="Main image URL"
-          />
-          <ImageUpload 
-            label="Upload Main Image" 
-            onUpload={(url) => setLocalProject(prev => ({ ...prev, imageUrl: url }))} 
-            uploadImage={uploadImage}
-            login={login}
-          />
-        </div>
-      </div>
-      <div className="space-y-1">
-        <label className="text-[10px] font-black uppercase text-gray-300 italic">Short Description</label>
-        <RichTextEditor 
-          value={localProject.description || ''} 
-          onChange={(val) => setLocalProject({ ...localProject, description: val })}
-        />
-      </div>
-      <div className="space-y-1">
-        <label className="text-[10px] font-black uppercase text-gray-300 italic">Detailed Paragraphs (one per line)</label>
-        <RichTextEditor 
-          value={localProject.details?.join('<br>') || ''} 
-          onChange={(val) => setLocalProject({ ...localProject, details: [val] })}
-        />
-      </div>
-      <div className="space-y-4">
-        <ImageManager 
-          label="Completed Photos (완공사진)"
-          images={localProject.completedImages}
-          onImagesChange={(imgs) => setLocalProject({ ...localProject, completedImages: imgs })}
-          uploadImage={uploadImage}
-          login={login}
-        />
-        
-        <ImageManager 
-          label="2D Designs (2D 시안)"
-          images={localProject.design2DImages}
-          onImagesChange={(imgs) => setLocalProject({ ...localProject, design2DImages: imgs })}
-          uploadImage={uploadImage}
-          login={login}
-        />
-
-        <ImageManager 
-          label="3D Designs (3D 시안)"
-          images={localProject.design3DImages}
-          onImagesChange={(imgs) => setLocalProject({ ...localProject, design3DImages: imgs })}
-          uploadImage={uploadImage}
-          login={login}
-        />
-
-        <ImageManager 
-          label="Design Images (기타 시안)"
-          images={localProject.designImages}
-          onImagesChange={(imgs) => setLocalProject({ ...localProject, designImages: imgs })}
-          uploadImage={uploadImage}
-          login={login}
-        />
-
-        <ImageManager 
-          label="Legacy Detail Images (추가 사진)"
-          images={localProject.detailImages}
-          onImagesChange={(imgs) => setLocalProject({ ...localProject, detailImages: imgs })}
-          uploadImage={uploadImage}
-          login={login}
-        />
-      </div>
+      )}
     </div>
   );
 });
 
-const FestivalEditor = memo(({ festival, onSave, uploadImage, login }: { festival: FestivalItem, onSave: (f: FestivalItem) => void, uploadImage: any, login: any }) => {
+const FestivalEditor = memo(({ 
+  festival, 
+  onSave, 
+  uploadImage, 
+  login,
+  isExpanded,
+  onToggle
+}: { 
+  festival: FestivalItem, 
+  onSave: (f: FestivalItem) => void, 
+  uploadImage: any, 
+  login: any,
+  isExpanded: boolean,
+  onToggle: () => void
+}) => {
   const [localFestival, setLocalFestival] = useState(festival);
-  const isDirty = useMemo(() => JSON.stringify(localFestival) !== JSON.stringify(festival), [localFestival, festival]);
+  
+  useEffect(() => {
+    setLocalFestival(festival);
+  }, [festival]);
+
+  const isDirty = useMemo(() => {
+    if (!isExpanded) return false;
+    return JSON.stringify(localFestival) !== JSON.stringify(festival);
+  }, [localFestival, festival, isExpanded]);
 
   return (
-    <div className="p-8 border border-gray-100 space-y-4">
-      <div className="flex justify-between items-start">
-        <h3 className="text-xl font-black uppercase tracking-tighter" dangerouslySetInnerHTML={{ __html: festival.title }} />
+    <div className={`border border-gray-100 transition-all ${isExpanded ? 'p-8 space-y-4' : 'p-4 hover:bg-gray-50'}`}>
+      <div className="flex justify-between items-center cursor-pointer" onClick={onToggle}>
         <div className="flex items-center gap-4">
+          <h3 className="text-lg font-black uppercase tracking-tighter" dangerouslySetInnerHTML={{ __html: festival.title }} />
           <span className="text-[10px] font-black uppercase bg-gray-100 px-2 py-1">Order: {festival.order}</span>
+        </div>
+        <div className="flex items-center gap-4">
           {isDirty && (
             <button 
-              onClick={() => onSave(localFestival)}
+              onClick={(e) => { e.stopPropagation(); onSave(localFestival); }}
               className="text-[10px] font-black uppercase bg-black text-white px-2 py-1 flex items-center gap-1"
             >
               <Save className="w-3 h-3" /> Save
             </button>
           )}
+          <span className="text-xs font-bold text-gray-400">{isExpanded ? 'Collapse' : 'Expand to Edit'}</span>
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1">
-          <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Title</label>
-          <RichTextEditor 
-            value={localFestival.title || ''} 
-            onChange={(val) => setLocalFestival({ ...localFestival, title: val })}
-          />
-        </div>
-        <div className="space-y-1">
-          <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Subtitle</label>
-          <RichTextEditor 
-            value={localFestival.sub || ''} 
-            onChange={(val) => setLocalFestival({ ...localFestival, sub: val })}
-          />
-        </div>
-      </div>
-      <div className="grid grid-cols-4 gap-3">
-        <div className="space-y-1">
-          <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Project Info Display</label>
-          <RichTextEditor 
-            value={localFestival.projectInfoRich || localFestival.categoryRich || 'FESTIVAL'} 
-            onChange={(val) => setLocalFestival({ ...localFestival, projectInfoRich: val })}
-          />
-        </div>
-        <div className="space-y-1">
-          <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Timeline</label>
-          <RichTextEditor 
-            value={localFestival.periodRich || localFestival.period || ''} 
-            onChange={(val) => setLocalFestival({ ...localFestival, periodRich: val, period: stripHtml(val) })}
-          />
-        </div>
-        <div className="space-y-1">
-          <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Category Display</label>
-          <RichTextEditor 
-            value={localFestival.categoryRich || ''} 
-            onChange={(val) => setLocalFestival({ ...localFestival, categoryRich: val })}
-          />
-        </div>
-        <div className="space-y-1">
-          <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Tags Display</label>
-          <RichTextEditor 
-            value={localFestival.tagsRich || localFestival.tags?.join(', ') || ''} 
-            onChange={(val) => setLocalFestival({ ...localFestival, tagsRich: val, tags: stripHtml(val).split(',').map(t => t.trim()).filter(Boolean) })}
-          />
-        </div>
-      </div>
-      <div className="space-y-2">
-        <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Main Image URL</label>
-        <div className="flex gap-4">
-          <input 
-            value={localFestival.imageUrl || ''} 
-            onChange={(e) => setLocalFestival({ ...localFestival, imageUrl: convertGoogleDriveLink(e.target.value) })}
-            className="flex-1 p-2 border border-gray-50 outline-none focus:border-black text-sm"
-            placeholder="Festival image URL"
-          />
-          <ImageUpload 
-            label="Upload Image" 
-            onUpload={(url) => setLocalFestival(prev => ({ ...prev, imageUrl: url }))} 
-            uploadImage={uploadImage}
-            login={login}
-          />
-        </div>
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1">
-          <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Location</label>
-          <input 
-            value={localFestival.location || ''} 
-            onChange={(e) => setLocalFestival({ ...localFestival, location: e.target.value })}
-            className="w-full p-2 border border-gray-50 outline-none focus:border-black text-sm"
-            placeholder="e.g. Seoul, Korea"
-          />
-        </div>
-        <div className="space-y-1">
-          <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Order</label>
-          <input 
-            type="number"
-            value={localFestival.order} 
-            onChange={(e) => setLocalFestival({ ...localFestival, order: parseInt(e.target.value) })}
-            className="w-full p-2 border border-gray-50 outline-none focus:border-black text-sm"
-          />
-        </div>
-      </div>
-      <div className="space-y-1">
-        <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description</label>
-        <RichTextEditor 
-          value={localFestival.description || ''} 
-          onChange={(val) => setLocalFestival({ ...localFestival, description: val })}
-        />
-      </div>
-      <div className="space-y-1">
-        <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Detailed Paragraphs (one per line)</label>
-        <RichTextEditor 
-          value={localFestival.details?.join('<br>') || ''} 
-          onChange={(val) => setLocalFestival({ ...localFestival, details: [val] })}
-        />
-      </div>
-      <div className="space-y-2">
-        <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Tags (comma separated)</label>
-        <input 
-          value={localFestival.tags?.join(', ') || ''} 
-          onChange={(e) => setLocalFestival({ ...localFestival, tags: e.target.value.split(',').map(t => t.trim()) })}
-          className="w-full p-2 border border-gray-50 outline-none focus:border-black text-sm"
-          placeholder="Branding, Festival, 2023"
-        />
-      </div>
-      <div className="space-y-4">
-        <ImageManager 
-          label="Completed Photos (준공 사진)"
-          images={localFestival.completedImages}
-          onImagesChange={(imgs) => setLocalFestival({ ...localFestival, completedImages: imgs })}
-          uploadImage={uploadImage}
-          login={login}
-        />
-        
-        <ImageManager 
-          label="2D Designs (2D 시안)"
-          images={localFestival.design2DImages}
-          onImagesChange={(imgs) => setLocalFestival({ ...localFestival, design2DImages: imgs })}
-          uploadImage={uploadImage}
-          login={login}
-        />
 
-        <ImageManager 
-          label="3D Designs (3D 시안)"
-          images={localFestival.design3DImages}
-          onImagesChange={(imgs) => setLocalFestival({ ...localFestival, design3DImages: imgs })}
-          uploadImage={uploadImage}
-          login={login}
-        />
-
-        <ImageManager 
-          label="Design Images (기타 시안)"
-          images={localFestival.designImages}
-          onImagesChange={(imgs) => setLocalFestival({ ...localFestival, designImages: imgs })}
-          uploadImage={uploadImage}
-          login={login}
-        />
-
-        <ImageManager 
-          label="Legacy Detail Images (추가 사진)"
-          images={localFestival.detailImages}
-          onImagesChange={(imgs) => setLocalFestival({ ...localFestival, detailImages: imgs })}
-          uploadImage={uploadImage}
-          login={login}
-        />
-      </div>
+      {isExpanded && (
+        <div className="space-y-4 pt-4 border-t border-gray-50">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Title</label>
+              <RichTextEditor 
+                value={localFestival.title || ''} 
+                onChange={(val) => setLocalFestival({ ...localFestival, title: val })}
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Subtitle</label>
+              <RichTextEditor 
+                value={localFestival.sub || ''} 
+                onChange={(val) => setLocalFestival({ ...localFestival, sub: val })}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-4 gap-3">
+            <div className="space-y-1">
+              <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Project Info Display</label>
+              <RichTextEditor 
+                value={localFestival.projectInfoRich || localFestival.categoryRich || 'FESTIVAL'} 
+                onChange={(val) => setLocalFestival({ ...localFestival, projectInfoRich: val })}
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Timeline</label>
+              <RichTextEditor 
+                value={localFestival.periodRich || localFestival.period || ''} 
+                onChange={(val) => setLocalFestival({ ...localFestival, periodRich: val, period: stripHtml(val) })}
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Category Display</label>
+              <RichTextEditor 
+                value={localFestival.categoryRich || ''} 
+                onChange={(val) => setLocalFestival({ ...localFestival, categoryRich: val })}
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Tags Display</label>
+              <RichTextEditor 
+                value={localFestival.tagsRich || localFestival.tags?.join(', ') || ''} 
+                onChange={(val) => setLocalFestival({ ...localFestival, tagsRich: val, tags: stripHtml(val).split(',').map(t => t.trim()).filter(Boolean) })}
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Main Image URL</label>
+            <div className="flex gap-4">
+              <input 
+                value={localFestival.imageUrl || ''} 
+                onChange={(e) => setLocalFestival({ ...localFestival, imageUrl: convertGoogleDriveLink(e.target.value) })}
+                className="flex-1 p-2 border border-gray-50 outline-none focus:border-black text-sm"
+                placeholder="Festival image URL"
+              />
+              <ImageUpload 
+                label="Upload Image" 
+                onUpload={(url) => setLocalFestival(prev => ({ ...prev, imageUrl: url }))} 
+                uploadImage={uploadImage}
+                login={login}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Location</label>
+              <input 
+                value={localFestival.location || ''} 
+                onChange={(e) => setLocalFestival({ ...localFestival, location: e.target.value })}
+                className="w-full p-2 border border-gray-50 outline-none focus:border-black text-sm"
+                placeholder="e.g. Seoul, Korea"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Order</label>
+              <input 
+                type="number"
+                value={localFestival.order} 
+                onChange={(e) => setLocalFestival({ ...localFestival, order: parseInt(e.target.value) })}
+                className="w-full p-2 border border-gray-50 outline-none focus:border-black text-sm"
+              />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description</label>
+            <RichTextEditor 
+              value={localFestival.description || ''} 
+              onChange={(val) => setLocalFestival({ ...localFestival, description: val })}
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Detailed Paragraphs (one per line)</label>
+            <RichTextEditor 
+              value={(localFestival.details || []).join('<br>')} 
+              onChange={(val) => setLocalFestival({ ...localFestival, details: val.split('<br>').map(v => v.trim()).filter(Boolean) })}
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Tags (comma separated)</label>
+            <input 
+              value={localFestival.tags?.join(', ') || ''} 
+              onChange={(e) => setLocalFestival({ ...localFestival, tags: e.target.value.split(',').map(t => t.trim()) })}
+              className="w-full p-2 border border-gray-50 outline-none focus:border-black text-sm"
+              placeholder="Branding, Festival, 2023"
+            />
+          </div>
+          <div className="space-y-4">
+            <ImageManager 
+              label="Completed Photos (준공 사진)"
+              images={localFestival.completedImages}
+              onImagesChange={(imgs) => setLocalFestival({ ...localFestival, completedImages: imgs })}
+              uploadImage={uploadImage}
+              login={login}
+            />
+            
+            <ImageManager 
+              label="2D Designs (2D 시안)"
+              images={localFestival.design2DImages}
+              onImagesChange={(imgs) => setLocalFestival({ ...localFestival, design2DImages: imgs })}
+              uploadImage={uploadImage}
+              login={login}
+            />
+    
+            <ImageManager 
+              label="3D Designs (3D 시안)"
+              images={localFestival.design3DImages}
+              onImagesChange={(imgs) => setLocalFestival({ ...localFestival, design3DImages: imgs })}
+              uploadImage={uploadImage}
+              login={login}
+            />
+    
+            <ImageManager 
+              label="Design Images (기타 시안)"
+              images={localFestival.designImages}
+              onImagesChange={(imgs) => setLocalFestival({ ...localFestival, designImages: imgs })}
+              uploadImage={uploadImage}
+              login={login}
+            />
+    
+            <ImageManager 
+              label="Legacy Detail Images (추가 사진)"
+              images={localFestival.detailImages}
+              onImagesChange={(imgs) => setLocalFestival({ ...localFestival, detailImages: imgs })}
+              uploadImage={uploadImage}
+              login={login}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 });

@@ -311,7 +311,7 @@ function AppContent() {
               <div>
                 <h4 className="text-xs uppercase tracking-widest text-gray-400 mb-6 font-bold">Experience Timeline</h4>
                 <ul className="space-y-4 text-sm font-light">
-                  {about.experiences.map((exp) => (
+                  {(about.experiences || []).map((exp) => (
                     <li key={exp.id} className={`flex flex-col mb-1 ${exp.opacity === 70 ? 'opacity-70' : exp.opacity === 50 ? 'opacity-50' : ''}`}>
                       <span className="font-bold text-lg leading-tight uppercase" dangerouslySetInnerHTML={{ __html: exp.company }} />
                       <span className="text-gray-400 text-xs" dangerouslySetInnerHTML={{ __html: exp.period }} />
@@ -349,7 +349,7 @@ function AppContent() {
               dangerouslySetInnerHTML={{ __html: about.environmentalTitle || 'environmental' }}
             />
             <div className="grid md:grid-cols-2 gap-10">
-              {groupedProjects['environmental'].map((project) => (
+              {(groupedProjects['environmental'] || []).map((project) => (
                 <div 
                   key={project.id} 
                   className="project-card bg-white p-1 border border-gray-100 hover:border-black transition-all group cursor-pointer"
@@ -397,7 +397,7 @@ function AppContent() {
             dangerouslySetInnerHTML={{ __html: about.festivalTitle || 'FESTIVAL' }}
           />
           <div className="grid grid-cols-1">
-            {festivals.map((item, idx) => (
+            {(festivals || []).map((item, idx) => (
               <div 
                 key={item.id} 
                 className="p-8 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between group hover:bg-gray-50 transition-all cursor-pointer"
@@ -493,11 +493,11 @@ function AppContent() {
                 <div className="mb-20">
                   <h2 
                     className="serif text-4xl md:text-9xl font-black uppercase leading-tight tracking-tighter mb-8 whitespace-pre-wrap"
-                    dangerouslySetInnerHTML={{ __html: selectedProject.title }}
+                    dangerouslySetInnerHTML={{ __html: selectedProject.title || '' }}
                   />
                   <div 
                     className="serif-italic text-xl md:text-4xl text-gray-400 italic whitespace-pre-wrap"
-                    dangerouslySetInnerHTML={{ __html: selectedProject.subtitle }}
+                    dangerouslySetInnerHTML={{ __html: selectedProject.subtitle || '' }}
                   />
                 </div>
 
@@ -559,7 +559,7 @@ function AppContent() {
                           />
                         ) : (
                           <div className="flex flex-wrap gap-2">
-                            {selectedProject.tags.map(t => (
+                            {(selectedProject.tags || []).map(t => (
                               <span key={t} className="text-sm font-bold uppercase tracking-tight text-gray-500" dangerouslySetInnerHTML={{ __html: t }} />
                             ))}
                           </div>
@@ -570,9 +570,9 @@ function AppContent() {
                     <div className="md:col-span-8">
                       <h4 className="text-[10px] uppercase text-gray-300 font-black mb-4 italic">Project Overview</h4>
                       <div className="text-gray-700 leading-relaxed text-xl font-light space-y-8 text-justify break-keep whitespace-pre-wrap">
-                        <div dangerouslySetInnerHTML={{ __html: selectedProject.description }} />
-                        {selectedProject.details?.map((detail, idx) => (
-                          <div key={idx} dangerouslySetInnerHTML={{ __html: detail }} />
+                        <div dangerouslySetInnerHTML={{ __html: selectedProject.description || '' }} />
+                        {(selectedProject.details || []).map((detail, idx) => (
+                          <div key={idx} dangerouslySetInnerHTML={{ __html: detail || '' }} />
                         ))}
                       </div>
                     </div>
@@ -588,7 +588,7 @@ function AppContent() {
                       </div>
                       <div className="md:col-span-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          {selectedProject.completedImages.map((img, idx) => (
+                          {(selectedProject.completedImages || []).map((img, idx) => (
                             <div key={idx} className="aspect-square bg-gray-50 overflow-hidden border border-gray-100">
                               <img 
                                 src={img} 
@@ -612,7 +612,7 @@ function AppContent() {
                       </div>
                       <div className="md:col-span-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          {selectedProject.design2DImages.map((img, idx) => (
+                          {(selectedProject.design2DImages || []).map((img, idx) => (
                             <div key={idx} className="aspect-square bg-gray-50 overflow-hidden border border-gray-100">
                               <img 
                                 src={img} 
@@ -636,7 +636,7 @@ function AppContent() {
                       </div>
                       <div className="md:col-span-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          {selectedProject.design3DImages.map((img, idx) => (
+                          {(selectedProject.design3DImages || []).map((img, idx) => (
                             <div key={idx} className="aspect-square bg-gray-50 overflow-hidden border border-gray-100">
                               <img 
                                 src={img} 
@@ -663,7 +663,7 @@ function AppContent() {
                       </div>
                       <div className="md:col-span-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          {selectedProject.designImages.map((img, idx) => (
+                          {(selectedProject.designImages || []).map((img, idx) => (
                             <div key={idx} className="aspect-square bg-gray-50 overflow-hidden border border-gray-100">
                               <img 
                                 src={img} 
@@ -684,7 +684,7 @@ function AppContent() {
                   <div className="pt-20 border-t border-gray-100">
                     <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">Process & Details</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {selectedProject.detailImages.map((img, idx) => (
+                      {(selectedProject.detailImages || []).map((img, idx) => (
                         <div key={idx} className="aspect-square bg-gray-50 overflow-hidden border border-gray-100">
                           <img 
                             src={img} 
@@ -722,11 +722,11 @@ function AppContent() {
                 <div className="mb-20">
                   <h2 
                     className="serif text-4xl md:text-9xl font-black uppercase leading-[0.85] tracking-tighter mb-8 whitespace-pre-wrap"
-                    dangerouslySetInnerHTML={{ __html: selectedFestival.title }}
+                    dangerouslySetInnerHTML={{ __html: selectedFestival.title || '' }}
                   />
                   <div 
                     className="serif-italic text-xl md:text-4xl text-gray-400 italic whitespace-pre-wrap"
-                    dangerouslySetInnerHTML={{ __html: selectedFestival.sub }}
+                    dangerouslySetInnerHTML={{ __html: selectedFestival.sub || '' }}
                   />
                 </div>
 
@@ -800,8 +800,8 @@ function AppContent() {
                       <h4 className="text-[10px] uppercase text-gray-300 font-black mb-4 italic">Festival Overview</h4>
                       <div className="text-gray-700 leading-relaxed text-xl font-light space-y-8 text-justify break-keep whitespace-pre-wrap">
                         <div dangerouslySetInnerHTML={{ __html: selectedFestival.description || '상세 설명이 준비 중입니다.' }} />
-                        {selectedFestival.details?.map((detail, idx) => (
-                          <div key={idx} dangerouslySetInnerHTML={{ __html: detail }} />
+                        {(selectedFestival.details || []).map((detail, idx) => (
+                          <div key={idx} dangerouslySetInnerHTML={{ __html: detail || '' }} />
                         ))}
                       </div>
                     </div>
@@ -817,7 +817,7 @@ function AppContent() {
                       </div>
                       <div className="md:col-span-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          {selectedFestival.completedImages.map((img, idx) => (
+                          {(selectedFestival.completedImages || []).map((img, idx) => (
                             <div key={idx} className="aspect-square bg-gray-50 overflow-hidden border border-gray-100">
                               <img 
                                 src={img} 
@@ -841,7 +841,7 @@ function AppContent() {
                       </div>
                       <div className="md:col-span-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          {selectedFestival.design2DImages.map((img, idx) => (
+                          {(selectedFestival.design2DImages || []).map((img, idx) => (
                             <div key={idx} className="aspect-square bg-gray-50 overflow-hidden border border-gray-100">
                               <img 
                                 src={img} 
@@ -865,7 +865,7 @@ function AppContent() {
                       </div>
                       <div className="md:col-span-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          {selectedFestival.design3DImages.map((img, idx) => (
+                          {(selectedFestival.design3DImages || []).map((img, idx) => (
                             <div key={idx} className="aspect-square bg-gray-50 overflow-hidden border border-gray-100">
                               <img 
                                 src={img} 
@@ -889,7 +889,7 @@ function AppContent() {
                       </div>
                       <div className="md:col-span-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          {selectedFestival.designImages.map((img, idx) => (
+                          {(selectedFestival.designImages || []).map((img, idx) => (
                             <div key={idx} className="aspect-square bg-gray-50 overflow-hidden border border-gray-100">
                               <img 
                                 src={img} 
@@ -909,7 +909,7 @@ function AppContent() {
                   <div className="pt-20 border-t border-gray-100">
                     <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">Process & Details</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {selectedFestival.detailImages.map((img, idx) => (
+                      {(selectedFestival.detailImages || []).map((img, idx) => (
                         <div key={idx} className="aspect-square bg-gray-50 overflow-hidden border border-gray-100">
                           <img 
                             src={img} 
