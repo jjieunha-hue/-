@@ -118,4 +118,32 @@
   .rich-text-editor .ql-snow .ql-picker.ql-letterspacing .ql-picker-item::before {
     content: 'Space: ' attr(data-value) !important;
   }
+
+  /* Masonry Grid Styles */
+  .my-masonry-grid {
+    display: flex;
+    margin-left: -40px; /* gutter size offset */
+    width: auto;
+  }
+  .my-masonry-grid_column {
+    padding-left: 40px; /* gutter size */
+    background-clip: padding-box;
+  }
+  .my-masonry-grid_column > div {
+    margin-bottom: 40px;
+    @apply border border-gray-100 rounded-lg shadow-sm overflow-hidden bg-white transition-all duration-300 hover:shadow-md;
+  }
+
+  /* Festival List View Styles */
+  .festival-list-view .group:first-child {
+    border-top: 1px solid #f3f4f6;
+  }
+
+  .festival-list-view h3 {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .festival-list-view .group:hover h3 {
+    letter-spacing: -0.02em;
+  }
 }

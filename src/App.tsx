@@ -9,6 +9,7 @@ import { Project, FestivalItem } from './types';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import AdminPanel from './components/AdminPanel';
 import { ImageViewer } from './components/ImageViewer';
+import Masonry from 'react-masonry-css';
 import { Menu, X, ArrowRight, Github, Mail, Phone, ExternalLink, Settings } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -35,6 +36,12 @@ function AppContent() {
   const closeViewer = () => setIsViewerOpen(false);
   const nextImage = () => setViewerIndex((prev) => (prev + 1) % viewerImages.length);
   const prevImage = () => setViewerIndex((prev) => (prev - 1 + viewerImages.length) % viewerImages.length);
+
+  const masonryBreakpoints = {
+    default: 2,
+    1100: 2,
+    768: 1
+  };
 
   const groupedProjects = useMemo(() => {
     return {
@@ -362,18 +369,18 @@ function AppContent() {
               className="section-title uppercase whitespace-pre-wrap"
               dangerouslySetInnerHTML={{ __html: about.environmentalTitle || 'environmental' }}
             />
-            <div className="grid md:grid-cols-2 gap-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
               {(groupedProjects['environmental'] || []).map((project) => (
                 <div 
                   key={project.id} 
                   className="project-card bg-white p-1 border border-gray-100 hover:border-black transition-all group cursor-pointer"
                   onClick={() => setSelectedProject(project)}
                 >
-                  <div className="aspect-video bg-gray-50 overflow-hidden relative">
+                  <div className="aspect-square bg-gray-50 overflow-hidden relative">
                     <img 
                       src={project.imageUrl || `https://picsum.photos/seed/${project.id}/800/600`} 
                       alt="Project"
-                      className="w-full h-full object-contain grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
+                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
                       referrerPolicy="no-referrer"
                     />
                     <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
@@ -410,26 +417,37 @@ function AppContent() {
             className="section-title uppercase whitespace-pre-wrap"
             dangerouslySetInnerHTML={{ __html: about.festivalTitle || 'FESTIVAL' }}
           />
-          <div className="grid grid-cols-1">
+          <div className="festival-list-view flex flex-col">
             {(festivals || []).map((item, idx) => (
               <div 
                 key={item.id} 
-                className="p-8 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between group hover:bg-gray-50 transition-all cursor-pointer"
+                className="group flex flex-col md:flex-row md:items-center justify-between py-10 border-b border-gray-100 hover:bg-gray-50/50 transition-all cursor-pointer px-4"
                 onClick={() => setSelectedFestival(item)}
               >
-                <div className="flex items-center space-x-8">
-                  <span className="text-xs font-black opacity-20 group-hover:opacity-100 transition">{(idx + 1).toString().padStart(2, '0')}</span>
-                  <h3 
-                    className="text-xl md:text-2xl font-bold uppercase tracking-tight whitespace-pre-wrap"
-                    dangerouslySetInnerHTML={{ __html: item.title }}
-                  />
+                <div className="flex items-baseline gap-6 flex-1">
+                  <span className="text-[10px] font-black text-gray-200 group-hover:text-black transition-colors">
+                    {(idx + 1).toString().padStart(2, '0')}
+                  </span>
+                  <div className="flex flex-col gap-1">
+                    <h3 
+                      className="text-lg md:text-xl font-black uppercase tracking-tighter leading-tight group-hover:italic transition-all"
+                      dangerouslySetInnerHTML={{ __html: item.title }}
+                    />
+                    <div 
+                      className="serif-italic text-gray-400 italic text-[10px] md:text-xs opacity-60 group-hover:opacity-100 transition-opacity"
+                      dangerouslySetInnerHTML={{ __html: item.sub }}
+                    />
+                  </div>
                 </div>
-                <div className="flex items-center gap-4 mt-2 md:mt-0">
-                  <div 
-                    className="serif-italic text-gray-400 italic whitespace-pre-wrap"
-                    dangerouslySetInnerHTML={{ __html: item.sub }}
-                  />
-                  <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-all transform translate-x-[-10px] group-hover:translate-x-0" />
+                <div className="flex items-center gap-8 mt-6 md:mt-0">
+                  <div className="hidden lg:flex flex-col items-end text-right">
+                    <span className="text-[10px] uppercase text-gray-300 font-black italic mb-1">Period</span>
+                    <span className="text-sm font-bold text-gray-400 italic" dangerouslySetInnerHTML={{ __html: item.period || '-' }} />
+                  </div>
+                  <div className="flex items-center gap-3 text-gray-200 group-hover:text-black transition-all transform group-hover:translate-x-2">
+                    <span className="text-[10px] font-black uppercase tracking-widest italic">View Detail</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </div>
                 </div>
               </div>
             ))}
@@ -444,18 +462,18 @@ function AppContent() {
                 className="section-title uppercase whitespace-pre-wrap"
                 dangerouslySetInnerHTML={{ __html: cat === 'interior' ? (about.interiorTitle || 'interior') : (about.othersTitle || 'others') }}
               />
-              <div className="grid md:grid-cols-2 gap-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                 {groupedProjects[cat].map((project) => (
                   <div 
                     key={project.id} 
                     className="project-card bg-white p-1 border border-gray-100 hover:border-black transition-all group cursor-pointer"
                     onClick={() => setSelectedProject(project)}
                   >
-                    <div className="aspect-video bg-gray-50 overflow-hidden relative">
+                    <div className="aspect-square bg-gray-50 overflow-hidden relative">
                       <img 
                         src={project.imageUrl || `https://picsum.photos/seed/${project.id}/800/600`} 
                         alt="Project"
-                        className="w-full h-full object-contain grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
+                        className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
                         referrerPolicy="no-referrer"
                       />
                       <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
@@ -601,9 +619,13 @@ function AppContent() {
                         <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">Completed Photos (완공사진)</h4>
                       </div>
                       <div className="md:col-span-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Masonry
+                          breakpointCols={masonryBreakpoints}
+                          className="my-masonry-grid"
+                          columnClassName="my-masonry-grid_column"
+                        >
                           {(selectedProject.completedImages || []).map((img, idx) => (
-                            <div key={idx} className="bg-gray-50 overflow-hidden border border-gray-100 cursor-pointer" onClick={() => openViewer(selectedProject.completedImages || [], idx)}>
+                            <div key={idx} className="cursor-pointer" onClick={() => openViewer(selectedProject.completedImages || [], idx)}>
                               <img 
                                 src={img} 
                                 alt={`${selectedProject.title} completed ${idx + 1}`}
@@ -612,7 +634,7 @@ function AppContent() {
                               />
                             </div>
                           ))}
-                        </div>
+                        </Masonry>
                       </div>
                     </div>
                   </div>
@@ -625,9 +647,13 @@ function AppContent() {
                         <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">2D Designs (2D 시안)</h4>
                       </div>
                       <div className="md:col-span-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Masonry
+                          breakpointCols={masonryBreakpoints}
+                          className="my-masonry-grid"
+                          columnClassName="my-masonry-grid_column"
+                        >
                           {(selectedProject.design2DImages || []).map((img, idx) => (
-                            <div key={idx} className="bg-gray-50 overflow-hidden border border-gray-100 cursor-pointer" onClick={() => openViewer(selectedProject.design2DImages || [], idx)}>
+                            <div key={idx} className="cursor-pointer" onClick={() => openViewer(selectedProject.design2DImages || [], idx)}>
                               <img 
                                 src={img} 
                                 alt={`${selectedProject.title} 2d design ${idx + 1}`}
@@ -636,7 +662,7 @@ function AppContent() {
                               />
                             </div>
                           ))}
-                        </div>
+                        </Masonry>
                       </div>
                     </div>
                   </div>
@@ -649,9 +675,13 @@ function AppContent() {
                         <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">3D Designs (3D 시안)</h4>
                       </div>
                       <div className="md:col-span-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Masonry
+                          breakpointCols={masonryBreakpoints}
+                          className="my-masonry-grid"
+                          columnClassName="my-masonry-grid_column"
+                        >
                           {(selectedProject.design3DImages || []).map((img, idx) => (
-                            <div key={idx} className="bg-gray-50 overflow-hidden border border-gray-100 cursor-pointer" onClick={() => openViewer(selectedProject.design3DImages || [], idx)}>
+                            <div key={idx} className="cursor-pointer" onClick={() => openViewer(selectedProject.design3DImages || [], idx)}>
                               <img 
                                 src={img} 
                                 alt={`${selectedProject.title} 3d design ${idx + 1}`}
@@ -660,7 +690,7 @@ function AppContent() {
                               />
                             </div>
                           ))}
-                        </div>
+                        </Masonry>
                       </div>
                     </div>
                   </div>
@@ -676,9 +706,13 @@ function AppContent() {
                         </h4>
                       </div>
                       <div className="md:col-span-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Masonry
+                          breakpointCols={masonryBreakpoints}
+                          className="my-masonry-grid"
+                          columnClassName="my-masonry-grid_column"
+                        >
                           {(selectedProject.designImages || []).map((img, idx) => (
-                            <div key={idx} className="bg-gray-50 overflow-hidden border border-gray-100 cursor-pointer" onClick={() => openViewer(selectedProject.designImages || [], idx)}>
+                            <div key={idx} className="cursor-pointer" onClick={() => openViewer(selectedProject.designImages || [], idx)}>
                               <img 
                                 src={img} 
                                 alt={`${selectedProject.title} design ${idx + 1}`}
@@ -687,7 +721,7 @@ function AppContent() {
                               />
                             </div>
                           ))}
-                        </div>
+                        </Masonry>
                       </div>
                     </div>
                   </div>
@@ -697,9 +731,13 @@ function AppContent() {
                 {selectedProject.detailImages && selectedProject.detailImages.length > 0 && (
                   <div className="pt-20 border-t border-gray-100">
                     <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">Process & Details</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <Masonry
+                      breakpointCols={masonryBreakpoints}
+                      className="my-masonry-grid"
+                      columnClassName="my-masonry-grid_column"
+                    >
                       {(selectedProject.detailImages || []).map((img, idx) => (
-                        <div key={idx} className="bg-gray-50 overflow-hidden border border-gray-100 cursor-pointer" onClick={() => openViewer(selectedProject.detailImages || [], idx)}>
+                        <div key={idx} className="cursor-pointer" onClick={() => openViewer(selectedProject.detailImages || [], idx)}>
                           <img 
                             src={img} 
                             alt={`${selectedProject.title} detail ${idx + 1}`}
@@ -708,7 +746,7 @@ function AppContent() {
                           />
                         </div>
                       ))}
-                    </div>
+                    </Masonry>
                   </div>
                 )}
               </div>
@@ -830,9 +868,13 @@ function AppContent() {
                         <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">Completed Photos (준공 사진)</h4>
                       </div>
                       <div className="md:col-span-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Masonry
+                          breakpointCols={masonryBreakpoints}
+                          className="my-masonry-grid"
+                          columnClassName="my-masonry-grid_column"
+                        >
                           {(selectedFestival.completedImages || []).map((img, idx) => (
-                            <div key={idx} className="bg-gray-50 overflow-hidden border border-gray-100 cursor-pointer" onClick={() => openViewer(selectedFestival.completedImages || [], idx)}>
+                            <div key={idx} className="cursor-pointer" onClick={() => openViewer(selectedFestival.completedImages || [], idx)}>
                               <img 
                                 src={img} 
                                 alt={`${selectedFestival.title} completed ${idx + 1}`}
@@ -841,7 +883,7 @@ function AppContent() {
                               />
                             </div>
                           ))}
-                        </div>
+                        </Masonry>
                       </div>
                     </div>
                   </div>
@@ -854,9 +896,13 @@ function AppContent() {
                         <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">2D Designs (2D 시안)</h4>
                       </div>
                       <div className="md:col-span-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Masonry
+                          breakpointCols={masonryBreakpoints}
+                          className="my-masonry-grid"
+                          columnClassName="my-masonry-grid_column"
+                        >
                           {(selectedFestival.design2DImages || []).map((img, idx) => (
-                            <div key={idx} className="bg-gray-50 overflow-hidden border border-gray-100 cursor-pointer" onClick={() => openViewer(selectedFestival.design2DImages || [], idx)}>
+                            <div key={idx} className="cursor-pointer" onClick={() => openViewer(selectedFestival.design2DImages || [], idx)}>
                               <img 
                                 src={img} 
                                 alt={`${selectedFestival.title} 2d design ${idx + 1}`}
@@ -865,7 +911,7 @@ function AppContent() {
                               />
                             </div>
                           ))}
-                        </div>
+                        </Masonry>
                       </div>
                     </div>
                   </div>
@@ -878,9 +924,13 @@ function AppContent() {
                         <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">3D Designs (3D 시안)</h4>
                       </div>
                       <div className="md:col-span-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Masonry
+                          breakpointCols={masonryBreakpoints}
+                          className="my-masonry-grid"
+                          columnClassName="my-masonry-grid_column"
+                        >
                           {(selectedFestival.design3DImages || []).map((img, idx) => (
-                            <div key={idx} className="bg-gray-50 overflow-hidden border border-gray-100 cursor-pointer" onClick={() => openViewer(selectedFestival.design3DImages || [], idx)}>
+                            <div key={idx} className="cursor-pointer" onClick={() => openViewer(selectedFestival.design3DImages || [], idx)}>
                               <img 
                                 src={img} 
                                 alt={`${selectedFestival.title} 3d design ${idx + 1}`}
@@ -889,7 +939,7 @@ function AppContent() {
                               />
                             </div>
                           ))}
-                        </div>
+                        </Masonry>
                       </div>
                     </div>
                   </div>
@@ -902,9 +952,13 @@ function AppContent() {
                         <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">Design Images (기타 시안)</h4>
                       </div>
                       <div className="md:col-span-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Masonry
+                          breakpointCols={masonryBreakpoints}
+                          className="my-masonry-grid"
+                          columnClassName="my-masonry-grid_column"
+                        >
                           {(selectedFestival.designImages || []).map((img, idx) => (
-                            <div key={idx} className="bg-gray-50 overflow-hidden border border-gray-100 cursor-pointer" onClick={() => openViewer(selectedFestival.designImages || [], idx)}>
+                            <div key={idx} className="cursor-pointer" onClick={() => openViewer(selectedFestival.designImages || [], idx)}>
                               <img 
                                 src={img} 
                                 alt={`${selectedFestival.title} design ${idx + 1}`}
@@ -913,7 +967,7 @@ function AppContent() {
                               />
                             </div>
                           ))}
-                        </div>
+                        </Masonry>
                       </div>
                     </div>
                   </div>
@@ -922,9 +976,13 @@ function AppContent() {
                 {selectedFestival.detailImages && selectedFestival.detailImages.length > 0 && (
                   <div className="pt-20 border-t border-gray-100">
                     <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">Process & Details</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <Masonry
+                      breakpointCols={masonryBreakpoints}
+                      className="my-masonry-grid"
+                      columnClassName="my-masonry-grid_column"
+                    >
                       {(selectedFestival.detailImages || []).map((img, idx) => (
-                        <div key={idx} className="bg-gray-50 overflow-hidden border border-gray-100 cursor-pointer" onClick={() => openViewer(selectedFestival.detailImages || [], idx)}>
+                        <div key={idx} className="cursor-pointer" onClick={() => openViewer(selectedFestival.detailImages || [], idx)}>
                           <img 
                             src={img} 
                             alt={`${selectedFestival.title} detail ${idx + 1}`}
@@ -933,7 +991,7 @@ function AppContent() {
                           />
                         </div>
                       ))}
-                    </div>
+                    </Masonry>
                   </div>
                 )}
               </div>
