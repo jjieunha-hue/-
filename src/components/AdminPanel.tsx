@@ -10,6 +10,7 @@ import { auth } from '../firebase';
 import { stripHtml } from '../lib/utils';
 import { X, Save, Plus, Trash2, LogOut, Settings, Upload, Loader2 } from 'lucide-react';
 import RichTextEditor from './RichTextEditor';
+import { ImageViewer } from './ImageViewer';
 
 const convertGoogleDriveLink = (url: string) => {
   if (!url) return '';
@@ -30,6 +31,20 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
   const { about, projects, festivals, updateAbout, updateProject, updateFestival, logout, uploadImage, login } = usePortfolioData();
   const [activeTab, setActiveTab] = useState<'about' | 'environmental' | 'interior' | 'others' | 'festivals'>('about');
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const [viewerImages, setViewerImages] = useState<string[]>([]);
+  const [viewerIndex, setViewerIndex] = useState(0);
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
+
+  const openViewer = (images: string[], index: number) => {
+    setViewerImages(images);
+    setViewerIndex(index);
+    setIsViewerOpen(true);
+  };
+
+  const closeViewer = () => setIsViewerOpen(false);
+  const nextImage = () => setViewerIndex((prev) => (prev + 1) % viewerImages.length);
+  const prevImage = () => setViewerIndex((prev) => (prev - 1 + viewerImages.length) % viewerImages.length);
 
   const handleSyncProjects = async () => {
     if (confirm('모든 프로젝트 데이터를 초기 데이터(constants.ts)로 덮어쓰시겠습니까?')) {
@@ -101,6 +116,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                 login={login}
                 isExpanded={expandedId === project.id}
                 onToggle={() => setExpandedId(expandedId === project.id ? null : project.id)}
+                onImageClick={openViewer}
               />
             ))}
           </div>
@@ -117,9 +133,19 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                 login={login}
                 isExpanded={expandedId === f.id}
                 onToggle={() => setExpandedId(expandedId === f.id ? null : f.id)}
+                onImageClick={openViewer}
               />
             ))}
           </div>
+        )}
+        {isViewerOpen && (
+          <ImageViewer 
+            images={viewerImages}
+            currentIndex={viewerIndex}
+            onClose={closeViewer}
+            onNext={nextImage}
+            onPrev={prevImage}
+          />
         )}
       </div>
     </div>
@@ -465,19 +491,16 @@ const ImageUpload = memo(({
   );
 });
 
-const ImageManager = memo(({ 
-  label, 
-  images = [], 
-  onImagesChange,
-  uploadImage,
-  login
-}: { 
+interface ImageManagerProps {
   label: string; 
   images?: string[]; 
   onImagesChange: (imgs: string[]) => void; 
-  uploadImage: (file: File, path: string, onProgress?: (p: number) => void) => Promise<string>,
-  login: () => Promise<void>
-}) => {
+  uploadImage: (file: File, path: string, onProgress?: (p: number) => void) => Promise<string>;
+  login: () => Promise<void>;
+  onImageClick: (images: string[], index: number) => void;
+}
+
+const ImageManager = memo(({ label, images = [], onImagesChange, uploadImage, login, onImageClick }: ImageManagerProps) => {
   const [newUrl, setNewUrl] = useState('');
   const [showBulk, setShowBulk] = useState(false);
   const safeImages = images || [];
@@ -508,16 +531,16 @@ const ImageManager = memo(({
       
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
         {safeImages.map((url, idx) => (
-          <div key={idx} className="group relative aspect-square bg-gray-50 border border-gray-100 overflow-hidden">
+          <div key={idx} className="group relative aspect-square bg-gray-50 border border-gray-100 overflow-hidden cursor-pointer" onClick={() => onImageClick(safeImages, idx)}>
             <img 
               src={url} 
               alt={`${label} ${idx + 1}`} 
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
               referrerPolicy="no-referrer"
             />
             <button 
               type="button"
-              onClick={() => removeImage(idx)}
+              onClick={(e) => { e.stopPropagation(); removeImage(idx); }}
               className="absolute top-1 right-1 p-1 bg-black text-white opacity-0 group-hover:opacity-100 transition-opacity z-10"
               title="Remove image"
             >
@@ -584,21 +607,25 @@ const ImageManager = memo(({
   );
 });
 
+interface ProjectEditorProps {
+  project: Project;
+  onSave: (p: Project) => void;
+  uploadImage: any;
+  login: any;
+  isExpanded: boolean;
+  onToggle: () => void;
+  onImageClick: (images: string[], index: number) => void;
+}
+
 const ProjectEditor = memo(({ 
   project, 
   onSave, 
   uploadImage, 
   login,
   isExpanded,
-  onToggle
-}: { 
-  project: Project, 
-  onSave: (p: Project) => void, 
-  uploadImage: any, 
-  login: any,
-  isExpanded: boolean,
-  onToggle: () => void
-}) => {
+  onToggle,
+  onImageClick
+}: ProjectEditorProps) => {
   const [localProject, setLocalProject] = useState(project);
   
   useEffect(() => {
@@ -723,46 +750,59 @@ const ProjectEditor = memo(({
               onChange={(val) => setLocalProject({ ...localProject, details: val.split('<br>').map(v => v.trim()).filter(Boolean) })}
             />
           </div>
-          <div className="space-y-4">
-            <ImageManager 
-              label="Completed Photos (완공사진)"
-              images={localProject.completedImages}
-              onImagesChange={(imgs) => setLocalProject({ ...localProject, completedImages: imgs })}
-              uploadImage={uploadImage}
-              login={login}
-            />
-            
-            <ImageManager 
-              label="2D Designs (2D 시안)"
-              images={localProject.design2DImages}
-              onImagesChange={(imgs) => setLocalProject({ ...localProject, design2DImages: imgs })}
-              uploadImage={uploadImage}
-              login={login}
-            />
-    
-            <ImageManager 
-              label="3D Designs (3D 시안)"
-              images={localProject.design3DImages}
-              onImagesChange={(imgs) => setLocalProject({ ...localProject, design3DImages: imgs })}
-              uploadImage={uploadImage}
-              login={login}
-            />
-    
-            <ImageManager 
-              label="Design Images (기타 시안)"
-              images={localProject.designImages}
-              onImagesChange={(imgs) => setLocalProject({ ...localProject, designImages: imgs })}
-              uploadImage={uploadImage}
-              login={login}
-            />
-    
-            <ImageManager 
-              label="Legacy Detail Images (추가 사진)"
-              images={localProject.detailImages}
-              onImagesChange={(imgs) => setLocalProject({ ...localProject, detailImages: imgs })}
-              uploadImage={uploadImage}
-              login={login}
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-6">
+              <ImageManager 
+                label="Main Image (메인 이미지)" 
+                images={localProject.imageUrl ? [localProject.imageUrl] : []} 
+                onImagesChange={(imgs) => setLocalProject({ ...localProject, imageUrl: imgs[0] || '' })}
+                uploadImage={uploadImage}
+                login={login}
+                onImageClick={onImageClick}
+              />
+              <ImageManager 
+                label="Completed Photos (완공사진)" 
+                images={localProject.completedImages} 
+                onImagesChange={(imgs) => setLocalProject({ ...localProject, completedImages: imgs })}
+                uploadImage={uploadImage}
+                login={login}
+                onImageClick={onImageClick}
+              />
+              <ImageManager 
+                label="2D Designs (2D 시안)" 
+                images={localProject.design2DImages} 
+                onImagesChange={(imgs) => setLocalProject({ ...localProject, design2DImages: imgs })}
+                uploadImage={uploadImage}
+                login={login}
+                onImageClick={onImageClick}
+              />
+            </div>
+            <div className="space-y-6">
+              <ImageManager 
+                label="3D Designs (3D 시안)" 
+                images={localProject.design3DImages} 
+                onImagesChange={(imgs) => setLocalProject({ ...localProject, design3DImages: imgs })}
+                uploadImage={uploadImage}
+                login={login}
+                onImageClick={onImageClick}
+              />
+              <ImageManager 
+                label="Legacy Design Images (기존 시안)" 
+                images={localProject.designImages} 
+                onImagesChange={(imgs) => setLocalProject({ ...localProject, designImages: imgs })}
+                uploadImage={uploadImage}
+                login={login}
+                onImageClick={onImageClick}
+              />
+              <ImageManager 
+                label="Detail Images (상세 이미지)" 
+                images={localProject.detailImages} 
+                onImagesChange={(imgs) => setLocalProject({ ...localProject, detailImages: imgs })}
+                uploadImage={uploadImage}
+                login={login}
+                onImageClick={onImageClick}
+              />
+            </div>
           </div>
         </div>
       )}
@@ -770,21 +810,25 @@ const ProjectEditor = memo(({
   );
 });
 
+interface FestivalEditorProps {
+  festival: FestivalItem;
+  onSave: (f: FestivalItem) => void;
+  uploadImage: any;
+  login: any;
+  isExpanded: boolean;
+  onToggle: () => void;
+  onImageClick: (images: string[], index: number) => void;
+}
+
 const FestivalEditor = memo(({ 
   festival, 
   onSave, 
   uploadImage, 
   login,
   isExpanded,
-  onToggle
-}: { 
-  festival: FestivalItem, 
-  onSave: (f: FestivalItem) => void, 
-  uploadImage: any, 
-  login: any,
-  isExpanded: boolean,
-  onToggle: () => void
-}) => {
+  onToggle,
+  onImageClick
+}: FestivalEditorProps) => {
   const [localFestival, setLocalFestival] = useState(festival);
   
   useEffect(() => {
@@ -924,46 +968,59 @@ const FestivalEditor = memo(({
               placeholder="Branding, Festival, 2023"
             />
           </div>
-          <div className="space-y-4">
-            <ImageManager 
-              label="Completed Photos (준공 사진)"
-              images={localFestival.completedImages}
-              onImagesChange={(imgs) => setLocalFestival({ ...localFestival, completedImages: imgs })}
-              uploadImage={uploadImage}
-              login={login}
-            />
-            
-            <ImageManager 
-              label="2D Designs (2D 시안)"
-              images={localFestival.design2DImages}
-              onImagesChange={(imgs) => setLocalFestival({ ...localFestival, design2DImages: imgs })}
-              uploadImage={uploadImage}
-              login={login}
-            />
-    
-            <ImageManager 
-              label="3D Designs (3D 시안)"
-              images={localFestival.design3DImages}
-              onImagesChange={(imgs) => setLocalFestival({ ...localFestival, design3DImages: imgs })}
-              uploadImage={uploadImage}
-              login={login}
-            />
-    
-            <ImageManager 
-              label="Design Images (기타 시안)"
-              images={localFestival.designImages}
-              onImagesChange={(imgs) => setLocalFestival({ ...localFestival, designImages: imgs })}
-              uploadImage={uploadImage}
-              login={login}
-            />
-    
-            <ImageManager 
-              label="Legacy Detail Images (추가 사진)"
-              images={localFestival.detailImages}
-              onImagesChange={(imgs) => setLocalFestival({ ...localFestival, detailImages: imgs })}
-              uploadImage={uploadImage}
-              login={login}
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-6">
+              <ImageManager 
+                label="Main Image (메인 이미지)" 
+                images={localFestival.imageUrl ? [localFestival.imageUrl] : []} 
+                onImagesChange={(imgs) => setLocalFestival({ ...localFestival, imageUrl: imgs[0] || '' })}
+                uploadImage={uploadImage}
+                login={login}
+                onImageClick={onImageClick}
+              />
+              <ImageManager 
+                label="Completed Photos (완공사진)" 
+                images={localFestival.completedImages} 
+                onImagesChange={(imgs) => setLocalFestival({ ...localFestival, completedImages: imgs })}
+                uploadImage={uploadImage}
+                login={login}
+                onImageClick={onImageClick}
+              />
+              <ImageManager 
+                label="2D Designs (2D 시안)" 
+                images={localFestival.design2DImages} 
+                onImagesChange={(imgs) => setLocalFestival({ ...localFestival, design2DImages: imgs })}
+                uploadImage={uploadImage}
+                login={login}
+                onImageClick={onImageClick}
+              />
+            </div>
+            <div className="space-y-6">
+              <ImageManager 
+                label="3D Designs (3D 시안)" 
+                images={localFestival.design3DImages} 
+                onImagesChange={(imgs) => setLocalFestival({ ...localFestival, design3DImages: imgs })}
+                uploadImage={uploadImage}
+                login={login}
+                onImageClick={onImageClick}
+              />
+              <ImageManager 
+                label="Legacy Design Images (기존 시안)" 
+                images={localFestival.designImages} 
+                onImagesChange={(imgs) => setLocalFestival({ ...localFestival, designImages: imgs })}
+                uploadImage={uploadImage}
+                login={login}
+                onImageClick={onImageClick}
+              />
+              <ImageManager 
+                label="Detail Images (상세 이미지)" 
+                images={localFestival.detailImages} 
+                onImagesChange={(imgs) => setLocalFestival({ ...localFestival, detailImages: imgs })}
+                uploadImage={uploadImage}
+                login={login}
+                onImageClick={onImageClick}
+              />
+            </div>
           </div>
         </div>
       )}

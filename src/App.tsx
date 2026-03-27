@@ -8,6 +8,7 @@ import { PortfolioProvider, usePortfolioData } from './hooks';
 import { Project, FestivalItem } from './types';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import AdminPanel from './components/AdminPanel';
+import { ImageViewer } from './components/ImageViewer';
 import { Menu, X, ArrowRight, Github, Mail, Phone, ExternalLink, Settings } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -21,6 +22,19 @@ function AppContent() {
   const [passwordInput, setPasswordInput] = useState('');
   const [passwordError, setPasswordError] = useState(false);
   const [isPasswordAuthorized, setIsPasswordAuthorized] = useState(false);
+  const [viewerImages, setViewerImages] = useState<string[]>([]);
+  const [viewerIndex, setViewerIndex] = useState(0);
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
+
+  const openViewer = (images: string[], index: number) => {
+    setViewerImages(images);
+    setViewerIndex(index);
+    setIsViewerOpen(true);
+  };
+
+  const closeViewer = () => setIsViewerOpen(false);
+  const nextImage = () => setViewerIndex((prev) => (prev + 1) % viewerImages.length);
+  const prevImage = () => setViewerIndex((prev) => (prev - 1 + viewerImages.length) % viewerImages.length);
 
   const groupedProjects = useMemo(() => {
     return {
@@ -359,7 +373,7 @@ function AppContent() {
                     <img 
                       src={project.imageUrl || `https://picsum.photos/seed/${project.id}/800/600`} 
                       alt="Project"
-                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
+                      className="w-full h-full object-contain grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
                       referrerPolicy="no-referrer"
                     />
                     <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
@@ -441,7 +455,7 @@ function AppContent() {
                       <img 
                         src={project.imageUrl || `https://picsum.photos/seed/${project.id}/800/600`} 
                         alt="Project"
-                        className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
+                        className="w-full h-full object-contain grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
                         referrerPolicy="no-referrer"
                       />
                       <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
@@ -502,11 +516,11 @@ function AppContent() {
                 </div>
 
                 {/* Main Image Section */}
-                <div className="aspect-[16/9] bg-gray-50 mb-20 overflow-hidden border border-gray-100">
+                <div className="bg-gray-50 mb-20 overflow-hidden border border-gray-100 cursor-pointer" onClick={() => openViewer([selectedProject.imageUrl || ''], 0)}>
                   <img 
                     src={selectedProject.imageUrl || `https://picsum.photos/seed/${selectedProject.id}-detail/1200/800`} 
                     alt="Project Detail"
-                    className="w-full h-full object-cover"
+                    className="w-full h-auto object-contain"
                     referrerPolicy="no-referrer"
                   />
                 </div>
@@ -589,11 +603,11 @@ function AppContent() {
                       <div className="md:col-span-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {(selectedProject.completedImages || []).map((img, idx) => (
-                            <div key={idx} className="aspect-square bg-gray-50 overflow-hidden border border-gray-100">
+                            <div key={idx} className="bg-gray-50 overflow-hidden border border-gray-100 cursor-pointer" onClick={() => openViewer(selectedProject.completedImages || [], idx)}>
                               <img 
                                 src={img} 
                                 alt={`${selectedProject.title} completed ${idx + 1}`}
-                                className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                                className="w-full h-auto object-contain hover:scale-105 transition-transform duration-700"
                                 referrerPolicy="no-referrer"
                               />
                             </div>
@@ -613,11 +627,11 @@ function AppContent() {
                       <div className="md:col-span-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {(selectedProject.design2DImages || []).map((img, idx) => (
-                            <div key={idx} className="aspect-square bg-gray-50 overflow-hidden border border-gray-100">
+                            <div key={idx} className="bg-gray-50 overflow-hidden border border-gray-100 cursor-pointer" onClick={() => openViewer(selectedProject.design2DImages || [], idx)}>
                               <img 
                                 src={img} 
                                 alt={`${selectedProject.title} 2d design ${idx + 1}`}
-                                className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                                className="w-full h-auto object-contain hover:scale-105 transition-transform duration-700"
                                 referrerPolicy="no-referrer"
                               />
                             </div>
@@ -637,11 +651,11 @@ function AppContent() {
                       <div className="md:col-span-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {(selectedProject.design3DImages || []).map((img, idx) => (
-                            <div key={idx} className="aspect-square bg-gray-50 overflow-hidden border border-gray-100">
+                            <div key={idx} className="bg-gray-50 overflow-hidden border border-gray-100 cursor-pointer" onClick={() => openViewer(selectedProject.design3DImages || [], idx)}>
                               <img 
                                 src={img} 
                                 alt={`${selectedProject.title} 3d design ${idx + 1}`}
-                                className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                                className="w-full h-auto object-contain hover:scale-105 transition-transform duration-700"
                                 referrerPolicy="no-referrer"
                               />
                             </div>
@@ -664,11 +678,11 @@ function AppContent() {
                       <div className="md:col-span-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {(selectedProject.designImages || []).map((img, idx) => (
-                            <div key={idx} className="aspect-square bg-gray-50 overflow-hidden border border-gray-100">
+                            <div key={idx} className="bg-gray-50 overflow-hidden border border-gray-100 cursor-pointer" onClick={() => openViewer(selectedProject.designImages || [], idx)}>
                               <img 
                                 src={img} 
                                 alt={`${selectedProject.title} design ${idx + 1}`}
-                                className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                                className="w-full h-auto object-contain hover:scale-105 transition-transform duration-700"
                                 referrerPolicy="no-referrer"
                               />
                             </div>
@@ -685,11 +699,11 @@ function AppContent() {
                     <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">Process & Details</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {(selectedProject.detailImages || []).map((img, idx) => (
-                        <div key={idx} className="aspect-square bg-gray-50 overflow-hidden border border-gray-100">
+                        <div key={idx} className="bg-gray-50 overflow-hidden border border-gray-100 cursor-pointer" onClick={() => openViewer(selectedProject.detailImages || [], idx)}>
                           <img 
                             src={img} 
                             alt={`${selectedProject.title} detail ${idx + 1}`}
-                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                            className="w-full h-auto object-contain hover:scale-105 transition-transform duration-700"
                             referrerPolicy="no-referrer"
                           />
                         </div>
@@ -731,11 +745,11 @@ function AppContent() {
                 </div>
 
                 {/* Main Image Section */}
-                <div className="aspect-[16/9] bg-gray-50 mb-20 overflow-hidden border border-gray-100">
+                <div className="bg-gray-50 mb-20 overflow-hidden border border-gray-100 cursor-pointer" onClick={() => openViewer([selectedFestival.imageUrl || ''], 0)}>
                   <img 
                     src={selectedFestival.imageUrl || `https://picsum.photos/seed/${selectedFestival.id}-detail/1200/800`} 
                     alt="Festival Detail"
-                    className="w-full h-full object-cover"
+                    className="w-full h-auto object-contain"
                     referrerPolicy="no-referrer"
                   />
                 </div>
@@ -818,11 +832,11 @@ function AppContent() {
                       <div className="md:col-span-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {(selectedFestival.completedImages || []).map((img, idx) => (
-                            <div key={idx} className="aspect-square bg-gray-50 overflow-hidden border border-gray-100">
+                            <div key={idx} className="bg-gray-50 overflow-hidden border border-gray-100 cursor-pointer" onClick={() => openViewer(selectedFestival.completedImages || [], idx)}>
                               <img 
                                 src={img} 
                                 alt={`${selectedFestival.title} completed ${idx + 1}`}
-                                className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                                className="w-full h-auto object-contain hover:scale-105 transition-transform duration-700"
                                 referrerPolicy="no-referrer"
                               />
                             </div>
@@ -842,11 +856,11 @@ function AppContent() {
                       <div className="md:col-span-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {(selectedFestival.design2DImages || []).map((img, idx) => (
-                            <div key={idx} className="aspect-square bg-gray-50 overflow-hidden border border-gray-100">
+                            <div key={idx} className="bg-gray-50 overflow-hidden border border-gray-100 cursor-pointer" onClick={() => openViewer(selectedFestival.design2DImages || [], idx)}>
                               <img 
                                 src={img} 
                                 alt={`${selectedFestival.title} 2d design ${idx + 1}`}
-                                className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                                className="w-full h-auto object-contain hover:scale-105 transition-transform duration-700"
                                 referrerPolicy="no-referrer"
                               />
                             </div>
@@ -866,11 +880,11 @@ function AppContent() {
                       <div className="md:col-span-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {(selectedFestival.design3DImages || []).map((img, idx) => (
-                            <div key={idx} className="aspect-square bg-gray-50 overflow-hidden border border-gray-100">
+                            <div key={idx} className="bg-gray-50 overflow-hidden border border-gray-100 cursor-pointer" onClick={() => openViewer(selectedFestival.design3DImages || [], idx)}>
                               <img 
                                 src={img} 
                                 alt={`${selectedFestival.title} 3d design ${idx + 1}`}
-                                className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                                className="w-full h-auto object-contain hover:scale-105 transition-transform duration-700"
                                 referrerPolicy="no-referrer"
                               />
                             </div>
@@ -890,11 +904,11 @@ function AppContent() {
                       <div className="md:col-span-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {(selectedFestival.designImages || []).map((img, idx) => (
-                            <div key={idx} className="aspect-square bg-gray-50 overflow-hidden border border-gray-100">
+                            <div key={idx} className="bg-gray-50 overflow-hidden border border-gray-100 cursor-pointer" onClick={() => openViewer(selectedFestival.designImages || [], idx)}>
                               <img 
                                 src={img} 
                                 alt={`${selectedFestival.title} design ${idx + 1}`}
-                                className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                                className="w-full h-auto object-contain hover:scale-105 transition-transform duration-700"
                                 referrerPolicy="no-referrer"
                               />
                             </div>
@@ -910,11 +924,11 @@ function AppContent() {
                     <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">Process & Details</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {(selectedFestival.detailImages || []).map((img, idx) => (
-                        <div key={idx} className="aspect-square bg-gray-50 overflow-hidden border border-gray-100">
+                        <div key={idx} className="bg-gray-50 overflow-hidden border border-gray-100 cursor-pointer" onClick={() => openViewer(selectedFestival.detailImages || [], idx)}>
                           <img 
                             src={img} 
                             alt={`${selectedFestival.title} detail ${idx + 1}`}
-                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                            className="w-full h-auto object-contain hover:scale-105 transition-transform duration-700"
                             referrerPolicy="no-referrer"
                           />
                         </div>
@@ -969,6 +983,15 @@ function AppContent() {
             <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">Designed for Spatial & Graphic Experience</p>
           </div>
         </footer>
+        {isViewerOpen && (
+          <ImageViewer 
+            images={viewerImages}
+            currentIndex={viewerIndex}
+            onClose={closeViewer}
+            onNext={nextImage}
+            onPrev={prevImage}
+          />
+        )}
       </div>
     </ErrorBoundary>
   );
