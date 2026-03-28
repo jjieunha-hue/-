@@ -604,9 +604,9 @@ function AppContent() {
                     <div className="md:col-span-8">
                       <h4 className="text-[10px] uppercase text-gray-300 font-black mb-6 italic">Project Overview</h4>
                       <div className="text-gray-700 text-xl font-light rich-text-content">
-                        <div dangerouslySetInnerHTML={{ __html: selectedProject.description || '' }} />
+                        <div className="!mb-10" dangerouslySetInnerHTML={{ __html: selectedProject.description || '' }} />
                         {(selectedProject.details || []).map((detail, idx) => (
-                          <div key={idx} dangerouslySetInnerHTML={{ __html: detail || '' }} />
+                          <div key={idx} className="!mb-6" dangerouslySetInnerHTML={{ __html: detail || '' }} />
                         ))}
                       </div>
                     </div>
@@ -855,9 +855,9 @@ function AppContent() {
                     <div className="md:col-span-8">
                       <h4 className="text-[10px] uppercase text-gray-300 font-black mb-6 italic">Festival Overview</h4>
                       <div className="text-gray-700 text-xl font-light rich-text-content">
-                        <div dangerouslySetInnerHTML={{ __html: selectedFestival.description || '상세 설명이 준비 중입니다.' }} />
+                        <div className="!mb-10" dangerouslySetInnerHTML={{ __html: selectedFestival.description || '상세 설명이 준비 중입니다.' }} />
                         {(selectedFestival.details || []).map((detail, idx) => (
-                          <div key={idx} dangerouslySetInnerHTML={{ __html: detail || '' }} />
+                          <div key={idx} className="!mb-6" dangerouslySetInnerHTML={{ __html: detail || '' }} />
                         ))}
                       </div>
                     </div>
