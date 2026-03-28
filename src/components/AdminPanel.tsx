@@ -15,14 +15,6 @@ import { ImageViewer } from './ImageViewer';
 const convertGoogleDriveLink = (url: string) => {
   return url; 
 };
-
-interface AdminPanelProps {
-  onClose: () => void;
-}
-
-export default function AdminPanel({ onClose }: AdminPanelProps) {
-  const { about, projects, festivals, updateAbout, updateProject, updateFestival, logout, uploadImage, login } = usePortfolioData();
-  const [activeTab, setActiveTab] = useState<'about' | 'environmental' | 'interior' | 'others' | 'festivals'>('about');
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const [viewerImages, setViewerImages] = useState<string[]>([]);
