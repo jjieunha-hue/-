@@ -12,13 +12,12 @@ import firebaseConfigJson from '../firebase-applet-config.json';
 // Use environment variables if available (for Vercel), otherwise fallback to the config file
 const metaEnv = (import.meta as any).env || {};
 const firebaseConfig = {
-  apiKey: metaEnv.VITE_FIREBASE_API_KEY || firebaseConfigJson.apiKey,
-  authDomain: metaEnv.VITE_FIREBASE_AUTH_DOMAIN || firebaseConfigJson.authDomain,
-  projectId: metaEnv.VITE_FIREBASE_PROJECT_ID || firebaseConfigJson.projectId,
-  storageBucket: metaEnv.VITE_FIREBASE_STORAGE_BUCKET || firebaseConfigJson.storageBucket,
-  messagingSenderId: metaEnv.VITE_FIREBASE_MESSAGING_SENDER_ID || firebaseConfigJson.messagingSenderId,
-  appId: metaEnv.VITE_FIREBASE_APP_ID || firebaseConfigJson.appId,
-  measurementId: metaEnv.VITE_FIREBASE_MEASUREMENT_ID || firebaseConfigJson.measurementId,
+  apiKey: "AIzaSyBtCtgOz5eJvB0euP1fQNyA1fKjnqmRya0",
+  authDomain: "hajieun-7efb2.firebaseapp.com",
+  projectId: "hajieun-7efb2",
+  storageBucket: "hajieun-7efb2.firebasestorage.app",
+  messagingSenderId: "119056009318",
+  appId: "1:119056009318:web:bf2a6e66d749c57f2245a7"
 };
 
 const firestoreDatabaseId = metaEnv.VITE_FIREBASE_FIRESTORE_DATABASE_ID || firebaseConfigJson.firestoreDatabaseId;
