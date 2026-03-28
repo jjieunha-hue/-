@@ -69,6 +69,7 @@ export interface AboutInfo {
     notion?: string;
   };
   experiences: Experience[];
+  detailTitleSpacing?: number;
 }
 
 export interface Experience {

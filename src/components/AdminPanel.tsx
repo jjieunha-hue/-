@@ -738,17 +738,22 @@ const ProjectEditor = memo(({
           </div>
           <div className="space-y-1">
             <label className="text-[10px] font-black uppercase text-gray-300 italic">Short Description</label>
-            <RichTextEditor 
-              value={localProject.description || ''} 
-              onChange={(val) => setLocalProject({ ...localProject, description: val })}
-            />
+            <div className="max-w-[795px] border border-gray-100">
+              <RichTextEditor 
+                value={localProject.description || ''} 
+                onChange={(val) => setLocalProject({ ...localProject, description: val })}
+              />
+            </div>
+            <p className="text-[8px] text-gray-400 mt-1 italic">* Guide: The width above matches the detail page body width. Use Enter for manual line breaks.</p>
           </div>
           <div className="space-y-1">
             <label className="text-[10px] font-black uppercase text-gray-300 italic">Detailed Paragraphs (one per line)</label>
-            <RichTextEditor 
-              value={(localProject.details || []).join('<br>')} 
-              onChange={(val) => setLocalProject({ ...localProject, details: val.split('<br>').map(v => v.trim()).filter(Boolean) })}
-            />
+            <div className="max-w-[795px] border border-gray-100">
+              <RichTextEditor 
+                value={(localProject.details || []).join('<br>')} 
+                onChange={(val) => setLocalProject({ ...localProject, details: val.split('<br>').map(v => v.trim()).filter(Boolean) })}
+              />
+            </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-6">
@@ -947,17 +952,22 @@ const FestivalEditor = memo(({
           </div>
           <div className="space-y-1">
             <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description</label>
-            <RichTextEditor 
-              value={localFestival.description || ''} 
-              onChange={(val) => setLocalFestival({ ...localFestival, description: val })}
-            />
+            <div className="max-w-[795px] border border-gray-100">
+              <RichTextEditor 
+                value={localFestival.description || ''} 
+                onChange={(val) => setLocalFestival({ ...localFestival, description: val })}
+              />
+            </div>
+            <p className="text-[8px] text-gray-400 mt-1 italic">* Guide: The width above matches the detail page body width. Use Enter for manual line breaks.</p>
           </div>
           <div className="space-y-1">
             <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Detailed Paragraphs (one per line)</label>
-            <RichTextEditor 
-              value={(localFestival.details || []).join('<br>')} 
-              onChange={(val) => setLocalFestival({ ...localFestival, details: val.split('<br>').map(v => v.trim()).filter(Boolean) })}
-            />
+            <div className="max-w-[795px] border border-gray-100">
+              <RichTextEditor 
+                value={(localFestival.details || []).join('<br>')} 
+                onChange={(val) => setLocalFestival({ ...localFestival, details: val.split('<br>').map(v => v.trim()).filter(Boolean) })}
+              />
+            </div>
           </div>
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Tags (comma separated)</label>

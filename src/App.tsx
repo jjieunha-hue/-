@@ -421,7 +421,7 @@ function AppContent() {
             {(festivals || []).map((item, idx) => (
               <div 
                 key={item.id} 
-                className="group flex flex-col md:flex-row md:items-center justify-between py-10 border-b border-gray-100 hover:bg-gray-50/50 transition-all cursor-pointer px-4"
+                className="group flex flex-col md:flex-row md:items-center justify-between py-5 border-b border-gray-100 hover:bg-gray-50/50 transition-all cursor-pointer px-4"
                 onClick={() => setSelectedFestival(item)}
               >
                 <div className="flex items-baseline gap-6 flex-1">
@@ -522,13 +522,14 @@ function AppContent() {
               </button>
               <div className="max-w-7xl mx-auto px-8 py-32 md:py-48">
                 {/* Header Section */}
-                <div className="mb-20">
+                <div className="mb-20 [column-span:all] text-left">
                   <h2 
-                    className="serif text-4xl md:text-9xl font-black uppercase leading-tight tracking-tighter mb-8 whitespace-pre-wrap"
+                    className="serif text-4xl md:text-9xl font-black uppercase leading-tight tracking-tighter whitespace-pre-wrap text-left"
+                    style={{ marginBottom: `${about.detailTitleSpacing || 32}px` }}
                     dangerouslySetInnerHTML={{ __html: selectedProject.title || '' }}
                   />
                   <div 
-                    className="serif-italic text-xl md:text-4xl text-gray-400 italic whitespace-pre-wrap"
+                    className="serif-italic text-xl md:text-4xl text-gray-400 italic whitespace-pre-wrap text-left"
                     dangerouslySetInnerHTML={{ __html: selectedProject.subtitle || '' }}
                   />
                 </div>
@@ -546,10 +547,10 @@ function AppContent() {
                 {/* Info & Overview Section */}
                 <div className="mb-16 w-full">
                   <div className="grid md:grid-cols-12 gap-12 border-t border-gray-100 pt-10">
-                    <div className="md:col-span-4 space-y-4">
+                    <div className="md:col-span-4 space-y-10">
                       <div className="flex flex-col">
                         <h4 
-                          className="text-[10px] uppercase text-gray-300 font-black block mb-1 italic whitespace-pre-wrap"
+                          className="text-[10px] uppercase text-gray-300 font-black block mb-2 italic whitespace-pre-wrap"
                           dangerouslySetInnerHTML={{ __html: about.projectInfoLabel || 'Project Info' }}
                         />
                         <div 
@@ -557,31 +558,32 @@ function AppContent() {
                           dangerouslySetInnerHTML={{ __html: selectedProject.projectInfoRich || selectedProject.categoryRich || selectedProject.category }}
                         />
                       </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <h4 
-                            className="text-[10px] uppercase text-gray-300 font-black block mb-1 italic whitespace-pre-wrap"
-                            dangerouslySetInnerHTML={{ __html: about.timelineLabel || 'Timeline' }}
-                          />
-                          <div 
-                            className="text-lg md:text-xl font-bold leading-tight"
-                            dangerouslySetInnerHTML={{ __html: selectedProject.periodRich || selectedProject.period }}
-                          />
-                        </div>
-                        <div>
-                          <h4 
-                            className="text-[10px] uppercase text-gray-300 font-black block mb-1 italic whitespace-pre-wrap"
-                            dangerouslySetInnerHTML={{ __html: about.categoryLabel || 'Category' }}
-                          />
-                          <div 
-                            className="text-lg md:text-xl font-bold uppercase leading-tight"
-                            dangerouslySetInnerHTML={{ __html: selectedProject.categoryRich || selectedProject.category }}
-                          />
-                        </div>
-                      </div>
-                      <div>
+                      
+                      <div className="flex flex-col">
                         <h4 
-                          className="text-[10px] uppercase text-gray-300 font-black block mb-1 italic whitespace-pre-wrap"
+                          className="text-[10px] uppercase text-gray-300 font-black block mb-2 italic whitespace-pre-wrap"
+                          dangerouslySetInnerHTML={{ __html: about.timelineLabel || 'Timeline' }}
+                        />
+                        <div 
+                          className="text-lg md:text-xl font-bold leading-tight"
+                          dangerouslySetInnerHTML={{ __html: selectedProject.periodRich || selectedProject.period }}
+                        />
+                      </div>
+
+                      <div className="flex flex-col">
+                        <h4 
+                          className="text-[10px] uppercase text-gray-300 font-black block mb-2 italic whitespace-pre-wrap"
+                          dangerouslySetInnerHTML={{ __html: about.categoryLabel || 'Category' }}
+                        />
+                        <div 
+                          className="text-lg md:text-xl font-bold uppercase leading-tight"
+                          dangerouslySetInnerHTML={{ __html: selectedProject.categoryRich || selectedProject.category }}
+                        />
+                      </div>
+
+                      <div className="flex flex-col">
+                        <h4 
+                          className="text-[10px] uppercase text-gray-300 font-black block mb-2 italic whitespace-pre-wrap"
                           dangerouslySetInnerHTML={{ __html: about.tagsLabel || 'Tags' }}
                         />
                         {selectedProject.tagsRich ? (
@@ -600,8 +602,8 @@ function AppContent() {
                     </div>
                     
                     <div className="md:col-span-8">
-                      <h4 className="text-[10px] uppercase text-gray-300 font-black mb-4 italic">Project Overview</h4>
-                      <div className="text-gray-700 leading-relaxed text-xl font-light space-y-8 text-justify break-keep whitespace-pre-wrap">
+                      <h4 className="text-[10px] uppercase text-gray-300 font-black mb-6 italic">Project Overview</h4>
+                      <div className="text-gray-700 leading-relaxed text-xl font-light space-y-8 text-left break-keep whitespace-pre-wrap">
                         <div dangerouslySetInnerHTML={{ __html: selectedProject.description || '' }} />
                         {(selectedProject.details || []).map((detail, idx) => (
                           <div key={idx} dangerouslySetInnerHTML={{ __html: detail || '' }} />
@@ -771,13 +773,14 @@ function AppContent() {
               </button>
               <div className="max-w-7xl mx-auto px-8 py-32 md:py-48">
                 {/* Header Section */}
-                <div className="mb-20">
+                <div className="mb-20 [column-span:all] text-left">
                   <h2 
-                    className="serif text-4xl md:text-9xl font-black uppercase leading-[0.85] tracking-tighter mb-8 whitespace-pre-wrap"
+                    className="serif text-4xl md:text-9xl font-black uppercase leading-[0.85] tracking-tighter whitespace-pre-wrap text-left"
+                    style={{ marginBottom: `${about.detailTitleSpacing || 32}px` }}
                     dangerouslySetInnerHTML={{ __html: selectedFestival.title || '' }}
                   />
                   <div 
-                    className="serif-italic text-xl md:text-4xl text-gray-400 italic whitespace-pre-wrap"
+                    className="serif-italic text-xl md:text-4xl text-gray-400 italic whitespace-pre-wrap text-left"
                     dangerouslySetInnerHTML={{ __html: selectedFestival.sub || '' }}
                   />
                 </div>
@@ -795,10 +798,10 @@ function AppContent() {
                 {/* Info & Overview Section */}
                 <div className="mb-16 w-full">
                   <div className="grid md:grid-cols-12 gap-12 border-t border-gray-100 pt-10">
-                    <div className="md:col-span-4 space-y-4">
+                    <div className="md:col-span-4 space-y-10">
                       <div className="flex flex-col">
                         <h4 
-                          className="text-[10px] uppercase text-gray-300 font-black block mb-1 italic whitespace-pre-wrap"
+                          className="text-[10px] uppercase text-gray-300 font-black block mb-2 italic whitespace-pre-wrap"
                           dangerouslySetInnerHTML={{ __html: about.projectInfoLabel || 'Project Info' }}
                         />
                         <div 
@@ -806,31 +809,32 @@ function AppContent() {
                           dangerouslySetInnerHTML={{ __html: selectedFestival.projectInfoRich || selectedFestival.categoryRich || 'FESTIVAL' }}
                         />
                       </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <h4 
-                            className="text-[10px] uppercase text-gray-300 font-black block mb-1 italic whitespace-pre-wrap"
-                            dangerouslySetInnerHTML={{ __html: about.timelineLabel || 'Timeline' }}
-                          />
-                          <div 
-                            className="text-lg md:text-xl font-bold leading-tight"
-                            dangerouslySetInnerHTML={{ __html: selectedFestival.periodRich || selectedFestival.period || '-' }}
-                          />
-                        </div>
-                        <div>
-                          <h4 
-                            className="text-[10px] uppercase text-gray-300 font-black block mb-1 italic whitespace-pre-wrap"
-                            dangerouslySetInnerHTML={{ __html: about.categoryLabel || 'Category' }}
-                          />
-                          <div 
-                            className="text-lg md:text-xl font-bold uppercase leading-tight"
-                            dangerouslySetInnerHTML={{ __html: selectedFestival.categoryRich || 'FESTIVAL' }}
-                          />
-                        </div>
-                      </div>
-                      <div>
+                      
+                      <div className="flex flex-col">
                         <h4 
-                          className="text-[10px] uppercase text-gray-300 font-black block mb-1 italic whitespace-pre-wrap"
+                          className="text-[10px] uppercase text-gray-300 font-black block mb-2 italic whitespace-pre-wrap"
+                          dangerouslySetInnerHTML={{ __html: about.timelineLabel || 'Timeline' }}
+                        />
+                        <div 
+                          className="text-lg md:text-xl font-bold leading-tight"
+                          dangerouslySetInnerHTML={{ __html: selectedFestival.periodRich || selectedFestival.period || '-' }}
+                        />
+                      </div>
+
+                      <div className="flex flex-col">
+                        <h4 
+                          className="text-[10px] uppercase text-gray-300 font-black block mb-2 italic whitespace-pre-wrap"
+                          dangerouslySetInnerHTML={{ __html: about.categoryLabel || 'Category' }}
+                        />
+                        <div 
+                          className="text-lg md:text-xl font-bold uppercase leading-tight"
+                          dangerouslySetInnerHTML={{ __html: selectedFestival.categoryRich || 'FESTIVAL' }}
+                        />
+                      </div>
+
+                      <div className="flex flex-col">
+                        <h4 
+                          className="text-[10px] uppercase text-gray-300 font-black block mb-2 italic whitespace-pre-wrap"
                           dangerouslySetInnerHTML={{ __html: about.tagsLabel || 'Tags' }}
                         />
                         {selectedFestival.tagsRich ? (
@@ -849,8 +853,8 @@ function AppContent() {
                     </div>
                     
                     <div className="md:col-span-8">
-                      <h4 className="text-[10px] uppercase text-gray-300 font-black mb-4 italic">Festival Overview</h4>
-                      <div className="text-gray-700 leading-relaxed text-xl font-light space-y-8 text-justify break-keep whitespace-pre-wrap">
+                      <h4 className="text-[10px] uppercase text-gray-300 font-black mb-6 italic">Festival Overview</h4>
+                      <div className="text-gray-700 leading-relaxed text-xl font-light space-y-8 text-left break-keep whitespace-pre-wrap">
                         <div dangerouslySetInnerHTML={{ __html: selectedFestival.description || '상세 설명이 준비 중입니다.' }} />
                         {(selectedFestival.details || []).map((detail, idx) => (
                           <div key={idx} dangerouslySetInnerHTML={{ __html: detail || '' }} />
