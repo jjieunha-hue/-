@@ -391,7 +391,7 @@ function AppContent() {
                       dangerouslySetInnerHTML={{ __html: project.title }}
                     />
                     <div 
-                      className="serif-italic text-gray-500 mb-6 text-lg whitespace-pre-wrap"
+                      className="serif-italic text-gray-500 mb-6 text-lg whitespace-pre-wrap rich-text-content"
                       dangerouslySetInnerHTML={{ __html: project.subtitle }}
                     />
                     <div className="mt-auto pt-6 border-t border-gray-100 flex justify-between items-end">
@@ -434,7 +434,7 @@ function AppContent() {
                       dangerouslySetInnerHTML={{ __html: item.title }}
                     />
                     <div 
-                      className="serif-italic text-gray-400 italic text-[10px] md:text-xs opacity-60 group-hover:opacity-100 transition-opacity"
+                      className="serif-italic text-gray-400 italic text-[10px] md:text-xs opacity-60 group-hover:opacity-100 transition-opacity whitespace-pre-wrap rich-text-content"
                       dangerouslySetInnerHTML={{ __html: item.sub }}
                     />
                   </div>
@@ -484,7 +484,7 @@ function AppContent() {
                         dangerouslySetInnerHTML={{ __html: project.title }}
                       />
                       <div 
-                        className="serif-italic text-gray-500 mb-6 text-lg whitespace-pre-wrap"
+                        className="serif-italic text-gray-500 mb-6 text-lg whitespace-pre-wrap rich-text-content"
                         dangerouslySetInnerHTML={{ __html: project.subtitle }}
                       />
                       <div className="mt-auto pt-6 border-t border-gray-100 flex justify-between items-end">
@@ -524,12 +524,12 @@ function AppContent() {
                 {/* Header Section */}
                 <div className="mb-20 [column-span:all] text-left">
                   <h2 
-                    className="serif text-4xl md:text-9xl font-black uppercase leading-tight tracking-tighter whitespace-pre-wrap text-left"
+                    className="serif text-4xl md:text-9xl font-black uppercase leading-tight tracking-tighter whitespace-pre-wrap text-left rich-text-content"
                     style={{ marginBottom: `${about.detailTitleSpacing || 32}px` }}
                     dangerouslySetInnerHTML={{ __html: selectedProject.title || '' }}
                   />
                   <div 
-                    className="serif-italic text-xl md:text-4xl text-gray-400 italic whitespace-pre-wrap text-left"
+                    className="serif-italic text-xl md:text-4xl text-gray-400 italic whitespace-pre-wrap text-left rich-text-content"
                     dangerouslySetInnerHTML={{ __html: selectedProject.subtitle || '' }}
                   />
                 </div>
@@ -775,12 +775,12 @@ function AppContent() {
                 {/* Header Section */}
                 <div className="mb-20 [column-span:all] text-left">
                   <h2 
-                    className="serif text-4xl md:text-9xl font-black uppercase leading-[0.85] tracking-tighter whitespace-pre-wrap text-left"
+                    className="serif text-4xl md:text-9xl font-black uppercase leading-[0.85] tracking-tighter whitespace-pre-wrap text-left rich-text-content"
                     style={{ marginBottom: `${about.detailTitleSpacing || 32}px` }}
                     dangerouslySetInnerHTML={{ __html: selectedFestival.title || '' }}
                   />
                   <div 
-                    className="serif-italic text-xl md:text-4xl text-gray-400 italic whitespace-pre-wrap text-left"
+                    className="serif-italic text-xl md:text-4xl text-gray-400 italic whitespace-pre-wrap text-left rich-text-content"
                     dangerouslySetInnerHTML={{ __html: selectedFestival.sub || '' }}
                   />
                 </div>
