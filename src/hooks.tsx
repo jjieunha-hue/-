@@ -47,7 +47,7 @@ function usePortfolioDataInternal() {
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      setIsAdmin(currentUser?.email === 'jjieunha@gmail.com' && currentUser?.emailVerified === true);
+      setIsAdmin(currentUser?.email === 'jjieunha@gmail.com');
     });
 
     // Fetch About
@@ -120,6 +120,9 @@ function usePortfolioDataInternal() {
   };
 
   const updateAbout = async (newData: AboutInfo) => {
+    if (!auth.currentUser) {
+      throw new Error('로그인이 필요합니다. (Authentication required)');
+    }
     try {
       await setDoc(doc(db, 'settings', 'about'), newData);
     } catch (error) {
@@ -128,6 +131,9 @@ function usePortfolioDataInternal() {
   };
 
   const updateProject = async (project: Project) => {
+    if (!auth.currentUser) {
+      throw new Error('로그인이 필요합니다. (Authentication required)');
+    }
     try {
       await setDoc(doc(db, 'projects', project.id), project);
     } catch (error) {
@@ -136,6 +142,9 @@ function usePortfolioDataInternal() {
   };
 
   const updateFestival = async (festival: FestivalItem) => {
+    if (!auth.currentUser) {
+      throw new Error('로그인이 필요합니다. (Authentication required)');
+    }
     try {
       await setDoc(doc(db, 'festivals', festival.id), festival);
     } catch (error) {

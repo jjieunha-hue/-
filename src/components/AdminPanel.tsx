@@ -162,6 +162,10 @@ const AboutEditor = memo(({ about, onSave }: { about: AboutInfo, onSave: (a: Abo
 
   const handleUpdateAbout = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!auth.currentUser) {
+      alert('로그인이 필요합니다. (Authentication required)');
+      return;
+    }
     try {
       await onSave(aboutState);
       alert('저장되었습니다.');
@@ -685,6 +689,10 @@ const ProjectEditor = memo(({
             <button 
               onClick={async (e) => { 
                 e.stopPropagation(); 
+                if (!auth.currentUser) {
+                  alert('로그인이 필요합니다. (Authentication required)');
+                  return;
+                }
                 try {
                   await onSave(localProject);
                   alert('저장되었습니다.');
@@ -899,6 +907,10 @@ const FestivalEditor = memo(({
             <button 
               onClick={async (e) => { 
                 e.stopPropagation(); 
+                if (!auth.currentUser) {
+                  alert('로그인이 필요합니다. (Authentication required)');
+                  return;
+                }
                 try {
                   await onSave(localFestival);
                   alert('저장되었습니다.');
