@@ -47,7 +47,7 @@ function usePortfolioDataInternal() {
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      setIsAdmin(currentUser?.email === 'jjieunha@gmail.com');
+      setIsAdmin(currentUser?.email === 'jjieunha@gmail.com' && currentUser?.emailVerified === true);
     });
 
     // Fetch About

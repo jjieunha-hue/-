@@ -160,10 +160,14 @@ const AboutEditor = memo(({ about, onSave }: { about: AboutInfo, onSave: (a: Abo
     setAboutState(about);
   }, [about]);
 
-  const handleUpdateAbout = (e: React.FormEvent) => {
+  const handleUpdateAbout = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(aboutState);
-    alert('저장되었습니다.');
+    try {
+      await onSave(aboutState);
+      alert('저장되었습니다.');
+    } catch (err) {
+      alert('저장 실패: ' + (err instanceof Error ? err.message : String(err)));
+    }
   };
 
   const addExperience = () => {
@@ -679,7 +683,15 @@ const ProjectEditor = memo(({
         <div className="flex items-center gap-4">
           {isDirty && (
             <button 
-              onClick={(e) => { e.stopPropagation(); onSave(localProject); }}
+              onClick={async (e) => { 
+                e.stopPropagation(); 
+                try {
+                  await onSave(localProject);
+                  alert('저장되었습니다.');
+                } catch (err) {
+                  alert('저장 실패: ' + (err instanceof Error ? err.message : String(err)));
+                }
+              }}
               className="text-[10px] font-black uppercase bg-black text-white px-2 py-1 flex items-center gap-1"
             >
               <Save className="w-3 h-3" /> Save
@@ -790,7 +802,7 @@ const ProjectEditor = memo(({
               <ImageManager 
                 label="Main Image (메인 이미지)" 
                 images={localProject.imageUrl ? [localProject.imageUrl] : []} 
-                onImagesChange={(imgs) => setLocalProject({ ...localProject, imageUrl: imgs[0] || '' })}
+                onImagesChange={(imgs) => setLocalProject({ ...localProject, imageUrl: imgs[imgs.length - 1] || '' })}
                 uploadImage={uploadImage}
                 login={login}
                 onImageClick={onImageClick}
@@ -885,7 +897,15 @@ const FestivalEditor = memo(({
         <div className="flex items-center gap-4">
           {isDirty && (
             <button 
-              onClick={(e) => { e.stopPropagation(); onSave(localFestival); }}
+              onClick={async (e) => { 
+                e.stopPropagation(); 
+                try {
+                  await onSave(localFestival);
+                  alert('저장되었습니다.');
+                } catch (err) {
+                  alert('저장 실패: ' + (err instanceof Error ? err.message : String(err)));
+                }
+              }}
               className="text-[10px] font-black uppercase bg-black text-white px-2 py-1 flex items-center gap-1"
             >
               <Save className="w-3 h-3" /> Save
@@ -1013,7 +1033,7 @@ const FestivalEditor = memo(({
               <ImageManager 
                 label="Main Image (메인 이미지)" 
                 images={localFestival.imageUrl ? [localFestival.imageUrl] : []} 
-                onImagesChange={(imgs) => setLocalFestival({ ...localFestival, imageUrl: imgs[0] || '' })}
+                onImagesChange={(imgs) => setLocalFestival({ ...localFestival, imageUrl: imgs[imgs.length - 1] || '' })}
                 uploadImage={uploadImage}
                 login={login}
                 onImageClick={onImageClick}
