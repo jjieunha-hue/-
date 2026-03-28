@@ -13,14 +13,7 @@ import RichTextEditor from './RichTextEditor';
 import { ImageViewer } from './ImageViewer';
 
 const convertGoogleDriveLink = (url: string) => {
-  if (!url) return '';
-  if (url.includes('drive.google.com')) {
-    const idMatch = url.match(/\/d\/(.+?)\//) || url.match(/id=(.+?)(&|$)/);
-    if (idMatch && idMatch[1]) {
-      return `https://docs.google.com/uc?export=view&id=${idMatch[1]}`;
-    }
-  }
-  return url;
+  return url; 
 };
 
 interface AdminPanelProps {
