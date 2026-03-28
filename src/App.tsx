@@ -603,7 +603,7 @@ function AppContent() {
                     
                     <div className="md:col-span-8">
                       <h4 className="text-[10px] uppercase text-gray-300 font-black mb-6 italic">Project Overview</h4>
-                      <div className="text-gray-700 leading-relaxed text-xl font-light space-y-8 text-left break-keep whitespace-pre-wrap">
+                      <div className="text-gray-700 text-xl font-light rich-text-content">
                         <div dangerouslySetInnerHTML={{ __html: selectedProject.description || '' }} />
                         {(selectedProject.details || []).map((detail, idx) => (
                           <div key={idx} dangerouslySetInnerHTML={{ __html: detail || '' }} />
@@ -854,7 +854,7 @@ function AppContent() {
                     
                     <div className="md:col-span-8">
                       <h4 className="text-[10px] uppercase text-gray-300 font-black mb-6 italic">Festival Overview</h4>
-                      <div className="text-gray-700 leading-relaxed text-xl font-light space-y-8 text-left break-keep whitespace-pre-wrap">
+                      <div className="text-gray-700 text-xl font-light rich-text-content">
                         <div dangerouslySetInnerHTML={{ __html: selectedFestival.description || '상세 설명이 준비 중입니다.' }} />
                         {(selectedFestival.details || []).map((detail, idx) => (
                           <div key={idx} dangerouslySetInnerHTML={{ __html: detail || '' }} />
@@ -1006,43 +1006,52 @@ function AppContent() {
         {/* Contact Section */}
         <section id="contact" className="py-40 px-6 bg-black text-white overflow-hidden relative">
           <div className="max-w-7xl mx-auto relative z-10">
-            <h2 className="text-[10vw] font-black uppercase tracking-tighter leading-[0.8] mb-20 opacity-20">LET'S TALK</h2>
+            <h2 
+              className="text-[10vw] font-black uppercase tracking-tighter leading-[0.8] mb-20 opacity-20"
+              dangerouslySetInnerHTML={{ __html: about.contactTitle || "LET'S TALK" }}
+            />
             <div className="grid md:grid-cols-2 gap-20">
               <div>
-                <p className="text-3xl md:text-5xl font-bold mb-12 leading-tight">
-                  공간의 가치를 함께 <br />
-                  만들어갈 파트너를 기다립니다.
-                </p>
+                <div 
+                  className="text-3xl md:text-5xl font-bold mb-12 leading-tight"
+                  dangerouslySetInnerHTML={{ __html: about.contactHighlight || "공간의 가치를 함께 <br /> 만들어갈 파트너를 기다립니다." }}
+                />
                 <div className="space-y-8">
                   <div>
-                    <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest block mb-4 italic">Phone</span>
+                    <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest block mb-4 italic">{about.phoneLabel || 'Phone'}</span>
                     <a href={`tel:${about.phone}`} className="text-4xl md:text-6xl font-black hover:text-gray-400 transition-colors">{about.phone}</a>
                   </div>
                   <div>
-                    <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest block mb-4 italic">Email</span>
+                    <span className="text-[10px] font-black uppercase text-gray-500 tracking-widest block mb-4 italic">{about.emailLabel || 'Email'}</span>
                     <a href={`mailto:${about.email}`} className="text-2xl md:text-4xl font-medium serif-italic hover:text-gray-400 transition-colors">{about.email}</a>
                   </div>
                 </div>
               </div>
               <div className="flex flex-col justify-end">
                 <div className="flex gap-8 text-xs font-black uppercase tracking-widest italic mb-20">
-                  <a href={about.social?.instagram} target="_blank" rel="noopener noreferrer" className="hover:line-through">Instagram</a>
-                  <a href={about.social?.behance} target="_blank" rel="noopener noreferrer" className="hover:line-through">Behance</a>
-                  <a href={about.social?.notion} target="_blank" rel="noopener noreferrer" className="hover:line-through">Notion</a>
+                  {about.social?.instagram && <a href={about.social.instagram} target="_blank" rel="noopener noreferrer" className="hover:line-through">Instagram</a>}
+                  {about.social?.behance && <a href={about.social.behance} target="_blank" rel="noopener noreferrer" className="hover:line-through">Behance</a>}
+                  {about.social?.notion && <a href={about.social.notion} target="_blank" rel="noopener noreferrer" className="hover:line-through">Notion</a>}
                 </div>
                 <div className="h-[1px] w-full bg-white opacity-10"></div>
               </div>
             </div>
           </div>
           {/* Decorative element */}
-          <div className="absolute -bottom-20 -right-20 text-[30vw] font-black opacity-5 select-none pointer-events-none">HI</div>
+          <div className="absolute -bottom-20 -right-20 text-[30vw] font-black opacity-5 select-none pointer-events-none">{about.contactDecorativeText || 'HI'}</div>
         </section>
 
         {/* Footer */}
         <footer className="py-20 px-6 bg-white border-t border-gray-100">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">© 2026 <span dangerouslySetInnerHTML={{ __html: about.name }} />. All Rights Reserved.</p>
-            <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">Designed for Spatial & Graphic Experience</p>
+            <div 
+              className="text-[10px] font-bold text-gray-300 uppercase tracking-widest"
+              dangerouslySetInnerHTML={{ __html: about.footerCopyright || `© 2026 ${about.name}. All Rights Reserved.` }}
+            />
+            <div 
+              className="text-[10px] font-bold text-gray-300 uppercase tracking-widest"
+              dangerouslySetInnerHTML={{ __html: about.footerSubtext || "Designed for Spatial & Graphic Experience" }}
+            />
           </div>
         </footer>
         {isViewerOpen && (

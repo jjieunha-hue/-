@@ -324,19 +324,39 @@ const AboutEditor = memo(({ about, onSave }: { about: AboutInfo, onSave: (a: Abo
           onClick={() => setExpandedSection(expandedSection === 'contact' ? null : 'contact')}
           className="w-full p-4 flex justify-between items-center bg-gray-50 hover:bg-gray-100 transition-colors"
         >
-          <span className="text-xs font-black uppercase tracking-widest">Contact & Social</span>
+          <span className="text-xs font-black uppercase tracking-widest">Contact & Footer</span>
           <span className="text-[10px] font-bold text-gray-400">{expandedSection === 'contact' ? 'Collapse' : 'Expand'}</span>
         </button>
         {expandedSection === 'contact' && (
           <div className="p-6 space-y-8 border-t border-gray-100">
             <div className="grid grid-cols-2 gap-8">
               <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Contact Title (LET'S TALK)</label>
+                <RichTextEditor value={aboutState.contactTitle || "LET'S TALK"} onChange={(val) => setAboutState({...aboutState, contactTitle: val})} />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Decorative Text (HI)</label>
+                <input value={aboutState.contactDecorativeText || 'HI'} onChange={(e) => setAboutState({...aboutState, contactDecorativeText: e.target.value})} className="w-full p-4 border border-gray-100 focus:border-black outline-none font-bold" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Contact Highlight (공간의 가치를 함께...)</label>
+              <RichTextEditor value={aboutState.contactHighlight || "공간의 가치를 함께 <br /> 만들어갈 파트너를 기다립니다."} onChange={(val) => setAboutState({...aboutState, contactHighlight: val})} />
+            </div>
+            <div className="grid grid-cols-2 gap-8">
+              <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Phone</label>
-                <input value={aboutState.phone || ''} onChange={(e) => setAboutState({...aboutState, phone: e.target.value})} className="w-full p-4 border border-gray-100 focus:border-black outline-none font-bold" />
+                <div className="flex gap-4">
+                  <input value={aboutState.phoneLabel || 'Phone'} onChange={(e) => setAboutState({...aboutState, phoneLabel: e.target.value})} className="w-1/3 p-4 border border-gray-100 focus:border-black outline-none font-bold" placeholder="Label" />
+                  <input value={aboutState.phone || ''} onChange={(e) => setAboutState({...aboutState, phone: e.target.value})} className="flex-1 p-4 border border-gray-100 focus:border-black outline-none font-bold" placeholder="Value" />
+                </div>
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Email</label>
-                <input value={aboutState.email || ''} onChange={(e) => setAboutState({...aboutState, email: e.target.value})} className="w-full p-4 border border-gray-100 focus:border-black outline-none font-bold" />
+                <div className="flex gap-4">
+                  <input value={aboutState.emailLabel || 'Email'} onChange={(e) => setAboutState({...aboutState, emailLabel: e.target.value})} className="w-1/3 p-4 border border-gray-100 focus:border-black outline-none font-bold" placeholder="Label" />
+                  <input value={aboutState.email || ''} onChange={(e) => setAboutState({...aboutState, email: e.target.value})} className="flex-1 p-4 border border-gray-100 focus:border-black outline-none font-bold" placeholder="Value" />
+                </div>
               </div>
             </div>
             <div className="grid grid-cols-3 gap-8">
@@ -351,6 +371,16 @@ const AboutEditor = memo(({ about, onSave }: { about: AboutInfo, onSave: (a: Abo
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Notion</label>
                 <input value={aboutState.social?.notion || ''} onChange={(e) => setAboutState({...aboutState, social: {...(aboutState.social || {}), notion: e.target.value}})} className="w-full p-4 border border-gray-100 focus:border-black outline-none font-bold" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-8">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Footer Copyright</label>
+                <RichTextEditor value={aboutState.footerCopyright || `© 2026 ${aboutState.name}. All Rights Reserved.`} onChange={(val) => setAboutState({...aboutState, footerCopyright: val})} />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Footer Subtext</label>
+                <RichTextEditor value={aboutState.footerSubtext || "Designed for Spatial & Graphic Experience"} onChange={(val) => setAboutState({...aboutState, footerSubtext: val})} />
               </div>
             </div>
           </div>

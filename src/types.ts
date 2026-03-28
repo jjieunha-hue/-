@@ -70,6 +70,13 @@ export interface AboutInfo {
   };
   experiences: Experience[];
   detailTitleSpacing?: number;
+  contactTitle?: string;
+  contactHighlight?: string;
+  contactDecorativeText?: string;
+  phoneLabel?: string;
+  emailLabel?: string;
+  footerCopyright?: string;
+  footerSubtext?: string;
 }
 
 export interface Experience {

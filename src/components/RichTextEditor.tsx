@@ -16,7 +16,7 @@ Quill.register(Size, true);
 const Parchment = Quill.import('parchment') as any;
 const LineHeightStyle = new Parchment.StyleAttributor('lineheight', 'line-height', {
   scope: Parchment.Scope.INLINE,
-  whitelist: ['1.0', '1.2', '1.4', '1.5', '1.6', '1.8', '2.0', '2.5', '3.0']
+  whitelist: ['0.8', '0.9', '1.0', '1.2', '1.4', '1.5', '1.6', '1.8', '2.0', '2.5', '3.0']
 });
 Quill.register(LineHeightStyle, true);
 
@@ -37,7 +37,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = memo(({ value, onChange, p
     toolbar: [
       [{ 'font': ['pretendard', 'notosanskr', 'nanummyeongjo', 'playfair'] }],
       [{ 'size': ['10px', '12px', '14px', '16px', '18px', '20px', '24px', '30px', '36px', '48px', '64px'] }],
-      [{ 'lineheight': ['1.0', '1.2', '1.4', '1.5', '1.6', '1.8', '2.0', '2.5', '3.0'] }],
+      [{ 'lineheight': ['0.8', '0.9', '1.0', '1.2', '1.4', '1.5', '1.6', '1.8', '2.0', '2.5', '3.0'] }],
       [{ 'letterspacing': ['-0.05em', '-0.02em', '0', '0.02em', '0.05em', '0.1em', '0.2em'] }],
       ['bold', 'italic', 'underline', 'strike'],
       [{ 'color': [] }, { 'background': [] }],

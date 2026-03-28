@@ -81,11 +81,11 @@
   }
 
   .rich-text-editor .ql-editor {
-    font-family: "Noto Sans KR", ui-sans-serif, system-ui, sans-serif;
-    font-size: 1.25rem; /* text-xl */
-    line-height: 1.625; /* leading-relaxed */
-    font-weight: 300; /* font-light */
-    color: #374151; /* text-gray-700 */
+    font-family: 'Pretendard', sans-serif !important;
+    font-size: 1.25rem !important; /* text-xl */
+    font-weight: 300 !important; /* font-light */
+    color: #374151 !important; /* text-gray-700 */
+    line-height: inherit !important;
     white-space: pre-wrap !important;
     text-align: left !important;
     padding: 0 !important;
@@ -128,6 +128,30 @@
   .rich-text-editor .ql-snow .ql-picker.ql-letterspacing .ql-picker-label::before,
   .rich-text-editor .ql-snow .ql-picker.ql-letterspacing .ql-picker-item::before {
     content: 'Space: ' attr(data-value) !important;
+  }
+
+  /* Rich Text Content Reset */
+  .rich-text-content {
+    white-space: pre-wrap !important;
+    text-align: left !important;
+  }
+
+  .rich-text-content p,
+  .rich-text-content h1,
+  .rich-text-content h2,
+  .rich-text-content h3,
+  .rich-text-content h4,
+  .rich-text-content h5,
+  .rich-text-content h6 {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  @media (max-width: 767px) {
+    .rich-text-content {
+      white-space: normal !important;
+      word-break: keep-all !important;
+    }
   }
 
   /* Masonry Grid Styles */
