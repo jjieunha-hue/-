@@ -800,7 +800,7 @@ const ProjectEditor = memo(({
             </div>
             <p className="text-[8px] text-gray-400 mt-1 italic">* Guide: The width above matches the detail page body width. Use Enter for manual line breaks.</p>
           </div>
-          <div className="space-y-1">
+          <div className="space-y-1 mt-6">
             <label className="text-[10px] font-black uppercase text-gray-300 italic">Detailed Paragraphs (one per line)</label>
             <div className="max-w-[795px] border border-gray-100">
               <RichTextEditor 
@@ -1028,7 +1028,7 @@ const FestivalEditor = memo(({
             </div>
             <p className="text-[8px] text-gray-400 mt-1 italic">* Guide: The width above matches the detail page body width. Use Enter for manual line breaks.</p>
           </div>
-          <div className="space-y-1">
+          <div className="space-y-1 mt-6">
             <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Detailed Paragraphs (one per line)</label>
             <div className="max-w-[795px] border border-gray-100">
               <RichTextEditor 

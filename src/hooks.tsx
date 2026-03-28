@@ -57,7 +57,11 @@ function usePortfolioDataInternal() {
       } else {
         setDoc(doc(db, 'settings', 'about'), INITIAL_ABOUT).catch(e => handleFirestoreError(e, OperationType.WRITE, 'settings/about'));
       }
-    }, (error) => handleFirestoreError(error, OperationType.GET, 'settings/about'));
+    }, (error) => {
+      console.error('About fetch error:', error);
+      setLoading(false);
+      handleFirestoreError(error, OperationType.GET, 'settings/about');
+    });
 
     // Fetch Projects
     const qProjects = query(collection(db, 'projects'), orderBy('order', 'asc'));
@@ -69,10 +73,17 @@ function usePortfolioDataInternal() {
         INITIAL_PROJECTS.forEach(p => {
           batch.set(doc(db, 'projects', p.id), p);
         });
-        batch.commit().catch(e => handleFirestoreError(e, OperationType.WRITE, 'projects_batch'));
+        batch.commit().catch(e => {
+          console.error('Projects batch commit error:', e);
+          // Don't call handleFirestoreError here to avoid crashing if not logged in
+        });
         setProjects(INITIAL_PROJECTS);
       }
-    }, (error) => handleFirestoreError(error, OperationType.GET, 'projects'));
+    }, (error) => {
+      console.error('Projects fetch error:', error);
+      setLoading(false);
+      handleFirestoreError(error, OperationType.GET, 'projects');
+    });
 
     // Fetch Festivals
     const qFestivals = query(collection(db, 'festivals'), orderBy('order', 'asc'));
@@ -85,14 +96,19 @@ function usePortfolioDataInternal() {
         INITIAL_FESTIVALS.forEach(f => {
           batch.set(doc(db, 'festivals', f.id), f);
         });
-        batch.commit().then(() => {
-          // No need to set loading false here
-        }).catch(e => handleFirestoreError(e, OperationType.WRITE, 'festivals_batch'));
+        batch.commit().catch(e => {
+          console.error('Festivals batch commit error:', e);
+          // Don't call handleFirestoreError here to avoid crashing if not logged in
+        });
         
         setFestivals(INITIAL_FESTIVALS);
         setLoading(false);
       }
-    }, (error) => handleFirestoreError(error, OperationType.GET, 'festivals'));
+    }, (error) => {
+      console.error('Festivals fetch error:', error);
+      setLoading(false);
+      handleFirestoreError(error, OperationType.GET, 'festivals');
+    });
 
     return () => {
       unsubscribeAuth();

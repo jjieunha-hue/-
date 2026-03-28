@@ -20,7 +20,7 @@ const firebaseConfig = {
   appId: "1:119056009318:web:bf2a6e66d749c57f2245a7"
 };
 
-const firestoreDatabaseId = metaEnv.VITE_FIREBASE_FIRESTORE_DATABASE_ID || firebaseConfigJson.firestoreDatabaseId;
+const firestoreDatabaseId = firebaseConfig.projectId === "hajieun-7efb2" ? "(default)" : (metaEnv.VITE_FIREBASE_FIRESTORE_DATABASE_ID || firebaseConfigJson.firestoreDatabaseId);
 
 // Initialize Firebase only if it hasn't been initialized already
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
