@@ -136,8 +136,8 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                 onImageClick={openViewer}
               />
             ))}
-          </div>
-        )}
+      </div>
+    )}
         {isViewerOpen && (
           <ImageViewer 
             images={viewerImages}
