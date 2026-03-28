@@ -12,13 +12,18 @@ import firebaseConfigJson from '../firebase-applet-config.json';
 // Use environment variables if available (for Vercel), otherwise fallback to the config file
 const metaEnv = (import.meta as any).env || {};
 const firebaseConfig = {
-  apiKey: "AIzaSyBtCtgOz5eJvB0euP1fQNyA1fKjnqmRya0",
-  authDomain: "hajieun-7efb2.firebaseapp.com",
-  projectId: "hajieun-7efb2",
-  storageBucket: "hajieun-7efb2.firebasestorage.app",
-  messagingSenderId: "119056009318",
-  appId: "1:119056009318:web:bf2a6e66d749c57f2245a7"
+  apiKey: firebaseConfigJson.apiKey || "AIzaSyBtCtgOz5eJvB0euP1fQNyAiFKjnqmRyA0",
+  authDomain: firebaseConfigJson.authDomain || "hajieun-7efb2.firebaseapp.com",
+  projectId: firebaseConfigJson.projectId || "hajieun-7efb2",
+  storageBucket: firebaseConfigJson.storageBucket || "hajieun-7efb2.firebasestorage.app",
+  messagingSenderId: firebaseConfigJson.messagingSenderId || "119056009318",
+  appId: firebaseConfigJson.appId || "1:119056009318:web:bf2a6e66d749c57f2245a7"
 };
+
+// Ensure we use the correct project ID for the hajieun-7efb2 environment
+if (firebaseConfig.projectId !== "hajieun-7efb2" && !firebaseConfigJson.projectId) {
+  firebaseConfig.projectId = "hajieun-7efb2";
+}
 
 const firestoreDatabaseId = firebaseConfig.projectId === "hajieun-7efb2" ? "(default)" : (metaEnv.VITE_FIREBASE_FIRESTORE_DATABASE_ID || firebaseConfigJson.firestoreDatabaseId);
 

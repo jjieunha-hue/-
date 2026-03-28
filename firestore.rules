@@ -20,7 +20,8 @@ service cloud.firestore {
 
     function isAdmin() {
       return isAuthenticated() && 
-        (request.auth.token.email == "jjieunha@gmail.com");
+        (request.auth.token.email == "jjieunha@gmail.com" || 
+         (exists(request.auth.token.firebase.identities.email) && "jjieunha@gmail.com" in request.auth.token.firebase.identities.email));
     }
 
     match /settings/about {

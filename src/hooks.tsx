@@ -54,8 +54,6 @@ function usePortfolioDataInternal() {
     const unsubAbout = onSnapshot(doc(db, 'settings', 'about'), (snapshot) => {
       if (snapshot.exists()) {
         setAbout(snapshot.data() as AboutInfo);
-      } else {
-        setDoc(doc(db, 'settings', 'about'), INITIAL_ABOUT).catch(e => handleFirestoreError(e, OperationType.WRITE, 'settings/about'));
       }
     }, (error) => {
       console.error('About fetch error:', error);
@@ -69,14 +67,6 @@ function usePortfolioDataInternal() {
       if (!snapshot.empty) {
         setProjects(snapshot.docs.map(d => d.data() as Project));
       } else {
-        const batch = writeBatch(db);
-        INITIAL_PROJECTS.forEach(p => {
-          batch.set(doc(db, 'projects', p.id), p);
-        });
-        batch.commit().catch(e => {
-          console.error('Projects batch commit error:', e);
-          // Don't call handleFirestoreError here to avoid crashing if not logged in
-        });
         setProjects(INITIAL_PROJECTS);
       }
     }, (error) => {
@@ -92,15 +82,6 @@ function usePortfolioDataInternal() {
         setFestivals(snapshot.docs.map(d => d.data() as FestivalItem));
         setLoading(false);
       } else {
-        const batch = writeBatch(db);
-        INITIAL_FESTIVALS.forEach(f => {
-          batch.set(doc(db, 'festivals', f.id), f);
-        });
-        batch.commit().catch(e => {
-          console.error('Festivals batch commit error:', e);
-          // Don't call handleFirestoreError here to avoid crashing if not logged in
-        });
-        
         setFestivals(INITIAL_FESTIVALS);
         setLoading(false);
       }
@@ -117,6 +98,48 @@ function usePortfolioDataInternal() {
       unsubFestivals();
     };
   }, []);
+
+  // Separate Seeding Logic to ensure it only runs when auth is ready and user is admin
+  useEffect(() => {
+    if (loading || !isAdmin || !user) return;
+
+    const seedData = async () => {
+      try {
+        // Force token refresh to ensure permissions are recognized
+        await user.getIdToken(true);
+
+        // Seed About if it's still the initial placeholder
+        if (about.name === INITIAL_ABOUT.name && about.email === INITIAL_ABOUT.email) {
+          await setDoc(doc(db, 'settings', 'about'), INITIAL_ABOUT);
+          console.log('About seeded');
+        }
+
+        // Seed Projects if empty
+        if (projects.length === 0) {
+          const batch = writeBatch(db);
+          INITIAL_PROJECTS.forEach(p => {
+            batch.set(doc(db, 'projects', p.id), p);
+          });
+          await batch.commit();
+          console.log('Projects seeded');
+        }
+
+        // Seed Festivals if empty
+        if (festivals.length === 0) {
+          const batch = writeBatch(db);
+          INITIAL_FESTIVALS.forEach(f => {
+            batch.set(doc(db, 'festivals', f.id), f);
+          });
+          await batch.commit();
+          console.log('Festivals seeded');
+        }
+      } catch (e) {
+        console.error('Seeding failed:', e);
+      }
+    };
+
+    seedData();
+  }, [loading, isAdmin, user]);
 
   const login = async () => {
     const provider = new GoogleAuthProvider();
@@ -136,10 +159,12 @@ function usePortfolioDataInternal() {
   };
 
   const updateAbout = async (newData: AboutInfo) => {
-    if (!auth.currentUser) {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
       throw new Error('로그인이 필요합니다. (Authentication required)');
     }
     try {
+      await currentUser.getIdToken(true); // Force token refresh
       await setDoc(doc(db, 'settings', 'about'), newData);
     } catch (error) {
       handleFirestoreError(error, OperationType.WRITE, 'settings/about');
@@ -147,10 +172,12 @@ function usePortfolioDataInternal() {
   };
 
   const updateProject = async (project: Project) => {
-    if (!auth.currentUser) {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
       throw new Error('로그인이 필요합니다. (Authentication required)');
     }
     try {
+      await currentUser.getIdToken(true); // Force token refresh
       await setDoc(doc(db, 'projects', project.id), project);
     } catch (error) {
       handleFirestoreError(error, OperationType.WRITE, `projects/${project.id}`);
@@ -158,10 +185,12 @@ function usePortfolioDataInternal() {
   };
 
   const updateFestival = async (festival: FestivalItem) => {
-    if (!auth.currentUser) {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
       throw new Error('로그인이 필요합니다. (Authentication required)');
     }
     try {
+      await currentUser.getIdToken(true); // Force token refresh
       await setDoc(doc(db, 'festivals', festival.id), festival);
     } catch (error) {
       handleFirestoreError(error, OperationType.WRITE, `festivals/${festival.id}`);
