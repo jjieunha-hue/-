@@ -135,6 +135,7 @@
     white-space: pre-wrap !important;
     word-break: keep-all !important;
     text-align: left !important;
+    overflow-wrap: break-word !important;
   }
 
   .rich-text-content p,
@@ -149,11 +150,22 @@
     padding: 0 !important;
     white-space: pre-wrap !important;
     word-break: keep-all !important;
+    overflow-wrap: break-word !important;
   }
 
   @media screen and (max-width: 768px) {
-    .rich-text-content {
+    .rich-text-content,
+    .rich-text-content p,
+    .rich-text-content div,
+    .rich-text-content h1,
+    .rich-text-content h2,
+    .rich-text-content h3,
+    .rich-text-content h4,
+    .rich-text-content h5,
+    .rich-text-content h6 {
+      white-space: normal !important;
       word-break: keep-all !important;
+      overflow-wrap: break-word !important;
     }
   }
 

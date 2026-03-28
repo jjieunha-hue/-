@@ -13,8 +13,23 @@ import RichTextEditor from './RichTextEditor';
 import { ImageViewer } from './ImageViewer';
 
 const convertGoogleDriveLink = (url: string) => {
-  return url; 
+  if (!url) return '';
+  if (url.includes('drive.google.com')) {
+    const idMatch = url.match(/\/d\/(.+?)\//) || url.match(/id=(.+?)(&|$)/);
+    if (idMatch && idMatch[1]) {
+      return `https://docs.google.com/uc?export=view&id=${idMatch[1]}`;
+    }
+  }
+  return url;
 };
+
+interface AdminPanelProps {
+  onClose: () => void;
+}
+
+export default function AdminPanel({ onClose }: AdminPanelProps) {
+  const { about, projects, festivals, updateAbout, updateProject, updateFestival, logout, uploadImage, login } = usePortfolioData();
+  const [activeTab, setActiveTab] = useState<'about' | 'environmental' | 'interior' | 'others' | 'festivals'>('about');
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const [viewerImages, setViewerImages] = useState<string[]>([]);
