@@ -8,7 +8,7 @@ import { Project, FestivalItem, AboutInfo } from '../types';
 import { usePortfolioData } from '../hooks';
 import { auth } from '../firebase';
 import { stripHtml } from '../lib/utils';
-import { X, Save, Plus, Trash2, LogOut, Settings, Upload, Loader2 } from 'lucide-react';
+import { X, Save, Plus, Trash2, LogOut, Settings, Upload, Loader2, Smartphone, Monitor } from 'lucide-react';
 import RichTextEditor from './RichTextEditor';
 import { ImageViewer } from './ImageViewer';
 
@@ -31,6 +31,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
   const { about, projects, festivals, updateAbout, updateProject, updateFestival, logout, uploadImage, login } = usePortfolioData();
   const [activeTab, setActiveTab] = useState<'about' | 'environmental' | 'interior' | 'others' | 'festivals'>('about');
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [isMobileView, setIsMobileView] = useState(false);
 
   const [viewerImages, setViewerImages] = useState<string[]>([]);
   const [viewerIndex, setViewerIndex] = useState(0);
@@ -57,14 +58,25 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-white overflow-y-auto">
-      <div className="max-w-7xl mx-auto px-6 py-20">
+    <div className={`fixed inset-0 z-[100] ${isMobileView ? 'bg-gray-100' : 'bg-white'} overflow-y-auto transition-colors duration-500`}>
+      <div className={`mx-auto px-6 py-20 transition-all duration-500 bg-white min-h-screen ${isMobileView ? 'admin-mobile-view' : 'max-w-7xl'}`}>
         <div className="flex items-center justify-between mb-12">
           <h2 className="text-4xl font-black tracking-tighter uppercase flex items-center gap-3">
             <Settings className="w-8 h-8" />
             Admin Panel
           </h2>
           <div className="flex items-center gap-4">
+            <button 
+              onClick={() => setIsMobileView(!isMobileView)}
+              className={`flex items-center gap-2 px-4 py-2 border transition-all text-[10px] font-black uppercase tracking-widest ${
+                isMobileView 
+                ? 'bg-black text-white border-black' 
+                : 'border-gray-200 text-gray-400 hover:text-black hover:border-black'
+              }`}
+            >
+              {isMobileView ? <Monitor className="w-4 h-4" /> : <Smartphone className="w-4 h-4" />}
+              {isMobileView ? 'PC View' : 'Mobile View'}
+            </button>
             <button 
               onClick={() => { logout(); onClose(); }}
               className="flex items-center gap-2 px-4 py-2 border border-gray-200 text-xs font-bold uppercase tracking-widest hover:bg-gray-50"

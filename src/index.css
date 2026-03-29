@@ -206,6 +206,46 @@
     }
   }
 
+  /* Admin Panel Mobile Simulation Mode */
+  .admin-mobile-view {
+    max-width: 390px !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+    box-shadow: 0 0 100px rgba(0,0,0,0.1);
+    overflow-x: hidden !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /* Force all grids inside admin mobile view to stack vertically */
+  .admin-mobile-view .grid,
+  .admin-mobile-view .grid-cols-2,
+  .admin-mobile-view .grid-cols-3,
+  .admin-mobile-view .grid-cols-4 {
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+    gap: 1rem !important;
+  }
+
+  /* Adjust spacing and typography for simulated mobile view */
+  .admin-mobile-view h2 {
+    font-size: 1.5rem !important;
+  }
+  .admin-mobile-view .flex.gap-8 {
+    gap: 1rem !important;
+  }
+  .admin-mobile-view .p-8 {
+    padding: 1rem !important;
+  }
+  .admin-mobile-view .p-10 {
+    padding: 1.5rem !important;
+  }
+  .admin-mobile-view .grid-cols-4.gap-3 {
+    gap: 0.75rem !important;
+  }
+  .admin-mobile-view .max-w-[795px] {
+    max-width: 100% !important;
+  }
+
   /* Masonry Grid Styles */
   .my-masonry-grid {
     display: flex;
