@@ -236,10 +236,10 @@ const AboutEditor = memo(({ about, onSave }: { about: AboutInfo, onSave: (a: Abo
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Highlight</label>
               <RichTextEditor value={aboutState.highlight || ''} onChange={(val) => setAboutState({...aboutState, highlight: val})} />
             </div>
-            <div className="grid grid-cols-2 gap-4 overflow-x-auto pb-4">
+            <div className="flex flex-col gap-12 pb-8">
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (PC)</label>
-                <div className="border border-gray-100 w-[800px]">
+                <div className="border border-gray-100 w-[800px] bg-white">
                   <RichTextEditor 
                     key="pc"
                     value={pcContent} 
@@ -247,11 +247,11 @@ const AboutEditor = memo(({ about, onSave }: { about: AboutInfo, onSave: (a: Abo
                     placeholder="PC 전용 설명을 입력하세요..."
                   />
                 </div>
-                <p className="text-[8px] text-gray-400 mt-1 italic">* PC 전용: PC 화면에서만 보입니다.</p>
+                <p className="text-[8px] text-gray-400 mt-1 italic">* PC 전용: PC 화면에서만 보입니다. (본문 너비 800px 고정 가이드)</p>
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (Mobile)</label>
-                <div className="border border-gray-100 w-[390px]">
+                <div className="border border-gray-100 w-[390px] bg-white">
                   <RichTextEditor 
                     key="mobile"
                     value={mobileContent} 
@@ -259,7 +259,7 @@ const AboutEditor = memo(({ about, onSave }: { about: AboutInfo, onSave: (a: Abo
                     placeholder="모바일 전용 설명을 입력하세요..."
                   />
                 </div>
-                <p className="text-[8px] text-gray-400 mt-1 italic">* Mobile 전용: 모바일 화면(768px 이하)에서만 보입니다.</p>
+                <p className="text-[8px] text-gray-400 mt-1 italic">* Mobile 전용: 모바일 화면(768px 이하)에서만 보입니다. (390px 고정 가이드)</p>
               </div>
             </div>
             <div className="space-y-2">
@@ -835,10 +835,10 @@ const ProjectEditor = memo(({
               />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4 overflow-x-auto pb-4">
+          <div className="flex flex-col gap-12 pb-8">
             <div className="space-y-1">
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (PC)</label>
-              <div className="border border-gray-100 w-[800px]">
+              <div className="border border-gray-100 w-[800px] bg-white">
                 <RichTextEditor 
                   key="pc"
                   value={pcContent} 
@@ -846,11 +846,11 @@ const ProjectEditor = memo(({
                   placeholder="PC 전용 설명을 입력하세요..."
                 />
               </div>
-              <p className="text-[8px] text-gray-400 mt-1 italic">* PC 전용: PC 화면에서만 보입니다.</p>
+              <p className="text-[8px] text-gray-400 mt-1 italic">* PC 전용: PC 화면에서만 보입니다. (본문 너비 800px 고정 가이드)</p>
             </div>
             <div className="space-y-1">
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (Mobile)</label>
-              <div className="border border-gray-100 w-[390px]">
+              <div className="border border-gray-100 w-[390px] bg-white">
                 <RichTextEditor 
                   key="mobile"
                   value={mobileContent} 
@@ -858,7 +858,7 @@ const ProjectEditor = memo(({
                   placeholder="모바일 전용 설명을 입력하세요..."
                 />
               </div>
-              <p className="text-[8px] text-gray-400 mt-1 italic">* Mobile 전용: 모바일 화면(768px 이하)에서만 보입니다.</p>
+              <p className="text-[8px] text-gray-400 mt-1 italic">* Mobile 전용: 모바일 화면(768px 이하)에서만 보입니다. (390px 고정 가이드)</p>
             </div>
           </div>
           <div className="space-y-1">
@@ -1094,10 +1094,10 @@ const FestivalEditor = memo(({
               />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4 overflow-x-auto pb-4">
+          <div className="flex flex-col gap-12 pb-8">
             <div className="space-y-1">
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (PC)</label>
-              <div className="border border-gray-100 w-[800px]">
+              <div className="border border-gray-100 w-[800px] bg-white">
                 <RichTextEditor 
                   key="pc"
                   value={pcContent} 
@@ -1105,11 +1105,11 @@ const FestivalEditor = memo(({
                   placeholder="PC 전용 설명을 입력하세요..."
                 />
               </div>
-              <p className="text-[8px] text-gray-400 mt-1 italic">* PC 전용: PC 화면에서만 보입니다.</p>
+              <p className="text-[8px] text-gray-400 mt-1 italic">* PC 전용: PC 화면에서만 보입니다. (본문 너비 800px 고정 가이드)</p>
             </div>
             <div className="space-y-1">
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (Mobile)</label>
-              <div className="border border-gray-100 w-[390px]">
+              <div className="border border-gray-100 w-[390px] bg-white">
                 <RichTextEditor 
                   key="mobile"
                   value={mobileContent} 
@@ -1117,7 +1117,7 @@ const FestivalEditor = memo(({
                   placeholder="모바일 전용 설명을 입력하세요..."
                 />
               </div>
-              <p className="text-[8px] text-gray-400 mt-1 italic">* Mobile 전용: 모바일 화면(768px 이하)에서만 보입니다.</p>
+              <p className="text-[8px] text-gray-400 mt-1 italic">* Mobile 전용: 모바일 화면(768px 이하)에서만 보입니다. (390px 고정 가이드)</p>
             </div>
           </div>
           <div className="space-y-1">
