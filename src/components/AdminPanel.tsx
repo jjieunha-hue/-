@@ -232,8 +232,24 @@ const AboutEditor = memo(({ about, onSave }: { about: AboutInfo, onSave: (a: Abo
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Highlight</label>
               <RichTextEditor value={aboutState.highlight || ''} onChange={(val) => setAboutState({...aboutState, highlight: val})} />
             </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (PC)</label>
+                <div className="border border-gray-100">
+                  <RichTextEditor value={aboutState.content_pc || ''} onChange={(val) => setAboutState({...aboutState, content_pc: val})} />
+                </div>
+                <p className="text-[8px] text-gray-400 mt-1 italic">* PC 전용: PC 화면에서만 보입니다.</p>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (Mobile)</label>
+                <div className="border border-gray-100">
+                  <RichTextEditor value={aboutState.content_mobile || ''} onChange={(val) => setAboutState({...aboutState, content_mobile: val})} />
+                </div>
+                <p className="text-[8px] text-gray-400 mt-1 italic">* Mobile 전용: 모바일 화면(768px 이하)에서만 보입니다.</p>
+              </div>
+            </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description</label>
+              <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (Legacy/Default)</label>
               <RichTextEditor value={aboutState.description || ''} onChange={(val) => setAboutState({...aboutState, description: val})} />
             </div>
           </div>
@@ -807,8 +823,8 @@ const ProjectEditor = memo(({
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (PC)</label>
               <div className="border border-gray-100">
                 <RichTextEditor 
-                  value={localProject.descriptionPC || localProject.description || ''} 
-                  onChange={(val) => setLocalProject({ ...localProject, descriptionPC: val })}
+                  value={localProject.content_pc || ''} 
+                  onChange={(val) => setLocalProject({ ...localProject, content_pc: val })}
                 />
               </div>
               <p className="text-[8px] text-gray-400 mt-1 italic">* PC 전용: PC 화면에서만 보입니다.</p>
@@ -817,8 +833,8 @@ const ProjectEditor = memo(({
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (Mobile)</label>
               <div className="border border-gray-100">
                 <RichTextEditor 
-                  value={localProject.descriptionMobile || localProject.description || ''} 
-                  onChange={(val) => setLocalProject({ ...localProject, descriptionMobile: val })}
+                  value={localProject.content_mobile || ''} 
+                  onChange={(val) => setLocalProject({ ...localProject, content_mobile: val })}
                 />
               </div>
               <p className="text-[8px] text-gray-400 mt-1 italic">* Mobile 전용: 모바일 화면(768px 이하)에서만 보입니다.</p>
@@ -1057,8 +1073,8 @@ const FestivalEditor = memo(({
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (PC)</label>
               <div className="border border-gray-100">
                 <RichTextEditor 
-                  value={localFestival.descriptionPC || localFestival.description || ''} 
-                  onChange={(val) => setLocalFestival({ ...localFestival, descriptionPC: val })}
+                  value={localFestival.content_pc || ''} 
+                  onChange={(val) => setLocalFestival({ ...localFestival, content_pc: val })}
                 />
               </div>
               <p className="text-[8px] text-gray-400 mt-1 italic">* PC 전용: PC 화면에서만 보입니다.</p>
@@ -1067,8 +1083,8 @@ const FestivalEditor = memo(({
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (Mobile)</label>
               <div className="border border-gray-100">
                 <RichTextEditor 
-                  value={localFestival.descriptionMobile || localFestival.description || ''} 
-                  onChange={(val) => setLocalFestival({ ...localFestival, descriptionMobile: val })}
+                  value={localFestival.content_mobile || ''} 
+                  onChange={(val) => setLocalFestival({ ...localFestival, content_mobile: val })}
                 />
               </div>
               <p className="text-[8px] text-gray-400 mt-1 italic">* Mobile 전용: 모바일 화면(768px 이하)에서만 보입니다.</p>

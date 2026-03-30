@@ -321,8 +321,12 @@ function AppContent() {
                   <div dangerouslySetInnerHTML={{ __html: about.highlight }} />
                 </div>
                 <div 
-                  className="text-gray-600 leading-relaxed text-lg max-w-2xl text-justify font-light mb-12 whitespace-pre-wrap"
-                  dangerouslySetInnerHTML={{ __html: about.description }}
+                  className="text-gray-600 leading-relaxed text-lg max-w-2xl text-justify font-light mb-12 whitespace-pre-wrap rich-text-content"
+                  dangerouslySetInnerHTML={{ 
+                    __html: (isMobile ? about.content_mobile : about.content_pc) 
+                            || about.description 
+                            || '' 
+                  }}
                 />
               </div>
             </div>
@@ -610,9 +614,9 @@ function AppContent() {
                     
                     <div className="md:col-span-8">
                       <h4 className="text-[10px] uppercase text-gray-300 font-black mb-6 italic">Project Overview</h4>
-                      <div className="text-gray-700 text-xl font-light rich-text-content">
+                      <div className="text-gray-700 text-xl font-light rich-text-content whitespace-pre-wrap">
                         <div className="!mb-10" dangerouslySetInnerHTML={{ 
-                          __html: (isMobile ? selectedProject.descriptionMobile : selectedProject.descriptionPC) 
+                          __html: (isMobile ? selectedProject.content_mobile : selectedProject.content_pc) 
                                   || selectedProject.description 
                                   || '' 
                         }} />
@@ -865,9 +869,9 @@ function AppContent() {
                     
                     <div className="md:col-span-8">
                       <h4 className="text-[10px] uppercase text-gray-300 font-black mb-6 italic">Festival Overview</h4>
-                      <div className="text-gray-700 text-xl font-light rich-text-content">
+                      <div className="text-gray-700 text-xl font-light rich-text-content whitespace-pre-wrap">
                         <div className="!mb-10" dangerouslySetInnerHTML={{ 
-                          __html: (isMobile ? selectedFestival.descriptionMobile : selectedFestival.descriptionPC) 
+                          __html: (isMobile ? selectedFestival.content_mobile : selectedFestival.content_pc) 
                                   || selectedFestival.description 
                                   || '상세 설명이 준비 중입니다.' 
                         }} />
