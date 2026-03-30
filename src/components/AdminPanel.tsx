@@ -802,8 +802,30 @@ const ProjectEditor = memo(({
               />
             </div>
           </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (PC)</label>
+              <div className="border border-gray-100">
+                <RichTextEditor 
+                  value={localProject.descriptionPC || localProject.description || ''} 
+                  onChange={(val) => setLocalProject({ ...localProject, descriptionPC: val })}
+                />
+              </div>
+              <p className="text-[8px] text-gray-400 mt-1 italic">* PC 전용: PC 화면에서만 보입니다.</p>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (Mobile)</label>
+              <div className="border border-gray-100">
+                <RichTextEditor 
+                  value={localProject.descriptionMobile || localProject.description || ''} 
+                  onChange={(val) => setLocalProject({ ...localProject, descriptionMobile: val })}
+                />
+              </div>
+              <p className="text-[8px] text-gray-400 mt-1 italic">* Mobile 전용: 모바일 화면(768px 이하)에서만 보입니다.</p>
+            </div>
+          </div>
           <div className="space-y-1">
-            <label className="text-[10px] font-black uppercase text-gray-300 italic">Short Description</label>
+            <label className="text-[10px] font-black uppercase text-gray-300 italic">Short Description (Legacy/Default)</label>
             <div className="max-w-[795px] border border-gray-100">
               <RichTextEditor 
                 value={localProject.description || ''} 
@@ -1030,8 +1052,30 @@ const FestivalEditor = memo(({
               />
             </div>
           </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (PC)</label>
+              <div className="border border-gray-100">
+                <RichTextEditor 
+                  value={localFestival.descriptionPC || localFestival.description || ''} 
+                  onChange={(val) => setLocalFestival({ ...localFestival, descriptionPC: val })}
+                />
+              </div>
+              <p className="text-[8px] text-gray-400 mt-1 italic">* PC 전용: PC 화면에서만 보입니다.</p>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (Mobile)</label>
+              <div className="border border-gray-100">
+                <RichTextEditor 
+                  value={localFestival.descriptionMobile || localFestival.description || ''} 
+                  onChange={(val) => setLocalFestival({ ...localFestival, descriptionMobile: val })}
+                />
+              </div>
+              <p className="text-[8px] text-gray-400 mt-1 italic">* Mobile 전용: 모바일 화면(768px 이하)에서만 보입니다.</p>
+            </div>
+          </div>
           <div className="space-y-1">
-            <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description</label>
+            <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (Legacy/Default)</label>
             <div className="max-w-[795px] border border-gray-100">
               <RichTextEditor 
                 value={localFestival.description || ''} 

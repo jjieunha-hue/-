@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { PortfolioProvider, usePortfolioData } from './hooks';
 import { Project, FestivalItem } from './types';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -19,6 +19,13 @@ function AppContent() {
   const [selectedFestival, setSelectedFestival] = useState<FestivalItem | null>(null);
   const [showAdmin, setShowAdmin] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [passwordError, setPasswordError] = useState(false);
@@ -604,7 +611,11 @@ function AppContent() {
                     <div className="md:col-span-8">
                       <h4 className="text-[10px] uppercase text-gray-300 font-black mb-6 italic">Project Overview</h4>
                       <div className="text-gray-700 text-xl font-light rich-text-content">
-                        <div className="!mb-10" dangerouslySetInnerHTML={{ __html: selectedProject.description || '' }} />
+                        <div className="!mb-10" dangerouslySetInnerHTML={{ 
+                          __html: (isMobile ? selectedProject.descriptionMobile : selectedProject.descriptionPC) 
+                                  || selectedProject.description 
+                                  || '' 
+                        }} />
                         {(selectedProject.details || []).map((detail, idx) => (
                           <div key={idx} className="!mb-6" dangerouslySetInnerHTML={{ __html: detail || '' }} />
                         ))}
@@ -855,7 +866,11 @@ function AppContent() {
                     <div className="md:col-span-8">
                       <h4 className="text-[10px] uppercase text-gray-300 font-black mb-6 italic">Festival Overview</h4>
                       <div className="text-gray-700 text-xl font-light rich-text-content">
-                        <div className="!mb-10" dangerouslySetInnerHTML={{ __html: selectedFestival.description || '상세 설명이 준비 중입니다.' }} />
+                        <div className="!mb-10" dangerouslySetInnerHTML={{ 
+                          __html: (isMobile ? selectedFestival.descriptionMobile : selectedFestival.descriptionPC) 
+                                  || selectedFestival.description 
+                                  || '상세 설명이 준비 중입니다.' 
+                        }} />
                         {(selectedFestival.details || []).map((detail, idx) => (
                           <div key={idx} className="!mb-6" dangerouslySetInnerHTML={{ __html: detail || '' }} />
                         ))}
