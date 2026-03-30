@@ -166,14 +166,14 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
 
 const AboutEditor = memo(({ about, onSave }: { about: AboutInfo, onSave: (a: AboutInfo) => void }) => {
   const [aboutState, setAboutState] = useState<AboutInfo>(about);
-  const [pcContent, setPcContent] = useState(about.pcContent || '');
-  const [mobileContent, setMobileContent] = useState(about.mobileContent || '');
+  const [pcContent, setPcContent] = useState(about.content_pc || '');
+  const [mobileContent, setMobileContent] = useState(about.content_mobile || '');
   const [expandedSection, setExpandedSection] = useState<string | null>('basic');
 
   useEffect(() => {
     setAboutState(about);
-    setPcContent(about.pcContent || '');
-    setMobileContent(about.mobileContent || '');
+    setPcContent(about.content_pc || '');
+    setMobileContent(about.content_mobile || '');
   }, [about]);
 
   const handleUpdateAbout = async (e: React.FormEvent) => {
@@ -185,7 +185,7 @@ const AboutEditor = memo(({ about, onSave }: { about: AboutInfo, onSave: (a: Abo
     }
     try {
       await currentUser.getIdToken(true);
-      await onSave({ ...aboutState, pcContent, mobileContent });
+      await onSave({ ...aboutState, content_pc: pcContent, content_mobile: mobileContent });
       alert('저장되었습니다.');
     } catch (err) {
       alert('저장 실패: ' + (err instanceof Error ? err.message : String(err)));
@@ -699,18 +699,18 @@ const ProjectEditor = memo(({
   onImageClick
 }: ProjectEditorProps) => {
   const [localProject, setLocalProject] = useState(project);
-  const [pcContent, setPcContent] = useState(project.pcContent || '');
-  const [mobileContent, setMobileContent] = useState(project.mobileContent || '');
+  const [pcContent, setPcContent] = useState(project.content_pc || '');
+  const [mobileContent, setMobileContent] = useState(project.content_mobile || '');
   
   useEffect(() => {
     setLocalProject(project);
-    setPcContent(project.pcContent || '');
-    setMobileContent(project.mobileContent || '');
+    setPcContent(project.content_pc || '');
+    setMobileContent(project.content_mobile || '');
   }, [project]);
 
   const isDirty = useMemo(() => {
     if (!isExpanded) return false;
-    const currentProject = { ...localProject, pcContent, mobileContent };
+    const currentProject = { ...localProject, content_pc: pcContent, content_mobile: mobileContent };
     return JSON.stringify(currentProject) !== JSON.stringify(project);
   }, [localProject, pcContent, mobileContent, project, isExpanded]);
 
@@ -733,7 +733,7 @@ const ProjectEditor = memo(({
                 }
                 try {
                   await currentUser.getIdToken(true);
-                  await onSave({ ...localProject, pcContent, mobileContent });
+                  await onSave({ ...localProject, content_pc: pcContent, content_mobile: mobileContent });
                   alert('저장되었습니다.');
                 } catch (err) {
                   alert('저장 실패: ' + (err instanceof Error ? err.message : String(err)));
@@ -948,18 +948,18 @@ const FestivalEditor = memo(({
   onImageClick
 }: FestivalEditorProps) => {
   const [localFestival, setLocalFestival] = useState(festival);
-  const [pcContent, setPcContent] = useState(festival.pcContent || '');
-  const [mobileContent, setMobileContent] = useState(festival.mobileContent || '');
+  const [pcContent, setPcContent] = useState(festival.content_pc || '');
+  const [mobileContent, setMobileContent] = useState(festival.content_mobile || '');
   
   useEffect(() => {
     setLocalFestival(festival);
-    setPcContent(festival.pcContent || '');
-    setMobileContent(festival.mobileContent || '');
+    setPcContent(festival.content_pc || '');
+    setMobileContent(festival.content_mobile || '');
   }, [festival]);
 
   const isDirty = useMemo(() => {
     if (!isExpanded) return false;
-    const currentFestival = { ...localFestival, pcContent, mobileContent };
+    const currentFestival = { ...localFestival, content_pc: pcContent, content_mobile: mobileContent };
     return JSON.stringify(currentFestival) !== JSON.stringify(festival);
   }, [localFestival, pcContent, mobileContent, festival, isExpanded]);
 
@@ -982,7 +982,7 @@ const FestivalEditor = memo(({
                 }
                 try {
                   await currentUser.getIdToken(true);
-                  await onSave({ ...localFestival, pcContent, mobileContent });
+                  await onSave({ ...localFestival, content_pc: pcContent, content_mobile: mobileContent });
                   alert('저장되었습니다.');
                 } catch (err) {
                   alert('저장 실패: ' + (err instanceof Error ? err.message : String(err)));

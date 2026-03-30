@@ -16,8 +16,8 @@ export interface Project {
   category: 'environmental' | 'interior' | 'others';
   categoryRich?: string;
   projectInfoRich?: string;
-  pcContent?: string;
-  mobileContent?: string;
+  content_pc?: string;
+  content_mobile?: string;
   imageUrl?: string;
   detailImages?: string[];
   completedImages?: string[];
@@ -40,8 +40,8 @@ export interface FestivalItem {
   periodRich?: string;
   categoryRich?: string;
   projectInfoRich?: string;
-  pcContent?: string;
-  mobileContent?: string;
+  content_pc?: string;
+  content_mobile?: string;
   tags?: string[];
   tagsRich?: string;
   imageUrl?: string;
@@ -57,8 +57,8 @@ export interface AboutInfo {
   title: string;
   highlight: string;
   description: string;
-  pcContent?: string;
-  mobileContent?: string;
+  content_pc?: string;
+  content_mobile?: string;
   phone: string;
   email: string;
   environmentalTitle?: string;
