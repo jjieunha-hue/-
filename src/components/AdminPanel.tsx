@@ -166,10 +166,14 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
 
 const AboutEditor = memo(({ about, onSave }: { about: AboutInfo, onSave: (a: AboutInfo) => void }) => {
   const [aboutState, setAboutState] = useState<AboutInfo>(about);
+  const [pcContent, setPcContent] = useState(about.pcContent || '');
+  const [mobileContent, setMobileContent] = useState(about.mobileContent || '');
   const [expandedSection, setExpandedSection] = useState<string | null>('basic');
 
   useEffect(() => {
     setAboutState(about);
+    setPcContent(about.pcContent || '');
+    setMobileContent(about.mobileContent || '');
   }, [about]);
 
   const handleUpdateAbout = async (e: React.FormEvent) => {
@@ -181,7 +185,7 @@ const AboutEditor = memo(({ about, onSave }: { about: AboutInfo, onSave: (a: Abo
     }
     try {
       await currentUser.getIdToken(true);
-      await onSave(aboutState);
+      await onSave({ ...aboutState, pcContent, mobileContent });
       alert('저장되었습니다.');
     } catch (err) {
       alert('저장 실패: ' + (err instanceof Error ? err.message : String(err)));
@@ -236,14 +240,14 @@ const AboutEditor = memo(({ about, onSave }: { about: AboutInfo, onSave: (a: Abo
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (PC)</label>
                 <div className="border border-gray-100">
-                  <RichTextEditor value={aboutState.content_pc || ''} onChange={(val) => setAboutState({...aboutState, content_pc: val})} />
+                  <RichTextEditor key="pc" value={pcContent} onChange={setPcContent} />
                 </div>
                 <p className="text-[8px] text-gray-400 mt-1 italic">* PC 전용: PC 화면에서만 보입니다.</p>
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (Mobile)</label>
                 <div className="border border-gray-100">
-                  <RichTextEditor value={aboutState.content_mobile || ''} onChange={(val) => setAboutState({...aboutState, content_mobile: val})} />
+                  <RichTextEditor key="mobile" value={mobileContent} onChange={setMobileContent} />
                 </div>
                 <p className="text-[8px] text-gray-400 mt-1 italic">* Mobile 전용: 모바일 화면(768px 이하)에서만 보입니다.</p>
               </div>
@@ -695,17 +699,20 @@ const ProjectEditor = memo(({
   onImageClick
 }: ProjectEditorProps) => {
   const [localProject, setLocalProject] = useState(project);
+  const [pcContent, setPcContent] = useState(project.pcContent || '');
+  const [mobileContent, setMobileContent] = useState(project.mobileContent || '');
   
   useEffect(() => {
     setLocalProject(project);
+    setPcContent(project.pcContent || '');
+    setMobileContent(project.mobileContent || '');
   }, [project]);
 
   const isDirty = useMemo(() => {
-    // Simple shallow comparison for performance if possible, but deep is needed here.
-    // We only run this when expanded to save cycles.
     if (!isExpanded) return false;
-    return JSON.stringify(localProject) !== JSON.stringify(project);
-  }, [localProject, project, isExpanded]);
+    const currentProject = { ...localProject, pcContent, mobileContent };
+    return JSON.stringify(currentProject) !== JSON.stringify(project);
+  }, [localProject, pcContent, mobileContent, project, isExpanded]);
 
   return (
     <div className={`border border-gray-100 transition-all ${isExpanded ? 'p-8 space-y-4' : 'p-4 hover:bg-gray-50'}`}>
@@ -726,7 +733,7 @@ const ProjectEditor = memo(({
                 }
                 try {
                   await currentUser.getIdToken(true);
-                  await onSave(localProject);
+                  await onSave({ ...localProject, pcContent, mobileContent });
                   alert('저장되었습니다.');
                 } catch (err) {
                   alert('저장 실패: ' + (err instanceof Error ? err.message : String(err)));
@@ -823,8 +830,9 @@ const ProjectEditor = memo(({
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (PC)</label>
               <div className="border border-gray-100">
                 <RichTextEditor 
-                  value={localProject.content_pc || ''} 
-                  onChange={(val) => setLocalProject({ ...localProject, content_pc: val })}
+                  key="pc"
+                  value={pcContent} 
+                  onChange={setPcContent}
                 />
               </div>
               <p className="text-[8px] text-gray-400 mt-1 italic">* PC 전용: PC 화면에서만 보입니다.</p>
@@ -833,8 +841,9 @@ const ProjectEditor = memo(({
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (Mobile)</label>
               <div className="border border-gray-100">
                 <RichTextEditor 
-                  value={localProject.content_mobile || ''} 
-                  onChange={(val) => setLocalProject({ ...localProject, content_mobile: val })}
+                  key="mobile"
+                  value={mobileContent} 
+                  onChange={setMobileContent}
                 />
               </div>
               <p className="text-[8px] text-gray-400 mt-1 italic">* Mobile 전용: 모바일 화면(768px 이하)에서만 보입니다.</p>
@@ -939,15 +948,20 @@ const FestivalEditor = memo(({
   onImageClick
 }: FestivalEditorProps) => {
   const [localFestival, setLocalFestival] = useState(festival);
+  const [pcContent, setPcContent] = useState(festival.pcContent || '');
+  const [mobileContent, setMobileContent] = useState(festival.mobileContent || '');
   
   useEffect(() => {
     setLocalFestival(festival);
+    setPcContent(festival.pcContent || '');
+    setMobileContent(festival.mobileContent || '');
   }, [festival]);
 
   const isDirty = useMemo(() => {
     if (!isExpanded) return false;
-    return JSON.stringify(localFestival) !== JSON.stringify(festival);
-  }, [localFestival, festival, isExpanded]);
+    const currentFestival = { ...localFestival, pcContent, mobileContent };
+    return JSON.stringify(currentFestival) !== JSON.stringify(festival);
+  }, [localFestival, pcContent, mobileContent, festival, isExpanded]);
 
   return (
     <div className={`border border-gray-100 transition-all ${isExpanded ? 'p-8 space-y-4' : 'p-4 hover:bg-gray-50'}`}>
@@ -968,7 +982,7 @@ const FestivalEditor = memo(({
                 }
                 try {
                   await currentUser.getIdToken(true);
-                  await onSave(localFestival);
+                  await onSave({ ...localFestival, pcContent, mobileContent });
                   alert('저장되었습니다.');
                 } catch (err) {
                   alert('저장 실패: ' + (err instanceof Error ? err.message : String(err)));
@@ -1073,8 +1087,9 @@ const FestivalEditor = memo(({
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (PC)</label>
               <div className="border border-gray-100">
                 <RichTextEditor 
-                  value={localFestival.content_pc || ''} 
-                  onChange={(val) => setLocalFestival({ ...localFestival, content_pc: val })}
+                  key="pc"
+                  value={pcContent} 
+                  onChange={setPcContent}
                 />
               </div>
               <p className="text-[8px] text-gray-400 mt-1 italic">* PC 전용: PC 화면에서만 보입니다.</p>
@@ -1083,8 +1098,9 @@ const FestivalEditor = memo(({
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (Mobile)</label>
               <div className="border border-gray-100">
                 <RichTextEditor 
-                  value={localFestival.content_mobile || ''} 
-                  onChange={(val) => setLocalFestival({ ...localFestival, content_mobile: val })}
+                  key="mobile"
+                  value={mobileContent} 
+                  onChange={setMobileContent}
                 />
               </div>
               <p className="text-[8px] text-gray-400 mt-1 italic">* Mobile 전용: 모바일 화면(768px 이하)에서만 보입니다.</p>

@@ -323,7 +323,7 @@ function AppContent() {
                 <div 
                   className="text-gray-600 leading-relaxed text-lg max-w-2xl text-justify font-light mb-12 whitespace-pre-wrap rich-text-content"
                   dangerouslySetInnerHTML={{ 
-                    __html: (isMobile ? about.content_mobile : about.content_pc) 
+                    __html: (isMobile ? about.mobileContent : about.pcContent) 
                             || about.description 
                             || '' 
                   }}
@@ -616,7 +616,7 @@ function AppContent() {
                       <h4 className="text-[10px] uppercase text-gray-300 font-black mb-6 italic">Project Overview</h4>
                       <div className="text-gray-700 text-xl font-light rich-text-content whitespace-pre-wrap">
                         <div className="!mb-10" dangerouslySetInnerHTML={{ 
-                          __html: (isMobile ? selectedProject.content_mobile : selectedProject.content_pc) 
+                          __html: (isMobile ? selectedProject.mobileContent : selectedProject.pcContent) 
                                   || selectedProject.description 
                                   || '' 
                         }} />
@@ -871,7 +871,7 @@ function AppContent() {
                       <h4 className="text-[10px] uppercase text-gray-300 font-black mb-6 italic">Festival Overview</h4>
                       <div className="text-gray-700 text-xl font-light rich-text-content whitespace-pre-wrap">
                         <div className="!mb-10" dangerouslySetInnerHTML={{ 
-                          __html: (isMobile ? selectedFestival.content_mobile : selectedFestival.content_pc) 
+                          __html: (isMobile ? selectedFestival.mobileContent : selectedFestival.pcContent) 
                                   || selectedFestival.description 
                                   || '상세 설명이 준비 중입니다.' 
                         }} />
