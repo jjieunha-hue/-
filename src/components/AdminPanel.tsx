@@ -240,14 +240,24 @@ const AboutEditor = memo(({ about, onSave }: { about: AboutInfo, onSave: (a: Abo
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (PC)</label>
                 <div className="border border-gray-100">
-                  <RichTextEditor key="pc" value={pcContent} onChange={setPcContent} />
+                  <textarea 
+                    value={pcContent} 
+                    onChange={(e) => setPcContent(e.target.value)}
+                    className="w-full p-4 min-h-[200px] outline-none focus:border-black text-sm whitespace-pre-wrap"
+                    placeholder="PC 전용 설명을 입력하세요..."
+                  />
                 </div>
                 <p className="text-[8px] text-gray-400 mt-1 italic">* PC 전용: PC 화면에서만 보입니다.</p>
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (Mobile)</label>
                 <div className="border border-gray-100">
-                  <RichTextEditor key="mobile" value={mobileContent} onChange={setMobileContent} />
+                  <textarea 
+                    value={mobileContent} 
+                    onChange={(e) => setMobileContent(e.target.value)}
+                    className="w-full p-4 min-h-[200px] outline-none focus:border-black text-sm whitespace-pre-wrap"
+                    placeholder="모바일 전용 설명을 입력하세요..."
+                  />
                 </div>
                 <p className="text-[8px] text-gray-400 mt-1 italic">* Mobile 전용: 모바일 화면(768px 이하)에서만 보입니다.</p>
               </div>
@@ -829,10 +839,11 @@ const ProjectEditor = memo(({
             <div className="space-y-1">
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (PC)</label>
               <div className="border border-gray-100">
-                <RichTextEditor 
-                  key="pc"
+                <textarea 
                   value={pcContent} 
-                  onChange={setPcContent}
+                  onChange={(e) => setPcContent(e.target.value)}
+                  className="w-full p-4 min-h-[200px] outline-none focus:border-black text-sm whitespace-pre-wrap"
+                  placeholder="PC 전용 설명을 입력하세요..."
                 />
               </div>
               <p className="text-[8px] text-gray-400 mt-1 italic">* PC 전용: PC 화면에서만 보입니다.</p>
@@ -840,10 +851,11 @@ const ProjectEditor = memo(({
             <div className="space-y-1">
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (Mobile)</label>
               <div className="border border-gray-100">
-                <RichTextEditor 
-                  key="mobile"
+                <textarea 
                   value={mobileContent} 
-                  onChange={setMobileContent}
+                  onChange={(e) => setMobileContent(e.target.value)}
+                  className="w-full p-4 min-h-[200px] outline-none focus:border-black text-sm whitespace-pre-wrap"
+                  placeholder="모바일 전용 설명을 입력하세요..."
                 />
               </div>
               <p className="text-[8px] text-gray-400 mt-1 italic">* Mobile 전용: 모바일 화면(768px 이하)에서만 보입니다.</p>
@@ -1086,10 +1098,11 @@ const FestivalEditor = memo(({
             <div className="space-y-1">
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (PC)</label>
               <div className="border border-gray-100">
-                <RichTextEditor 
-                  key="pc"
+                <textarea 
                   value={pcContent} 
-                  onChange={setPcContent}
+                  onChange={(e) => setPcContent(e.target.value)}
+                  className="w-full p-4 min-h-[200px] outline-none focus:border-black text-sm whitespace-pre-wrap"
+                  placeholder="PC 전용 설명을 입력하세요..."
                 />
               </div>
               <p className="text-[8px] text-gray-400 mt-1 italic">* PC 전용: PC 화면에서만 보입니다.</p>
@@ -1097,10 +1110,11 @@ const FestivalEditor = memo(({
             <div className="space-y-1">
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (Mobile)</label>
               <div className="border border-gray-100">
-                <RichTextEditor 
-                  key="mobile"
+                <textarea 
                   value={mobileContent} 
-                  onChange={setMobileContent}
+                  onChange={(e) => setMobileContent(e.target.value)}
+                  className="w-full p-4 min-h-[200px] outline-none focus:border-black text-sm whitespace-pre-wrap"
+                  placeholder="모바일 전용 설명을 입력하세요..."
                 />
               </div>
               <p className="text-[8px] text-gray-400 mt-1 italic">* Mobile 전용: 모바일 화면(768px 이하)에서만 보입니다.</p>
