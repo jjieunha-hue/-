@@ -236,10 +236,10 @@ const AboutEditor = memo(({ about, onSave }: { about: AboutInfo, onSave: (a: Abo
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Highlight</label>
               <RichTextEditor value={aboutState.highlight || ''} onChange={(val) => setAboutState({...aboutState, highlight: val})} />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 overflow-x-auto pb-4">
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (PC)</label>
-                <div className="border border-gray-100">
+                <div className="border border-gray-100 w-[800px]">
                   <RichTextEditor 
                     key="pc"
                     value={pcContent} 
@@ -251,7 +251,7 @@ const AboutEditor = memo(({ about, onSave }: { about: AboutInfo, onSave: (a: Abo
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (Mobile)</label>
-                <div className="border border-gray-100">
+                <div className="border border-gray-100 w-[390px]">
                   <RichTextEditor 
                     key="mobile"
                     value={mobileContent} 
@@ -835,10 +835,10 @@ const ProjectEditor = memo(({
               />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 overflow-x-auto pb-4">
             <div className="space-y-1">
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (PC)</label>
-              <div className="border border-gray-100">
+              <div className="border border-gray-100 w-[800px]">
                 <RichTextEditor 
                   key="pc"
                   value={pcContent} 
@@ -850,7 +850,7 @@ const ProjectEditor = memo(({
             </div>
             <div className="space-y-1">
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (Mobile)</label>
-              <div className="border border-gray-100">
+              <div className="border border-gray-100 w-[390px]">
                 <RichTextEditor 
                   key="mobile"
                   value={mobileContent} 
@@ -1094,10 +1094,10 @@ const FestivalEditor = memo(({
               />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 overflow-x-auto pb-4">
             <div className="space-y-1">
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (PC)</label>
-              <div className="border border-gray-100">
+              <div className="border border-gray-100 w-[800px]">
                 <RichTextEditor 
                   key="pc"
                   value={pcContent} 
@@ -1109,7 +1109,7 @@ const FestivalEditor = memo(({
             </div>
             <div className="space-y-1">
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (Mobile)</label>
-              <div className="border border-gray-100">
+              <div className="border border-gray-100 w-[390px]">
                 <RichTextEditor 
                   key="mobile"
                   value={mobileContent} 
