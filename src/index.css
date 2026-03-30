@@ -200,7 +200,7 @@
     .rich-text-content h4,
     .rich-text-content h5,
     .rich-text-content h6 {
-      white-space: normal !important;
+      white-space: pre-wrap !important;
       word-break: keep-all !important;
       overflow-wrap: break-word !important;
     }
@@ -215,6 +215,14 @@
     overflow-x: hidden !important;
     padding-left: 1rem !important;
     padding-right: 1rem !important;
+  }
+
+  /* Ensure line breaks are preserved in simulation mode */
+  .admin-mobile-view .rich-text-content,
+  .admin-mobile-view .rich-text-content * {
+    white-space: pre-wrap !important;
+    word-break: keep-all !important;
+    overflow-wrap: break-word !important;
   }
 
   /* Force all grids inside admin mobile view to stack vertically */
