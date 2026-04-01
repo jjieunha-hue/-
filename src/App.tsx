@@ -52,10 +52,11 @@ function AppContent() {
   };
 
   const groupedProjects = useMemo(() => {
+    const sorted = [...projects].sort((a, b) => (a.order || 0) - (b.order || 0));
     return {
-      environmental: projects.filter(p => p.category === 'environmental'),
-      interior: projects.filter(p => p.category === 'interior'),
-      others: projects.filter(p => p.category === 'others'),
+      environmental: sorted.filter(p => p.category === 'environmental'),
+      interior: sorted.filter(p => p.category === 'interior'),
+      others: sorted.filter(p => p.category === 'others'),
     };
   }, [projects]);
 
@@ -80,8 +81,9 @@ function AppContent() {
   };
 
   const filteredFestivals = useMemo(() => {
-    if (festivalFilter === 'ALL') return festivals;
-    return festivals.filter(f => f.sub_category === festivalFilter);
+    const sorted = [...festivals].sort((a, b) => (a.order || 0) - (b.order || 0));
+    if (festivalFilter === 'ALL') return sorted;
+    return sorted.filter(f => f.sub_category === festivalFilter);
   }, [festivals, festivalFilter]);
 
   if (loading) {

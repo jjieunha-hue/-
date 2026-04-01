@@ -9,6 +9,7 @@ import {
   onSnapshot, 
   doc, 
   setDoc, 
+  deleteDoc,
   query, 
   orderBy,
   writeBatch
@@ -31,6 +32,8 @@ type PortfolioContextType = {
   updateAbout: (newData: AboutInfo) => Promise<void>;
   updateProject: (project: Project) => Promise<void>;
   updateFestival: (festival: FestivalItem) => Promise<void>;
+  deleteProject: (id: string) => Promise<void>;
+  deleteFestival: (id: string) => Promise<void>;
   uploadImage: (file: File, path: string, onProgress?: (p: number) => void) => Promise<string>;
 };
 
@@ -197,6 +200,32 @@ function usePortfolioDataInternal() {
     }
   };
 
+  const deleteProject = async (id: string) => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      throw new Error('로그인이 필요합니다. (Authentication required)');
+    }
+    try {
+      await currentUser.getIdToken(true);
+      await deleteDoc(doc(db, 'projects', id));
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, `projects/${id}`);
+    }
+  };
+
+  const deleteFestival = async (id: string) => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      throw new Error('로그인이 필요합니다. (Authentication required)');
+    }
+    try {
+      await currentUser.getIdToken(true);
+      await deleteDoc(doc(db, 'festivals', id));
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, `festivals/${id}`);
+    }
+  };
+
   const uploadImage = (file: File, path: string, onProgress?: (p: number) => void) => {
     const storageRef = ref(storage, path);
     const uploadTask = uploadBytesResumable(storageRef, file);
@@ -235,6 +264,8 @@ function usePortfolioDataInternal() {
     updateAbout,
     updateProject,
     updateFestival,
+    deleteProject,
+    deleteFestival,
     uploadImage
   };
 }

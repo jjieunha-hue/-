@@ -28,7 +28,7 @@ interface AdminPanelProps {
 }
 
 export default function AdminPanel({ onClose }: AdminPanelProps) {
-  const { about, projects, festivals, updateAbout, updateProject, updateFestival, logout, uploadImage, login } = usePortfolioData();
+  const { about, projects, festivals, updateAbout, updateProject, updateFestival, deleteProject, deleteFestival, logout, uploadImage, login } = usePortfolioData();
   const [activeTab, setActiveTab] = useState<'about' | 'environmental' | 'interior' | 'others' | 'festivals'>('about');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [isMobileView, setIsMobileView] = useState(false);
@@ -55,6 +55,44 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
       }
       alert('동기화되었습니다.');
     }
+  };
+
+  const handleAddProject = async () => {
+    const id = `project_${Date.now()}`;
+    const newProject: Project = {
+      id,
+      title: 'New Project',
+      subtitle: 'Subtitle',
+      period: '2024',
+      description: '',
+      tags: [],
+      category: activeTab as any,
+      imageUrl: '',
+      order: projects.length > 0 ? Math.max(...projects.map(p => p.order || 0)) + 1 : 1,
+      completedImages: [],
+      design2DImages: [],
+      design3DImages: [],
+      designImages: [],
+      detailImages: []
+    };
+    await updateProject(newProject);
+    setExpandedId(id);
+  };
+
+  const handleAddFestival = async () => {
+    const id = `fest_${Date.now()}`;
+    const newFestival: FestivalItem = {
+      id,
+      title: 'New Experience',
+      sub: 'Subtitle',
+      order: festivals.length > 0 ? Math.max(...festivals.map(f => f.order || 0)) + 1 : 1,
+      description: '',
+      period: '2024',
+      tags: [],
+      sub_category: 'FESTIVAL'
+    };
+    await updateFestival(newFestival);
+    setExpandedId(id);
   };
 
   return (
@@ -119,35 +157,54 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
 
         {(activeTab === 'environmental' || activeTab === 'interior' || activeTab === 'others') && (
           <div className="space-y-4">
-            {projects.filter(p => p.category === activeTab).map((project) => (
-              <ProjectEditor 
-                key={project.id} 
-                project={project} 
-                onSave={updateProject} 
-                uploadImage={uploadImage}
-                login={login}
-                isExpanded={expandedId === project.id}
-                onToggle={() => setExpandedId(expandedId === project.id ? null : project.id)}
-                onImageClick={openViewer}
-              />
-            ))}
+            <button 
+              onClick={handleAddProject}
+              className="w-full py-4 border-2 border-dashed border-gray-100 hover:border-black hover:bg-gray-50 transition-all flex items-center justify-center gap-2 text-xs font-black uppercase tracking-widest text-gray-400 hover:text-black mb-8"
+            >
+              <Plus className="w-4 h-4" /> Add New Project
+            </button>
+            {projects
+              .filter(p => p.category === activeTab)
+              .sort((a, b) => (a.order || 0) - (b.order || 0))
+              .map((project) => (
+                <ProjectEditor 
+                  key={project.id} 
+                  project={project} 
+                  onSave={updateProject} 
+                  onDelete={deleteProject}
+                  uploadImage={uploadImage}
+                  login={login}
+                  isExpanded={expandedId === project.id}
+                  onToggle={() => setExpandedId(expandedId === project.id ? null : project.id)}
+                  onImageClick={openViewer}
+                />
+              ))}
           </div>
         )}
 
         {activeTab === 'festivals' && (
           <div className="space-y-4">
-            {festivals.map((f) => (
-              <FestivalEditor 
-                key={f.id} 
-                festival={f} 
-                onSave={updateFestival} 
-                uploadImage={uploadImage}
-                login={login}
-                isExpanded={expandedId === f.id}
-                onToggle={() => setExpandedId(expandedId === f.id ? null : f.id)}
-                onImageClick={openViewer}
-              />
-            ))}
+            <button 
+              onClick={handleAddFestival}
+              className="w-full py-4 border-2 border-dashed border-gray-100 hover:border-black hover:bg-gray-50 transition-all flex items-center justify-center gap-2 text-xs font-black uppercase tracking-widest text-gray-400 hover:text-black mb-8"
+            >
+              <Plus className="w-4 h-4" /> Add New Experience
+            </button>
+            {[...festivals]
+              .sort((a, b) => (a.order || 0) - (b.order || 0))
+              .map((f) => (
+                <FestivalEditor 
+                  key={f.id} 
+                  festival={f} 
+                  onSave={updateFestival} 
+                  onDelete={deleteFestival}
+                  uploadImage={uploadImage}
+                  login={login}
+                  isExpanded={expandedId === f.id}
+                  onToggle={() => setExpandedId(expandedId === f.id ? null : f.id)}
+                  onImageClick={openViewer}
+                />
+              ))}
           </div>
         )}
         {isViewerOpen && (
@@ -692,6 +749,7 @@ const ImageManager = memo(({ label, images = [], onImagesChange, uploadImage, lo
 interface ProjectEditorProps {
   project: Project;
   onSave: (p: Project) => void;
+  onDelete: (id: string) => void;
   uploadImage: any;
   login: any;
   isExpanded: boolean;
@@ -702,6 +760,7 @@ interface ProjectEditorProps {
 const ProjectEditor = memo(({ 
   project, 
   onSave, 
+  onDelete,
   uploadImage, 
   login,
   isExpanded,
@@ -730,8 +789,20 @@ const ProjectEditor = memo(({
         <div className="flex items-center gap-4">
           <h3 className="text-lg font-black uppercase tracking-tighter" dangerouslySetInnerHTML={{ __html: project.title }} />
           <span className="text-[10px] font-black uppercase bg-gray-100 px-2 py-1">{project.category}</span>
+          <span className="text-[10px] font-black uppercase bg-gray-100 px-2 py-1">Order: {project.order}</span>
         </div>
         <div className="flex items-center gap-4">
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              if (confirm('이 프로젝트를 삭제하시겠습니까?')) {
+                onDelete(project.id);
+              }
+            }}
+            className="text-[10px] font-black uppercase text-red-400 hover:text-red-600 px-2 py-1 flex items-center gap-1"
+          >
+            <Trash2 className="w-3 h-3" /> Delete
+          </button>
           {isDirty && (
             <button 
               onClick={async (e) => { 
@@ -760,7 +831,16 @@ const ProjectEditor = memo(({
 
       {isExpanded && (
         <div className="space-y-4 pt-4 border-t border-gray-50">
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-5 gap-3">
+            <div className="space-y-1">
+              <label className="text-[10px] font-black uppercase text-gray-300 italic">Order</label>
+              <input 
+                type="number"
+                value={localProject.order} 
+                onChange={(e) => setLocalProject({ ...localProject, order: parseInt(e.target.value) })}
+                className="w-full p-2 border border-gray-50 outline-none focus:border-black text-sm font-bold"
+              />
+            </div>
             <div className="space-y-1">
               <label className="text-[10px] font-black uppercase text-gray-300 italic">Project Info Display</label>
               <RichTextEditor 
@@ -943,6 +1023,7 @@ const ProjectEditor = memo(({
 interface FestivalEditorProps {
   festival: FestivalItem;
   onSave: (f: FestivalItem) => void;
+  onDelete: (id: string) => void;
   uploadImage: any;
   login: any;
   isExpanded: boolean;
@@ -953,6 +1034,7 @@ interface FestivalEditorProps {
 const FestivalEditor = memo(({ 
   festival, 
   onSave, 
+  onDelete,
   uploadImage, 
   login,
   isExpanded,
@@ -983,6 +1065,17 @@ const FestivalEditor = memo(({
           <span className="text-[10px] font-black uppercase bg-gray-100 px-2 py-1">Order: {festival.order}</span>
         </div>
         <div className="flex items-center gap-4">
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              if (confirm('이 항목을 삭제하시겠습니까?')) {
+                onDelete(festival.id);
+              }
+            }}
+            className="text-[10px] font-black uppercase text-red-400 hover:text-red-600 px-2 py-1 flex items-center gap-1"
+          >
+            <Trash2 className="w-3 h-3" /> Delete
+          </button>
           {isDirty && (
             <button 
               onClick={async (e) => { 
