@@ -837,7 +837,7 @@ const ProjectEditor = memo(({
               <input 
                 type="number"
                 value={localProject.order} 
-                onChange={(e) => setLocalProject({ ...localProject, order: parseInt(e.target.value) })}
+                onChange={(e) => setLocalProject({ ...localProject, order: parseInt(e.target.value) || 0 })}
                 className="w-full p-2 border border-gray-50 outline-none focus:border-black text-sm font-bold"
               />
             </div>
@@ -1195,7 +1195,7 @@ const FestivalEditor = memo(({
               <input 
                 type="number"
                 value={localFestival.order} 
-                onChange={(e) => setLocalFestival({ ...localFestival, order: parseInt(e.target.value) })}
+                onChange={(e) => setLocalFestival({ ...localFestival, order: parseInt(e.target.value) || 0 })}
                 className="w-full p-2 border border-gray-50 outline-none focus:border-black text-sm"
               />
             </div>

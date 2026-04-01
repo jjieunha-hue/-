@@ -180,8 +180,29 @@ function usePortfolioDataInternal() {
       throw new Error('로그인이 필요합니다. (Authentication required)');
     }
     try {
-      await currentUser.getIdToken(true); // Force token refresh
-      await setDoc(doc(db, 'projects', project.id), project);
+      await currentUser.getIdToken(true);
+      
+      const batch = writeBatch(db);
+      // Get current projects excluding the one being updated
+      let otherProjects = projects.filter(p => p.id !== project.id);
+      
+      // Combine and sort
+      let allProjects = [...otherProjects, project];
+      allProjects.sort((a, b) => {
+        if (a.order !== b.order) return a.order - b.order;
+        // If same order, the one being updated (project) should take precedence
+        if (a.id === project.id) return -1;
+        if (b.id === project.id) return 1;
+        return a.id.localeCompare(b.id);
+      });
+
+      // Re-index and commit
+      allProjects.forEach((p, index) => {
+        const newOrder = index + 1;
+        batch.set(doc(db, 'projects', p.id), { ...p, order: newOrder });
+      });
+
+      await batch.commit();
     } catch (error) {
       handleFirestoreError(error, OperationType.WRITE, `projects/${project.id}`);
     }
@@ -193,8 +214,25 @@ function usePortfolioDataInternal() {
       throw new Error('로그인이 필요합니다. (Authentication required)');
     }
     try {
-      await currentUser.getIdToken(true); // Force token refresh
-      await setDoc(doc(db, 'festivals', festival.id), festival);
+      await currentUser.getIdToken(true);
+      
+      const batch = writeBatch(db);
+      let otherFestivals = festivals.filter(f => f.id !== festival.id);
+      
+      let allFestivals = [...otherFestivals, festival];
+      allFestivals.sort((a, b) => {
+        if (a.order !== b.order) return a.order - b.order;
+        if (a.id === festival.id) return -1;
+        if (b.id === festival.id) return 1;
+        return a.id.localeCompare(b.id);
+      });
+
+      allFestivals.forEach((f, index) => {
+        const newOrder = index + 1;
+        batch.set(doc(db, 'festivals', f.id), { ...f, order: newOrder });
+      });
+
+      await batch.commit();
     } catch (error) {
       handleFirestoreError(error, OperationType.WRITE, `festivals/${festival.id}`);
     }
@@ -207,7 +245,24 @@ function usePortfolioDataInternal() {
     }
     try {
       await currentUser.getIdToken(true);
-      await deleteDoc(doc(db, 'projects', id));
+      
+      const batch = writeBatch(db);
+      // Filter out the deleted project
+      let remainingProjects = projects.filter(p => p.id !== id);
+      
+      // Sort remaining by current order
+      remainingProjects.sort((a, b) => (a.order || 0) - (b.order || 0));
+
+      // Re-index and commit
+      remainingProjects.forEach((p, index) => {
+        const newOrder = index + 1;
+        batch.set(doc(db, 'projects', p.id), { ...p, order: newOrder });
+      });
+      
+      // Delete the target project
+      batch.delete(doc(db, 'projects', id));
+
+      await batch.commit();
     } catch (error) {
       handleFirestoreError(error, OperationType.DELETE, `projects/${id}`);
     }
@@ -220,7 +275,20 @@ function usePortfolioDataInternal() {
     }
     try {
       await currentUser.getIdToken(true);
-      await deleteDoc(doc(db, 'festivals', id));
+      
+      const batch = writeBatch(db);
+      let remainingFestivals = festivals.filter(f => f.id !== id);
+      
+      remainingFestivals.sort((a, b) => (a.order || 0) - (b.order || 0));
+
+      remainingFestivals.forEach((f, index) => {
+        const newOrder = index + 1;
+        batch.set(doc(db, 'festivals', f.id), { ...f, order: newOrder });
+      });
+      
+      batch.delete(doc(db, 'festivals', id));
+
+      await batch.commit();
     } catch (error) {
       handleFirestoreError(error, OperationType.DELETE, `festivals/${id}`);
     }
