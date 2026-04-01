@@ -21,6 +21,7 @@ export const INITIAL_ABOUT: AboutInfo = {
   timelineLabel: 'Timeline',
   categoryLabel: 'Category',
   tagsLabel: 'Tags',
+  festivalTitle: 'EXPERIENCE',
   experiences: [
     { id: 'exp1', company: "콜링씨앤디 (Calling C&D)", period: "2026.03 - 현재" },
     { id: 'exp2', company: "더가꿈 (The Gakkum)", period: "2025.11 - 2026.01" },
@@ -253,7 +254,8 @@ export const INITIAL_FESTIVALS: FestivalItem[] = [
     order: 1,
     description: "해운대구에서 진행된 인문학 강연과 클래식 공연이 결합된 랙처콘서트 시리즈의 통합 브랜딩 및 홍보물 디자인입니다. 예술의 깊이를 시각적으로 전달하기 위해 클래식한 타이포그래피와 현대적인 그래픽 요소를 조화롭게 사용했습니다.",
     period: "2022.05 - 2022.11",
-    tags: ["Branding", "Promotion", "2022"]
+    tags: ["Branding", "Promotion", "2022"],
+    sub_category: 'FESTIVAL'
   },
   { 
     id: 'f2', 
@@ -262,7 +264,8 @@ export const INITIAL_FESTIVALS: FestivalItem[] = [
     order: 2,
     description: "부산 중구 유라리광장에서 진행된 시민 참여형 인터랙션 디자인 프로젝트입니다. '유라리네컷'이라는 컨셉으로 광장의 기억을 기록하고 공유하는 아이덴티티를 구축했습니다.",
     period: "2022.08",
-    tags: ["Interaction", "Identity", "2022"]
+    tags: ["Interaction", "Identity", "2022"],
+    sub_category: 'FESTIVAL'
   },
   { 
     id: 'f3', 
@@ -271,7 +274,8 @@ export const INITIAL_FESTIVALS: FestivalItem[] = [
     order: 3,
     description: "전국 각지의 자매결연 도시들이 참여하는 직거래 장터의 통합 프로모션 디자인입니다. 활기찬 시장의 분위기와 각 지역의 특색을 담은 비주얼 아이덴티티를 제안했습니다.",
     period: "2022.09",
-    tags: ["Promotion", "Graphic", "2022"]
+    tags: ["Promotion", "Graphic", "2022"],
+    sub_category: 'FESTIVAL'
   },
   { 
     id: 'f4', 
@@ -280,7 +284,8 @@ export const INITIAL_FESTIVALS: FestivalItem[] = [
     order: 4,
     description: "부산대학교에서 개최된 인문학 축제의 메인 아이덴티티 디자인입니다. '생각의 깊이, 대화의 즐거움'을 키워드로 하여 지적인 호기심을 자극하는 그래픽 시스템을 구축했습니다.",
     period: "2022.10",
-    tags: ["Festival", "Identity", "2022"]
+    tags: ["Festival", "Identity", "2022"],
+    sub_category: 'FESTIVAL'
   },
   { 
     id: 'f5', 
@@ -289,7 +294,8 @@ export const INITIAL_FESTIVALS: FestivalItem[] = [
     order: 5,
     description: "해운대의 대표적인 연말연시 축제인 카운트다운과 해맞이 축제의 통합 브랜딩입니다. 새로운 시작의 설렘과 희망을 담은 역동적인 그래픽을 통해 축제의 에너지를 전달했습니다.",
     period: "2022.12 - 2023.01",
-    tags: ["Branding", "Season", "2023"]
+    tags: ["Branding", "Season", "2023"],
+    sub_category: 'FESTIVAL'
   },
   { 
     id: 'f6', 
@@ -298,7 +304,8 @@ export const INITIAL_FESTIVALS: FestivalItem[] = [
     order: 6,
     description: "2030 부산 세계박람회 유치를 위한 국제박람회기구(BIE) 실사단 방문에 대비한 해운대구 일원의 공공 프로모션 디자인입니다. 글로벌 도시 해운대의 이미지를 강조하는 가로 환경 디자인을 수행했습니다.",
     period: "2023.03 - 2023.04",
-    tags: ["Public", "Promotion", "2023"]
+    tags: ["Public", "Promotion", "2023"],
+    sub_category: 'FESTIVAL'
   },
   { 
     id: 'f7', 
@@ -307,7 +314,8 @@ export const INITIAL_FESTIVALS: FestivalItem[] = [
     order: 7,
     description: "해운대 모래축제의 메인 아이덴티티 및 온/오프라인 홍보물 디자인입니다. 모래라는 소재의 질감과 축제의 즐거움을 시각화하여 방문객들에게 일관된 브랜드 경험을 제공했습니다.",
     period: "2023.05",
-    tags: ["Festival", "Branding", "2023"]
+    tags: ["Festival", "Branding", "2023"],
+    sub_category: 'FESTIVAL'
   },
   { 
     id: 'f8', 
@@ -316,7 +324,8 @@ export const INITIAL_FESTIVALS: FestivalItem[] = [
     order: 8,
     description: "송정해수욕장 개장식의 메인 비주얼 및 현장 설치물 디자인입니다. 서핑의 성지인 송정의 아이덴티티를 반영하여 젊고 감각적인 무드를 연출했습니다.",
     period: "2023.06",
-    tags: ["Identity", "Tourism", "2023"]
+    tags: ["Identity", "Tourism", "2023"],
+    sub_category: 'FESTIVAL'
   },
   { 
     id: 'f9', 
@@ -325,7 +334,8 @@ export const INITIAL_FESTIVALS: FestivalItem[] = [
     order: 9,
     description: "청년 예술가들의 열정과 문화를 공유하는 '청춘난장' 페스티벌의 브랜딩입니다. 자유롭고 실험적인 청년 문화를 대변하는 과감한 타이포그래피와 컬러를 사용했습니다.",
     period: "2023.08",
-    tags: ["Youth", "Culture", "2023"]
+    tags: ["Youth", "Culture", "2023"],
+    sub_category: 'FESTIVAL'
   },
   { 
     id: 'f10', 
@@ -334,7 +344,8 @@ export const INITIAL_FESTIVALS: FestivalItem[] = [
     order: 10,
     description: "수영구 평생학습축제의 아이덴티티 디자인입니다. 전 세대가 함께 배우고 즐기는 축제의 의미를 담아 친근하고 따뜻한 일러스트 기반의 그래픽을 제안했습니다.",
     period: "2023.09",
-    tags: ["Education", "Identity", "2023"]
+    tags: ["Education", "Identity", "2023"],
+    sub_category: 'FESTIVAL'
   },
   { 
     id: 'f11', 
@@ -343,7 +354,8 @@ export const INITIAL_FESTIVALS: FestivalItem[] = [
     order: 11,
     description: "임산부와 가족을 위한 태교음악회의 브랜딩 및 홍보 디자인입니다. 가을의 서정적인 분위기와 생명의 소중함을 담은 부드러운 톤앤매너를 구축했습니다.",
     period: "2023.10",
-    tags: ["Concert", "Branding", "2023"]
+    tags: ["Concert", "Branding", "2023"],
+    sub_category: 'FESTIVAL'
   },
   { 
     id: 'f12', 
@@ -352,7 +364,8 @@ export const INITIAL_FESTIVALS: FestivalItem[] = [
     order: 12,
     description: "부산의 역사적 상징인 영도다리를 테마로 한 축제의 통합 디자인입니다. 과거와 현재를 잇는 다리의 의미를 현대적인 그래픽 언어로 재해석했습니다.",
     period: "2023.10",
-    tags: ["Heritage", "Festival", "2023"]
+    tags: ["Heritage", "Festival", "2023"],
+    sub_category: 'FESTIVAL'
   },
   { 
     id: 'f13', 
@@ -361,6 +374,7 @@ export const INITIAL_FESTIVALS: FestivalItem[] = [
     order: 13,
     description: "마을 공동체의 화합을 위한 꿈꾸는마을축제의 아이덴티티 디자인입니다. 주민들이 직접 참여하고 만들어가는 축제의 생동감을 담아냈습니다.",
     period: "2023.11",
-    tags: ["Community", "Identity", "2023"]
+    tags: ["Community", "Identity", "2023"],
+    sub_category: 'FESTIVAL'
   }
 ];

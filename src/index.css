@@ -76,19 +76,42 @@
   }
 
   /* Rich Text Editor Styles */
+  .rich-text-editor .ql-toolbar {
+    border: 1px solid #f3f4f6 !important;
+    border-bottom: none !important;
+    background: #f9fafb;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+  }
+
   .rich-text-editor .ql-container {
+    border: none !important;
+    box-shadow: 0 0 0 1px #f3f4f6;
+    background: white;
     min-height: 150px;
   }
 
   .rich-text-editor .ql-editor {
-    font-family: 'Pretendard', sans-serif !important;
+    font-family: "Noto Sans KR", ui-sans-serif, system-ui, sans-serif !important;
     font-size: 1.25rem !important; /* text-xl */
     font-weight: 300 !important; /* font-light */
     color: #374151 !important; /* text-gray-700 */
-    line-height: inherit !important;
+    line-height: 1.75rem !important; /* text-xl line-height */
+    letter-spacing: -0.025em !important; /* tracking-tight */
     white-space: pre-wrap !important;
     text-align: left !important;
     padding: 0 !important;
+    border: 0 !important;
+    box-sizing: border-box !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+    text-rendering: optimizeLegibility !important;
+  }
+
+  .rich-text-editor .ql-editor.ql-blank::before {
+    left: 0 !important;
+    font-style: italic;
+    opacity: 0.5;
   }
 
   .rich-text-editor .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="pretendard"]::before,
@@ -132,10 +155,17 @@
 
   /* Rich Text Content Reset */
   .rich-text-content {
+    box-sizing: border-box !important;
+    padding: 0 !important;
+    border: 0 !important;
     white-space: pre-wrap !important;
     word-break: keep-all !important;
     text-align: left !important;
     overflow-wrap: break-word !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+    text-rendering: optimizeLegibility !important;
+    letter-spacing: -0.025em !important; /* tracking-tight */
   }
 
   .rich-text-content p,
@@ -146,11 +176,16 @@
   .rich-text-content h4,
   .rich-text-content h5,
   .rich-text-content h6 {
+    box-sizing: border-box !important;
     margin: 0 !important;
     padding: 0 !important;
+    border: 0 !important;
     white-space: pre-wrap !important;
     word-break: keep-all !important;
     overflow-wrap: break-word !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
+    text-rendering: optimizeLegibility !important;
   }
 
   @media screen and (max-width: 768px) {

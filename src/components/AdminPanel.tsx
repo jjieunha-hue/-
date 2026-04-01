@@ -99,7 +99,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                   activeTab === tab ? 'border-b-2 border-black text-black' : 'text-gray-400'
                 }`}
               >
-                {tab === 'about' ? 'About & Contact' : tab}
+                {tab === 'about' ? 'About & Contact' : tab === 'festivals' ? 'Experience' : tab}
               </button>
             ))}
           </div>
@@ -239,7 +239,7 @@ const AboutEditor = memo(({ about, onSave }: { about: AboutInfo, onSave: (a: Abo
             <div className="flex flex-col gap-12 pb-8">
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (PC)</label>
-                <div className="border border-gray-100 w-[800px] bg-white">
+                <div className="w-[800px]">
                   <RichTextEditor 
                     key="pc"
                     value={pcContent} 
@@ -251,7 +251,7 @@ const AboutEditor = memo(({ about, onSave }: { about: AboutInfo, onSave: (a: Abo
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (Mobile)</label>
-                <div className="border border-gray-100 w-[390px] bg-white">
+                <div className="w-[390px]">
                   <RichTextEditor 
                     key="mobile"
                     value={mobileContent} 
@@ -838,7 +838,7 @@ const ProjectEditor = memo(({
           <div className="flex flex-col gap-12 pb-8">
             <div className="space-y-1">
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (PC)</label>
-              <div className="border border-gray-100 w-[800px] bg-white">
+              <div className="w-[800px]">
                 <RichTextEditor 
                   key="pc"
                   value={pcContent} 
@@ -850,7 +850,7 @@ const ProjectEditor = memo(({
             </div>
             <div className="space-y-1">
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (Mobile)</label>
-              <div className="border border-gray-100 w-[390px] bg-white">
+              <div className="w-[390px]">
                 <RichTextEditor 
                   key="mobile"
                   value={mobileContent} 
@@ -1074,7 +1074,20 @@ const FestivalEditor = memo(({
               />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
+            <div className="space-y-1">
+              <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Sub Category</label>
+              <select 
+                value={localFestival.sub_category || ''} 
+                onChange={(e) => setLocalFestival({ ...localFestival, sub_category: e.target.value as any })}
+                className="w-full p-2 border border-gray-50 outline-none focus:border-black text-xs font-bold uppercase"
+              >
+                <option value="">None</option>
+                <option value="FESTIVAL">FESTIVAL</option>
+                <option value="EXHIBITION">EXHIBITION</option>
+                <option value="CONVENTION">CONVENTION</option>
+              </select>
+            </div>
             <div className="space-y-1">
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Location</label>
               <input 
@@ -1097,7 +1110,7 @@ const FestivalEditor = memo(({
           <div className="flex flex-col gap-12 pb-8">
             <div className="space-y-1">
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (PC)</label>
-              <div className="border border-gray-100 w-[800px] bg-white">
+              <div className="w-[800px]">
                 <RichTextEditor 
                   key="pc"
                   value={pcContent} 
@@ -1109,7 +1122,7 @@ const FestivalEditor = memo(({
             </div>
             <div className="space-y-1">
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Description (Mobile)</label>
-              <div className="border border-gray-100 w-[390px] bg-white">
+              <div className="w-[390px]">
                 <RichTextEditor 
                   key="mobile"
                   value={mobileContent} 

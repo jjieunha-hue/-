@@ -50,6 +50,7 @@ export interface FestivalItem {
   design2DImages?: string[];
   design3DImages?: string[];
   detailImages?: string[];
+  sub_category?: 'FESTIVAL' | 'EXHIBITION' | 'CONVENTION';
 }
 
 export interface AboutInfo {

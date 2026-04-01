@@ -33,6 +33,7 @@ function AppContent() {
   const [viewerImages, setViewerImages] = useState<string[]>([]);
   const [viewerIndex, setViewerIndex] = useState(0);
   const [isViewerOpen, setIsViewerOpen] = useState(false);
+  const [festivalFilter, setFestivalFilter] = useState<'ALL' | 'FESTIVAL' | 'EXHIBITION' | 'CONVENTION'>('ALL');
 
   const openViewer = (images: string[], index: number) => {
     setViewerImages(images);
@@ -78,6 +79,11 @@ function AppContent() {
     }
   };
 
+  const filteredFestivals = useMemo(() => {
+    if (festivalFilter === 'ALL') return festivals;
+    return festivals.filter(f => f.sub_category === festivalFilter);
+  }, [festivals, festivalFilter]);
+
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center bg-white">
@@ -103,7 +109,7 @@ function AppContent() {
             <div className="hidden md:flex items-center space-x-8 text-[10px] uppercase tracking-widest font-bold">
               <a href="#about" className="nav-link">About</a>
               <a href="#environmental" className="nav-link">Environmental</a>
-              <a href="#festival" className="nav-link">Festival</a>
+              <a href="#festival" className="nav-link">Experience</a>
               <a href="#interior" className="nav-link">Interior</a>
               <a href="#others" className="nav-link">Others</a>
               <a href="#contact" className="nav-link">Contact</a>
@@ -136,7 +142,7 @@ function AppContent() {
                 <div className="flex flex-col p-6 space-y-4 text-[10px] uppercase tracking-widest font-bold">
                   <a href="#about" onClick={() => setIsMenuOpen(false)} className="nav-link inline-block">About</a>
                   <a href="#environmental" onClick={() => setIsMenuOpen(false)} className="nav-link inline-block">Environmental</a>
-                  <a href="#festival" onClick={() => setIsMenuOpen(false)} className="nav-link inline-block">Festival</a>
+                  <a href="#festival" onClick={() => setIsMenuOpen(false)} className="nav-link inline-block">Experience</a>
                   <a href="#interior" onClick={() => setIsMenuOpen(false)} className="nav-link inline-block">Interior</a>
                   <a href="#others" onClick={() => setIsMenuOpen(false)} className="nav-link inline-block">Others</a>
                   <a href="#contact" onClick={() => setIsMenuOpen(false)} className="nav-link inline-block">Contact</a>
@@ -426,10 +432,28 @@ function AppContent() {
         <section id="festival" className="py-32 px-6 max-w-7xl mx-auto">
           <h2 
             className="section-title uppercase whitespace-pre-wrap"
-            dangerouslySetInnerHTML={{ __html: about.festivalTitle || 'FESTIVAL' }}
+            dangerouslySetInnerHTML={{ __html: about.festivalTitle || 'EXPERIENCE' }}
           />
+          
+          {/* Sub Category Filter */}
+          <div className="flex flex-wrap gap-4 mb-12">
+            {(['ALL', 'FESTIVAL', 'EXHIBITION', 'CONVENTION'] as const).map((filter) => (
+              <button
+                key={filter}
+                onClick={() => setFestivalFilter(filter)}
+                className={`px-6 py-2 text-[10px] font-black uppercase tracking-widest border transition-all ${
+                  festivalFilter === filter 
+                  ? 'bg-black text-white border-black' 
+                  : 'bg-white text-gray-400 border-gray-100 hover:border-black hover:text-black'
+                }`}
+              >
+                {filter}
+              </button>
+            ))}
+          </div>
+
           <div className="festival-list-view flex flex-col">
-            {(festivals || []).map((item, idx) => (
+            {(filteredFestivals || []).map((item, idx) => (
               <div 
                 key={item.id} 
                 className="group flex flex-col md:flex-row md:items-center justify-between py-5 border-b border-gray-100 hover:bg-gray-50/50 transition-all cursor-pointer px-4"

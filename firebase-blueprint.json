@@ -54,7 +54,8 @@
         "description": { "type": "string" },
         "period": { "type": "string" },
         "tags": { "type": "array", "items": { "type": "string" } },
-        "imageUrl": { "type": "string" }
+        "imageUrl": { "type": "string" },
+        "sub_category": { "type": "string", "enum": ["FESTIVAL", "EXHIBITION", "CONVENTION"] }
       }
     }
   },
