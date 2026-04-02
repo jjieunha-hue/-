@@ -2,7 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@300;400;700;900&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&display=swap');
 
 @theme {
-  --font-sans: "Noto Sans KR", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Pretendard", "Noto Sans KR", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Playfair Display", serif;
 
   --animate-marquee: marquee 20s linear infinite;
@@ -166,6 +166,7 @@
     -moz-osx-font-smoothing: grayscale !important;
     text-rendering: optimizeLegibility !important;
     letter-spacing: -0.025em !important; /* tracking-tight */
+    font-family: "Pretendard", "Noto Sans KR", sans-serif !important;
   }
 
   .rich-text-content p,

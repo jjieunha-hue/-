@@ -640,14 +640,14 @@ function AppContent() {
                     
                     <div className="md:col-span-8">
                       <h4 className="text-[10px] uppercase text-gray-300 font-black mb-6 italic">Project Overview</h4>
-                      <div className="text-gray-700 text-xl font-light rich-text-content whitespace-pre-wrap">
-                        <div className="!mb-10" dangerouslySetInnerHTML={{ 
+                      <div className="text-gray-700 text-xl font-light rich-text-content">
+                        <div className="!mb-10 whitespace-pre-wrap" dangerouslySetInnerHTML={{ 
                           __html: (isMobile ? selectedProject.content_mobile : selectedProject.content_pc) 
                                   || selectedProject.description 
                                   || '' 
                         }} />
                         {(selectedProject.details || []).map((detail, idx) => (
-                          <div key={idx} className="!mb-6" dangerouslySetInnerHTML={{ __html: detail || '' }} />
+                          <div key={idx} className="!mb-6 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: detail || '' }} />
                         ))}
                       </div>
                     </div>
@@ -895,14 +895,14 @@ function AppContent() {
                     
                     <div className="md:col-span-8">
                       <h4 className="text-[10px] uppercase text-gray-300 font-black mb-6 italic">Festival Overview</h4>
-                      <div className="text-gray-700 text-xl font-light rich-text-content whitespace-pre-wrap">
-                        <div className="!mb-10" dangerouslySetInnerHTML={{ 
+                      <div className="text-gray-700 text-xl font-light rich-text-content">
+                        <div className="!mb-10 whitespace-pre-wrap" dangerouslySetInnerHTML={{ 
                           __html: (isMobile ? selectedFestival.content_mobile : selectedFestival.content_pc) 
                                   || selectedFestival.description 
                                   || '상세 설명이 준비 중입니다.' 
                         }} />
                         {(selectedFestival.details || []).map((detail, idx) => (
-                          <div key={idx} className="!mb-6" dangerouslySetInnerHTML={{ __html: detail || '' }} />
+                          <div key={idx} className="!mb-6 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: detail || '' }} />
                         ))}
                       </div>
                     </div>
