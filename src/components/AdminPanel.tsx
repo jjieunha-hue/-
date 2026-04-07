@@ -375,8 +375,8 @@ const AboutEditor = memo(({ about, onSave }: { about: AboutInfo, onSave: (a: Abo
                 <RichTextEditor value={aboutState.othersTitle || 'OTHERS'} onChange={(val) => setAboutState({...aboutState, othersTitle: val})} />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Festival Category Title</label>
-                <RichTextEditor value={aboutState.festivalTitle || 'FESTIVAL'} onChange={(val) => setAboutState({...aboutState, festivalTitle: val})} />
+                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Experience Category Title</label>
+                <RichTextEditor value={(aboutState.festivalTitle && aboutState.festivalTitle !== 'FESTIVAL') ? aboutState.festivalTitle : 'EXPERIENCE'} onChange={(val) => setAboutState({...aboutState, festivalTitle: val})} />
               </div>
             </div>
           </div>
@@ -1124,7 +1124,7 @@ const FestivalEditor = memo(({
             <div className="space-y-1">
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Project Info Display</label>
               <RichTextEditor 
-                value={localFestival.projectInfoRich || localFestival.categoryRich || 'FESTIVAL'} 
+                value={localFestival.projectInfoRich || (localFestival.categoryRich && localFestival.categoryRich !== 'FESTIVAL' ? localFestival.categoryRich : 'EXPERIENCE')} 
                 onChange={(val) => setLocalFestival({ ...localFestival, projectInfoRich: val })}
               />
             </div>

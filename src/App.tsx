@@ -434,7 +434,7 @@ function AppContent() {
         <section id="festival" className="py-32 px-6 max-w-7xl mx-auto">
           <h2 
             className="section-title uppercase whitespace-pre-wrap"
-            dangerouslySetInnerHTML={{ __html: about.festivalTitle || 'EXPERIENCE' }}
+            dangerouslySetInnerHTML={{ __html: (about.festivalTitle && about.festivalTitle !== 'FESTIVAL') ? about.festivalTitle : 'EXPERIENCE' }}
           />
           
           {/* Sub Category Filter */}
@@ -847,7 +847,7 @@ function AppContent() {
                         />
                         <div 
                           className="text-xl md:text-2xl font-bold italic text-gray-400 leading-tight"
-                          dangerouslySetInnerHTML={{ __html: selectedFestival.projectInfoRich || selectedFestival.categoryRich || 'FESTIVAL' }}
+                          dangerouslySetInnerHTML={{ __html: selectedFestival.projectInfoRich || (selectedFestival.categoryRich && selectedFestival.categoryRich !== 'FESTIVAL' ? selectedFestival.categoryRich : 'EXPERIENCE') }}
                         />
                       </div>
                       
@@ -869,7 +869,7 @@ function AppContent() {
                         />
                         <div 
                           className="text-lg md:text-xl font-bold uppercase leading-tight"
-                          dangerouslySetInnerHTML={{ __html: selectedFestival.categoryRich || 'FESTIVAL' }}
+                          dangerouslySetInnerHTML={{ __html: selectedFestival.categoryRich && selectedFestival.categoryRich !== 'FESTIVAL' ? selectedFestival.categoryRich : 'EXPERIENCE' }}
                         />
                       </div>
 
@@ -894,7 +894,7 @@ function AppContent() {
                     </div>
                     
                     <div className="md:col-span-8">
-                      <h4 className="text-[10px] uppercase text-gray-300 font-black mb-6 italic">Festival Overview</h4>
+                      <h4 className="text-[10px] uppercase text-gray-300 font-black mb-6 italic">Experience Overview</h4>
                       <div className="text-gray-700 text-xl font-light rich-text-content">
                         <div className="!mb-10 whitespace-pre-wrap" dangerouslySetInnerHTML={{ 
                           __html: (isMobile ? selectedFestival.content_mobile : selectedFestival.content_pc) 
