@@ -376,7 +376,7 @@ const AboutEditor = memo(({ about, onSave }: { about: AboutInfo, onSave: (a: Abo
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Experience Category Title</label>
-                <RichTextEditor value={(aboutState.festivalTitle && aboutState.festivalTitle !== 'FESTIVAL') ? aboutState.festivalTitle : 'EXPERIENCE'} onChange={(val) => setAboutState({...aboutState, festivalTitle: val})} />
+                <RichTextEditor value={(aboutState.festivalTitle && aboutState.festivalTitle.replace(/<[^>]*>/g, '').trim().toUpperCase().includes('FESTIVAL')) ? 'EXPERIENCE' : (aboutState.festivalTitle || 'EXPERIENCE')} onChange={(val) => setAboutState({...aboutState, festivalTitle: val})} />
               </div>
             </div>
           </div>
@@ -1124,7 +1124,7 @@ const FestivalEditor = memo(({
             <div className="space-y-1">
               <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Project Info Display</label>
               <RichTextEditor 
-                value={localFestival.projectInfoRich || (localFestival.categoryRich && localFestival.categoryRich !== 'FESTIVAL' ? localFestival.categoryRich : 'EXPERIENCE')} 
+                value={localFestival.projectInfoRich || (localFestival.categoryRich && localFestival.categoryRich.replace(/<[^>]*>/g, '').trim().toUpperCase().includes('FESTIVAL') ? 'EXPERIENCE' : (localFestival.categoryRich || 'EXPERIENCE'))} 
                 onChange={(val) => setLocalFestival({ ...localFestival, projectInfoRich: val })}
               />
             </div>
