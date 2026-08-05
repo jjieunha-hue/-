@@ -3,6 +3,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  order: number;
+  type: 'about' | 'project' | 'festival';
+}
+
 export interface Project {
   id: string;
   title: string;
@@ -13,7 +21,7 @@ export interface Project {
   details?: string[]; // Multiple paragraphs or bullet points
   tags: string[];
   tagsRich?: string;
-  category: 'environmental' | 'interior' | 'others';
+  category: string;
   categoryRich?: string;
   projectInfoRich?: string;
   content_pc?: string;

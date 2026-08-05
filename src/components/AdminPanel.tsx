@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useMemo, memo } from 'react';
-import { Project, FestivalItem, AboutInfo } from '../types';
+import { Project, FestivalItem, AboutInfo, Category } from '../types';
 import { usePortfolioData } from '../hooks';
 import { auth } from '../firebase';
 import { stripHtml } from '../lib/utils';
@@ -28,8 +28,8 @@ interface AdminPanelProps {
 }
 
 export default function AdminPanel({ onClose }: AdminPanelProps) {
-  const { about, projects, festivals, updateAbout, updateProject, updateFestival, deleteProject, deleteFestival, logout, uploadImage, login } = usePortfolioData();
-  const [activeTab, setActiveTab] = useState<'about' | 'environmental' | 'interior' | 'others' | 'festivals'>('about');
+  const { about, projects, festivals, categories, updateAbout, updateProject, updateFestival, saveCategories, deleteCategory, deleteProject, deleteFestival, logout, uploadImage, login } = usePortfolioData();
+  const [activeTab, setActiveTab] = useState<string>('about');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [isMobileView, setIsMobileView] = useState(false);
 
@@ -59,6 +59,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
 
   const handleAddProject = async () => {
     const id = `project_${Date.now()}`;
+    const targetCat = activeTab === 'categories' || activeTab === 'about' || activeTab === 'festivals' ? 'environmental' : activeTab;
     const newProject: Project = {
       id,
       title: 'New Project',
@@ -66,7 +67,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
       period: '2024',
       description: '',
       tags: [],
-      category: activeTab as any,
+      category: targetCat,
       imageUrl: '',
       order: projects.length > 0 ? Math.max(...projects.map(p => p.order || 0)) + 1 : 1,
       completedImages: [],
@@ -129,19 +130,38 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
 
         <div className="flex gap-8 mb-12 border-b border-gray-100 items-center justify-between overflow-x-auto">
           <div className="flex gap-8 whitespace-nowrap">
-            {(['about', 'environmental', 'interior', 'others', 'festivals'] as const).map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`pb-4 text-xs font-bold uppercase tracking-widest transition-all ${
-                  activeTab === tab ? 'border-b-2 border-black text-black' : 'text-gray-400'
-                }`}
-              >
-                {tab === 'about' ? 'About & Contact' : tab === 'festivals' ? 'Experience' : tab}
-              </button>
-            ))}
+            <button
+              onClick={() => setActiveTab('about')}
+              className={`pb-4 text-xs font-bold uppercase tracking-widest transition-all ${
+                activeTab === 'about' ? 'border-b-2 border-black text-black' : 'text-gray-400'
+              }`}
+            >
+              About & Contact
+            </button>
+            <button
+              onClick={() => setActiveTab('categories')}
+              className={`pb-4 text-xs font-bold uppercase tracking-widest transition-all ${
+                activeTab === 'categories' ? 'border-b-2 border-black text-black font-black' : 'text-gray-400'
+              }`}
+            >
+              카테고리 관리 (Categories)
+            </button>
+            {[...categories]
+              .sort((a, b) => (a.order || 0) - (b.order || 0))
+              .filter(cat => cat.type !== 'about')
+              .map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setActiveTab(cat.slug)}
+                  className={`pb-4 text-xs font-bold uppercase tracking-widest transition-all ${
+                    activeTab === cat.slug ? 'border-b-2 border-black text-black' : 'text-gray-400'
+                  }`}
+                >
+                  {cat.name}
+                </button>
+              ))}
           </div>
-          {(activeTab === 'environmental' || activeTab === 'interior' || activeTab === 'others') && (
+          {activeTab !== 'about' && activeTab !== 'categories' && activeTab !== 'festivals' && activeTab !== 'festival' && (
             <button 
               onClick={handleSyncProjects}
               className="mb-4 text-[10px] font-black uppercase bg-gray-100 px-3 py-1 hover:bg-black hover:text-white transition"
@@ -155,34 +175,11 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
           <AboutEditor about={about} onSave={updateAbout} />
         )}
 
-        {(activeTab === 'environmental' || activeTab === 'interior' || activeTab === 'others') && (
-          <div className="space-y-4">
-            <button 
-              onClick={handleAddProject}
-              className="w-full py-4 border-2 border-dashed border-gray-100 hover:border-black hover:bg-gray-50 transition-all flex items-center justify-center gap-2 text-xs font-black uppercase tracking-widest text-gray-400 hover:text-black mb-8"
-            >
-              <Plus className="w-4 h-4" /> Add New Project
-            </button>
-            {projects
-              .filter(p => p.category === activeTab)
-              .sort((a, b) => (a.order || 0) - (b.order || 0))
-              .map((project) => (
-                <ProjectEditor 
-                  key={project.id} 
-                  project={project} 
-                  onSave={updateProject} 
-                  onDelete={deleteProject}
-                  uploadImage={uploadImage}
-                  login={login}
-                  isExpanded={expandedId === project.id}
-                  onToggle={() => setExpandedId(expandedId === project.id ? null : project.id)}
-                  onImageClick={openViewer}
-                />
-              ))}
-          </div>
+        {activeTab === 'categories' && (
+          <CategoryEditor categories={categories} onSave={saveCategories} onDelete={deleteCategory} />
         )}
 
-        {activeTab === 'festivals' && (
+        {(activeTab === 'festivals' || activeTab === 'festival' || categories.some(c => c.slug === activeTab && c.type === 'festival')) && activeTab !== 'categories' && activeTab !== 'about' && (
           <div className="space-y-4">
             <button 
               onClick={handleAddFestival}
@@ -202,6 +199,34 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                   login={login}
                   isExpanded={expandedId === f.id}
                   onToggle={() => setExpandedId(expandedId === f.id ? null : f.id)}
+                  onImageClick={openViewer}
+                />
+              ))}
+          </div>
+        )}
+
+        {activeTab !== 'about' && activeTab !== 'categories' && activeTab !== 'festivals' && activeTab !== 'festival' && !categories.some(c => c.slug === activeTab && c.type === 'festival') && (
+          <div className="space-y-4">
+            <button 
+              onClick={handleAddProject}
+              className="w-full py-4 border-2 border-dashed border-gray-100 hover:border-black hover:bg-gray-50 transition-all flex items-center justify-center gap-2 text-xs font-black uppercase tracking-widest text-gray-400 hover:text-black mb-8"
+            >
+              <Plus className="w-4 h-4" /> Add New Project ({categories.find(c => c.slug === activeTab)?.name || activeTab})
+            </button>
+            {projects
+              .filter(p => p.category === activeTab)
+              .sort((a, b) => (a.order || 0) - (b.order || 0))
+              .map((project) => (
+                <ProjectEditor 
+                  key={project.id} 
+                  project={project} 
+                  categories={categories}
+                  onSave={updateProject} 
+                  onDelete={deleteProject}
+                  uploadImage={uploadImage}
+                  login={login}
+                  isExpanded={expandedId === project.id}
+                  onToggle={() => setExpandedId(expandedId === project.id ? null : project.id)}
                   onImageClick={openViewer}
                 />
               ))}
@@ -748,6 +773,7 @@ const ImageManager = memo(({ label, images = [], onImagesChange, uploadImage, lo
 
 interface ProjectEditorProps {
   project: Project;
+  categories?: Category[];
   onSave: (p: Project) => void;
   onDelete: (id: string) => void;
   uploadImage: any;
@@ -759,6 +785,7 @@ interface ProjectEditorProps {
 
 const ProjectEditor = memo(({ 
   project, 
+  categories = [],
   onSave, 
   onDelete,
   uploadImage, 
@@ -865,12 +892,22 @@ const ProjectEditor = memo(({
                 <label className="text-[8px] font-black uppercase text-gray-300 italic">Logic Category (for filtering)</label>
                 <select 
                   value={localProject.category} 
-                  onChange={(e) => setLocalProject({ ...localProject, category: e.target.value as any })}
+                  onChange={(e) => setLocalProject({ ...localProject, category: e.target.value })}
                   className="w-full p-1 border border-gray-50 outline-none focus:border-black text-[10px] font-bold uppercase"
                 >
-                  <option value="environmental">Environmental</option>
-                  <option value="interior">Interior</option>
-                  <option value="others">Others</option>
+                  {categories.length > 0 ? (
+                    categories
+                      .filter(c => c.type === 'project')
+                      .map(c => (
+                        <option key={c.id} value={c.slug}>{c.name} ({c.slug})</option>
+                      ))
+                  ) : (
+                    <>
+                      <option value="environmental">Environmental</option>
+                      <option value="interior">Interior</option>
+                      <option value="others">Others</option>
+                    </>
+                  )}
                 </select>
               </div>
             </div>
@@ -1310,6 +1347,196 @@ const FestivalEditor = memo(({
           </div>
         </div>
       )}
+    </div>
+  );
+});
+
+interface CategoryEditorProps {
+  categories: Category[];
+  onSave: (categories: Category[]) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
+}
+
+const CategoryEditor = memo(({ categories, onSave, onDelete }: CategoryEditorProps) => {
+  const [localCategories, setLocalCategories] = useState<Category[]>(categories);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setLocalCategories([...categories].sort((a, b) => (a.order || 0) - (b.order || 0)));
+  }, [categories]);
+
+  const handleUpdate = (id: string, field: keyof Category, value: any) => {
+    setLocalCategories(prev => prev.map(c => c.id === id ? { ...c, [field]: value } : c));
+  };
+
+  const moveUp = (index: number) => {
+    if (index === 0) return;
+    const newList = [...localCategories];
+    const temp = newList[index - 1];
+    newList[index - 1] = newList[index];
+    newList[index] = temp;
+    const reordered = newList.map((item, idx) => ({ ...item, order: idx + 1 }));
+    setLocalCategories(reordered);
+  };
+
+  const moveDown = (index: number) => {
+    if (index === localCategories.length - 1) return;
+    const newList = [...localCategories];
+    const temp = newList[index + 1];
+    newList[index + 1] = newList[index];
+    newList[index] = temp;
+    const reordered = newList.map((item, idx) => ({ ...item, order: idx + 1 }));
+    setLocalCategories(reordered);
+  };
+
+  const handleAdd = () => {
+    const newId = `cat_${Date.now()}`;
+    const newCat: Category = {
+      id: newId,
+      name: 'NEW CATEGORY',
+      slug: `category-${Date.now().toString().slice(-4)}`,
+      order: localCategories.length + 1,
+      type: 'project'
+    };
+    setLocalCategories(prev => [...prev, newCat]);
+  };
+
+  const handleSaveAll = async () => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      alert('로그인이 필요합니다. (Authentication required)');
+      return;
+    }
+    setSaving(true);
+    try {
+      await currentUser.getIdToken(true);
+      await onSave(localCategories);
+      alert('카테고리 설정이 성공적으로 저장되었습니다.');
+    } catch (err) {
+      alert('저장 실패: ' + (err instanceof Error ? err.message : String(err)));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center bg-gray-50 p-6 border border-gray-100">
+        <div>
+          <h3 className="text-xl font-black uppercase tracking-tighter">카테고리 관리 (Category Management)</h3>
+          <p className="text-xs text-gray-500 mt-1 font-medium">
+            상단 네비게이션바 및 사용자 화면 섹션의 카테고리명, Slug(경로), 종류 및 노출 순서를 자유롭게 설정할 수 있습니다.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={handleAdd}
+          className="px-4 py-3 bg-black text-white text-xs font-black uppercase tracking-widest flex items-center gap-2 hover:bg-gray-800 transition"
+        >
+          <Plus className="w-4 h-4" /> 새 카테고리 추가
+        </button>
+      </div>
+
+      <div className="space-y-4">
+        {localCategories.map((cat, idx) => (
+          <div key={cat.id} className="p-5 border border-gray-100 bg-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
+            <div className="flex items-center gap-4">
+              <div className="flex flex-col gap-1">
+                <button
+                  type="button"
+                  disabled={idx === 0}
+                  onClick={() => moveUp(idx)}
+                  className={`px-2 py-1 border text-[10px] font-bold ${idx === 0 ? 'text-gray-200 border-gray-100' : 'text-black border-gray-200 hover:bg-gray-100'}`}
+                  title="위로 이동"
+                >
+                  ▲
+                </button>
+                <button
+                  type="button"
+                  disabled={idx === localCategories.length - 1}
+                  onClick={() => moveDown(idx)}
+                  className={`px-2 py-1 border text-[10px] font-bold ${idx === localCategories.length - 1 ? 'text-gray-200 border-gray-100' : 'text-black border-gray-200 hover:bg-gray-100'}`}
+                  title="아래로 이동"
+                >
+                  ▼
+                </button>
+              </div>
+
+              <div className="w-14 text-center">
+                <span className="text-[10px] font-black uppercase text-gray-300 block mb-1">Order</span>
+                <input
+                  type="number"
+                  value={cat.order}
+                  onChange={(e) => handleUpdate(cat.id, 'order', parseInt(e.target.value) || 0)}
+                  className="w-14 p-2 border border-gray-200 text-center text-xs font-bold"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1 w-full">
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase text-gray-400 italic">카테고리명 (Display Name)</label>
+                <input
+                  type="text"
+                  value={cat.name}
+                  onChange={(e) => handleUpdate(cat.id, 'name', e.target.value)}
+                  className="w-full p-3 border border-gray-200 focus:border-black outline-none font-black text-sm"
+                  placeholder="예: ENVIRONMENTAL"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase text-gray-400 italic">Slug (URL 경로 / 식별자)</label>
+                <input
+                  type="text"
+                  value={cat.slug}
+                  onChange={(e) => handleUpdate(cat.id, 'slug', e.target.value.toLowerCase().replace(/\s+/g, '-'))}
+                  className="w-full p-3 border border-gray-200 focus:border-black outline-none font-mono text-xs"
+                  placeholder="예: environmental"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase text-gray-400 italic">카테고리 종류 (Category Type)</label>
+                <select
+                  value={cat.type}
+                  onChange={(e) => handleUpdate(cat.id, 'type', e.target.value as any)}
+                  className="w-full p-3 border border-gray-200 focus:border-black outline-none text-xs font-bold uppercase"
+                >
+                  <option value="about">ABOUT & CONTACT (소개/연락처)</option>
+                  <option value="project">PROJECT (작품 카테고리)</option>
+                  <option value="festival">EXPERIENCE (축제/경험 리스트)</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={async () => {
+                  if (confirm(`'${cat.name}' 카테고리를 삭제하시겠습니까?`)) {
+                    await onDelete(cat.id);
+                    setLocalCategories(prev => prev.filter(c => c.id !== cat.id));
+                  }
+                }}
+                className="p-3 text-red-500 hover:bg-red-50 border border-transparent hover:border-red-200 transition"
+                title="카테고리 삭제"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <button
+        type="button"
+        disabled={saving}
+        onClick={handleSaveAll}
+        className="w-full py-4 bg-black text-white font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-gray-900 transition mt-8"
+      >
+        <Save className="w-4 h-4" /> {saving ? '저장 중...' : '카테고리 설정 전체 저장 (Save All Categories)'}
+      </button>
     </div>
   );
 });

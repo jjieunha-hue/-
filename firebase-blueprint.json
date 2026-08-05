@@ -57,6 +57,18 @@
         "imageUrl": { "type": "string" },
         "sub_category": { "type": "string", "enum": ["FESTIVAL", "EXHIBITION", "CONVENTION"] }
       }
+    },
+    "category": {
+      "title": "Category Item",
+      "description": "Main category item for navigation and section layout",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "slug": { "type": "string" },
+        "order": { "type": "number" },
+        "type": { "type": "string", "enum": ["about", "project", "festival"] }
+      }
     }
   },
   "firestore": {
@@ -71,6 +83,10 @@
     "/festivals/{festivalId}": {
       "schema": "festival",
       "description": "Festival list items"
+    },
+    "/categories/{categoryId}": {
+      "schema": "category",
+      "description": "Main navigation and page section categories"
     }
   }
 }

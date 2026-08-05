@@ -14,7 +14,7 @@ import { Menu, X, ArrowRight, Github, Mail, Phone, ExternalLink, Settings } from
 import { motion, AnimatePresence } from 'motion/react';
 
 function AppContent() {
-  const { about, projects, festivals, loading, user, isAdmin, login } = usePortfolioData();
+  const { about, projects, festivals, categories, loading, user, isAdmin, login } = usePortfolioData();
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [selectedFestival, setSelectedFestival] = useState<FestivalItem | null>(null);
   const [showAdmin, setShowAdmin] = useState(false);
@@ -51,13 +51,19 @@ function AppContent() {
     768: 1
   };
 
-  const groupedProjects = useMemo(() => {
+  const sortedCategories = useMemo(() => {
+    return [...categories].sort((a, b) => (a.order || 0) - (b.order || 0));
+  }, [categories]);
+
+  const projectsByCategory = useMemo(() => {
     const sorted = [...projects].sort((a, b) => (a.order || 0) - (b.order || 0));
-    return {
-      environmental: sorted.filter(p => p.category === 'environmental'),
-      interior: sorted.filter(p => p.category === 'interior'),
-      others: sorted.filter(p => p.category === 'others'),
-    };
+    const map: Record<string, Project[]> = {};
+    sorted.forEach(p => {
+      const cat = p.category || 'others';
+      if (!map[cat]) map[cat] = [];
+      map[cat].push(p);
+    });
+    return map;
   }, [projects]);
 
   const handleAdminClick = () => {
@@ -109,11 +115,9 @@ function AppContent() {
               dangerouslySetInnerHTML={{ __html: about.name }}
             />
             <div className="hidden md:flex items-center space-x-8 text-[10px] uppercase tracking-widest font-bold">
-              <a href="#about" className="nav-link">About</a>
-              <a href="#environmental" className="nav-link">Environmental</a>
-              <a href="#festival" className="nav-link">Experience</a>
-              <a href="#interior" className="nav-link">Interior</a>
-              <a href="#others" className="nav-link">Others</a>
+              {sortedCategories.map((cat) => (
+                <a key={cat.id} href={`#${cat.slug}`} className="nav-link">{cat.name}</a>
+              ))}
               <a href="#contact" className="nav-link">Contact</a>
               <button 
                 onClick={handleAdminClick} 
@@ -142,11 +146,9 @@ function AppContent() {
                 className="md:hidden bg-white border-b border-gray-100 overflow-hidden"
               >
                 <div className="flex flex-col p-6 space-y-4 text-[10px] uppercase tracking-widest font-bold">
-                  <a href="#about" onClick={() => setIsMenuOpen(false)} className="nav-link inline-block">About</a>
-                  <a href="#environmental" onClick={() => setIsMenuOpen(false)} className="nav-link inline-block">Environmental</a>
-                  <a href="#festival" onClick={() => setIsMenuOpen(false)} className="nav-link inline-block">Experience</a>
-                  <a href="#interior" onClick={() => setIsMenuOpen(false)} className="nav-link inline-block">Interior</a>
-                  <a href="#others" onClick={() => setIsMenuOpen(false)} className="nav-link inline-block">Others</a>
+                  {sortedCategories.map((cat) => (
+                    <a key={cat.id} href={`#${cat.slug}`} onClick={() => setIsMenuOpen(false)} className="nav-link inline-block">{cat.name}</a>
+                  ))}
                   <a href="#contact" onClick={() => setIsMenuOpen(false)} className="nav-link inline-block">Contact</a>
                   <button 
                     onClick={() => {
@@ -318,229 +320,190 @@ function AppContent() {
           </div>
         </div>
 
-        {/* About Section */}
-        <section id="about" className="py-40 px-6 max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-12 gap-12">
-            <div className="md:col-span-7">
-              <h2 className="section-title">ABOUT</h2>
-              <div className="mt-8">
-                <h3 className="serif text-3xl md:text-8xl font-bold mb-10 leading-tight italic text-gray-100 select-none uppercase">Values</h3>
-                <div className="text-lg md:text-3xl font-bold mb-8 leading-tight whitespace-pre-wrap">
-                  <div dangerouslySetInnerHTML={{ __html: about.highlight }} />
-                </div>
-                <div 
-                  className="text-gray-600 leading-relaxed text-lg max-w-2xl text-justify font-light mb-12 whitespace-pre-wrap rich-text-content"
-                  dangerouslySetInnerHTML={{ 
-                    __html: (isMobile ? about.content_mobile : about.content_pc) 
-                            || about.description 
-                            || '' 
-                  }}
-                />
-              </div>
-            </div>
-
-            <div className="md:col-span-5 flex flex-col justify-center space-y-12 border-l border-gray-100 md:pl-12 pt-12 md:pt-0">
-              <div>
-                <h4 className="text-xs uppercase tracking-widest text-gray-400 mb-6 font-bold">Contact Info</h4>
-                <div className="space-y-3">
-                  <p className="text-2xl font-black">{about.phone}</p>
-                  <p className="text-xl font-medium text-gray-500 serif-italic">{about.email}</p>
-                </div>
-              </div>
-
-              <div>
-                <h4 className="text-xs uppercase tracking-widest text-gray-400 mb-6 font-bold">Experience Timeline</h4>
-                <ul className="space-y-4 text-sm font-light">
-                  {(about.experiences || []).map((exp) => (
-                    <li key={exp.id} className={`flex flex-col mb-1 ${exp.opacity === 70 ? 'opacity-70' : exp.opacity === 50 ? 'opacity-50' : ''}`}>
-                      <span className="font-bold text-lg leading-tight uppercase" dangerouslySetInnerHTML={{ __html: exp.company }} />
-                      <span className="text-gray-400 text-xs" dangerouslySetInnerHTML={{ __html: exp.period }} />
-                    </li>
-                  ))}
-                  
-                  <li className="pt-6 border-t border-gray-100 max-w-[320px]">
-                    <div className="flex items-center gap-4 mb-3">
-                      <span className="text-[10px] font-black text-gray-300 w-6 shrink-0">2D</span>
-                      <div className="grid grid-cols-2 gap-2 flex-1">
-                        <span className="px-2 py-1 bg-gray-900 text-white text-[10px] font-bold uppercase tracking-wider text-center">Illustrator</span>
-                        <span className="px-2 py-1 bg-gray-900 text-white text-[10px] font-bold uppercase tracking-wider text-center">Photoshop</span>
+        {/* Dynamic Category Sections */}
+        {sortedCategories.map((cat, idx) => {
+          if (cat.type === 'about' || cat.slug === 'about') {
+            return (
+              <section key={cat.id} id={cat.slug} className="py-40 px-6 max-w-7xl mx-auto">
+                <div className="grid md:grid-cols-12 gap-12">
+                  <div className="md:col-span-7">
+                    <h2 className="section-title">{cat.name}</h2>
+                    <div className="mt-8">
+                      <h3 className="serif text-3xl md:text-8xl font-bold mb-10 leading-tight italic text-gray-100 select-none uppercase">Values</h3>
+                      <div className="text-lg md:text-3xl font-bold mb-8 leading-tight whitespace-pre-wrap">
+                        <div dangerouslySetInnerHTML={{ __html: about.highlight }} />
                       </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <span className="text-[10px] font-black text-gray-300 w-6 shrink-0">3D</span>
-                      <div className="grid grid-cols-3 gap-2 flex-1">
-                        <span className="px-2 py-1 bg-gray-100 text-[10px] font-bold uppercase text-center">3ds MAX</span>
-                        <span className="px-2 py-1 bg-gray-100 text-[10px] font-bold uppercase text-center">D5 Render</span>
-                        <span className="px-2 py-1 bg-gray-100 text-[10px] font-bold uppercase text-center">Lumion</span>
-                      </div>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Environmental Section */}
-        <section id="environmental" className="py-32 px-6">
-          <div className="max-w-7xl mx-auto">
-            <h2 
-              className="section-title uppercase whitespace-pre-wrap"
-              dangerouslySetInnerHTML={{ __html: about.environmentalTitle || 'environmental' }}
-            />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-              {(groupedProjects['environmental'] || []).map((project) => (
-                <div 
-                  key={project.id} 
-                  className="project-card bg-white p-1 border border-gray-100 hover:border-black transition-all group cursor-pointer"
-                  onClick={() => setSelectedProject(project)}
-                >
-                  <div className="aspect-square bg-gray-50 overflow-hidden relative">
-                    <img 
-                      src={project.imageUrl || `https://picsum.photos/seed/${project.id}/800/600`} 
-                      alt="Project"
-                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
-                  </div>
-                  <div className="p-8 text-left">
-                    <h3 
-                      className="text-2xl font-black mb-1 uppercase tracking-tighter whitespace-pre-wrap"
-                      dangerouslySetInnerHTML={{ __html: project.title }}
-                    />
-                    <div 
-                      className="serif-italic text-gray-500 mb-6 text-lg whitespace-pre-wrap"
-                      dangerouslySetInnerHTML={{ __html: project.subtitle }}
-                    />
-                    <div className="mt-auto pt-6 border-t border-gray-100 flex justify-between items-end">
-                      <div className="flex flex-col">
-                        <span className="text-[10px] uppercase text-gray-300 font-black italic mb-1">Project Info</span>
-                        <span className="text-sm font-bold text-gray-400 italic" dangerouslySetInnerHTML={{ __html: `${project.tags[0]} / ${project.period}` }} />
-                      </div>
-                      <div className="flex items-center gap-2 text-gray-300 group-hover:text-black transition-colors">
-                        <span className="text-[10px] font-black uppercase tracking-widest italic">상세보기</span>
-                        <ArrowRight className="w-3 h-3" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Festival Section */}
-        <section id="festival" className="py-32 px-6 max-w-7xl mx-auto">
-          <h2 
-            className="section-title uppercase whitespace-pre-wrap"
-            dangerouslySetInnerHTML={{ __html: (about.festivalTitle && about.festivalTitle.replace(/<[^>]*>/g, '').trim().toUpperCase().includes('FESTIVAL')) ? 'EXPERIENCE' : (about.festivalTitle || 'EXPERIENCE') }}
-          />
-          
-          {/* Sub Category Filter */}
-          <div className="flex flex-wrap gap-4 mb-12">
-            {(['ALL', 'FESTIVAL', 'EXHIBITION', 'CONVENTION'] as const).map((filter) => (
-              <button
-                key={filter}
-                onClick={() => setFestivalFilter(filter)}
-                className={`px-6 py-2 text-[10px] font-black uppercase tracking-widest border transition-all ${
-                  festivalFilter === filter 
-                  ? 'bg-black text-white border-black' 
-                  : 'bg-white text-gray-400 border-gray-100 hover:border-black hover:text-black'
-                }`}
-              >
-                {filter}
-              </button>
-            ))}
-          </div>
-
-          <div className="festival-list-view flex flex-col">
-            {(filteredFestivals || []).map((item, idx) => (
-              <div 
-                key={item.id} 
-                className="group flex flex-col md:flex-row md:items-center justify-between py-5 border-b border-gray-100 hover:bg-gray-50/50 transition-all cursor-pointer px-4"
-                onClick={() => setSelectedFestival(item)}
-              >
-                <div className="flex items-baseline gap-6 flex-1">
-                  <span className="text-[10px] font-black text-gray-200 group-hover:text-black transition-colors">
-                    {(idx + 1).toString().padStart(2, '0')}
-                  </span>
-                  <div className="flex flex-col gap-1">
-                    <h3 
-                      className="text-lg md:text-xl font-black uppercase tracking-tighter leading-tight group-hover:italic transition-all"
-                      dangerouslySetInnerHTML={{ __html: item.title }}
-                    />
-                    <div 
-                      className="serif-italic text-gray-400 italic text-[10px] md:text-xs opacity-60 group-hover:opacity-100 transition-opacity"
-                      dangerouslySetInnerHTML={{ __html: item.sub }}
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center gap-8 mt-6 md:mt-0">
-                  <div className="hidden lg:flex flex-col items-end text-right">
-                    <span className="text-[10px] uppercase text-gray-300 font-black italic mb-1">Period</span>
-                    <span className="text-sm font-bold text-gray-400 italic" dangerouslySetInnerHTML={{ __html: item.period || '-' }} />
-                  </div>
-                  <div className="flex items-center gap-3 text-gray-200 group-hover:text-black transition-all transform group-hover:translate-x-2">
-                    <span className="text-[10px] font-black uppercase tracking-widest italic">View Detail</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Interior & Others Sections */}
-        {(['interior', 'others'] as const).map((cat) => (
-          <section key={cat} id={cat} className={`py-32 px-6 ${cat === 'interior' ? 'bg-gray-50' : ''}`}>
-            <div className="max-w-7xl mx-auto">
-              <h2 
-                className="section-title uppercase whitespace-pre-wrap"
-                dangerouslySetInnerHTML={{ __html: cat === 'interior' ? (about.interiorTitle || 'interior') : (about.othersTitle || 'others') }}
-              />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                {groupedProjects[cat].map((project) => (
-                  <div 
-                    key={project.id} 
-                    className="project-card bg-white p-1 border border-gray-100 hover:border-black transition-all group cursor-pointer"
-                    onClick={() => setSelectedProject(project)}
-                  >
-                    <div className="aspect-square bg-gray-50 overflow-hidden relative">
-                      <img 
-                        src={project.imageUrl || `https://picsum.photos/seed/${project.id}/800/600`} 
-                        alt="Project"
-                        className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
-                        referrerPolicy="no-referrer"
-                      />
-                      <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
-                    </div>
-                    <div className="p-8 text-left">
-                      <h3 
-                        className="text-2xl font-black mb-1 uppercase tracking-tighter whitespace-pre-wrap"
-                        dangerouslySetInnerHTML={{ __html: project.title }}
-                      />
                       <div 
-                        className="serif-italic text-gray-500 mb-6 text-lg whitespace-pre-wrap"
-                        dangerouslySetInnerHTML={{ __html: project.subtitle }}
+                        className="text-gray-600 leading-relaxed text-lg max-w-2xl text-justify font-light mb-12 whitespace-pre-wrap rich-text-content"
+                        dangerouslySetInnerHTML={{ 
+                          __html: (isMobile ? about.content_mobile : about.content_pc) 
+                                  || about.description 
+                                  || '' 
+                        }}
                       />
-                      <div className="mt-auto pt-6 border-t border-gray-100 flex justify-between items-end">
-                        <div className="flex flex-col">
-                          <span className="text-[10px] uppercase text-gray-300 font-black italic mb-1">Project Info</span>
-                          <span className="text-sm font-bold text-gray-400 italic" dangerouslySetInnerHTML={{ __html: `${project.tags[0]} / ${project.period}` }} />
+                    </div>
+                  </div>
+
+                  <div className="md:col-span-5 flex flex-col justify-center space-y-12 border-l border-gray-100 md:pl-12 pt-12 md:pt-0">
+                    <div>
+                      <h4 className="text-xs uppercase tracking-widest text-gray-400 mb-6 font-bold">Contact Info</h4>
+                      <div className="space-y-3">
+                        <p className="text-2xl font-black">{about.phone}</p>
+                        <p className="text-xl font-medium text-gray-500 serif-italic">{about.email}</p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="text-xs uppercase tracking-widest text-gray-400 mb-6 font-bold">Experience Timeline</h4>
+                      <ul className="space-y-4 text-sm font-light">
+                        {(about.experiences || []).map((exp) => (
+                          <li key={exp.id} className={`flex flex-col mb-1 ${exp.opacity === 70 ? 'opacity-70' : exp.opacity === 50 ? 'opacity-50' : ''}`}>
+                            <span className="font-bold text-lg leading-tight uppercase" dangerouslySetInnerHTML={{ __html: exp.company }} />
+                            <span className="text-gray-400 text-xs" dangerouslySetInnerHTML={{ __html: exp.period }} />
+                          </li>
+                        ))}
+                        
+                        <li className="pt-6 border-t border-gray-100 max-w-[320px]">
+                          <div className="flex items-center gap-4 mb-3">
+                            <span className="text-[10px] font-black text-gray-300 w-6 shrink-0">2D</span>
+                            <div className="grid grid-cols-2 gap-2 flex-1">
+                              <span className="px-2 py-1 bg-gray-900 text-white text-[10px] font-bold uppercase tracking-wider text-center">Illustrator</span>
+                              <span className="px-2 py-1 bg-gray-900 text-white text-[10px] font-bold uppercase tracking-wider text-center">Photoshop</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <span className="text-[10px] font-black text-gray-300 w-6 shrink-0">3D</span>
+                            <div className="grid grid-cols-3 gap-2 flex-1">
+                              <span className="px-2 py-1 bg-gray-100 text-[10px] font-bold uppercase text-center">3ds MAX</span>
+                              <span className="px-2 py-1 bg-gray-100 text-[10px] font-bold uppercase text-center">D5 Render</span>
+                              <span className="px-2 py-1 bg-gray-100 text-[10px] font-bold uppercase text-center">Lumion</span>
+                            </div>
+                          </div>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            );
+          }
+
+          if (cat.type === 'festival' || cat.slug === 'festival') {
+            return (
+              <section key={cat.id} id={cat.slug} className="py-32 px-6 max-w-7xl mx-auto">
+                <h2 
+                  className="section-title uppercase whitespace-pre-wrap"
+                  dangerouslySetInnerHTML={{ __html: cat.name }}
+                />
+                
+                {/* Sub Category Filter */}
+                <div className="flex flex-wrap gap-4 mb-12">
+                  {(['ALL', 'FESTIVAL', 'EXHIBITION', 'CONVENTION'] as const).map((filter) => (
+                    <button
+                      key={filter}
+                      onClick={() => setFestivalFilter(filter)}
+                      className={`px-6 py-2 text-[10px] font-black uppercase tracking-widest border transition-all ${
+                        festivalFilter === filter 
+                        ? 'bg-black text-white border-black' 
+                        : 'bg-white text-gray-400 border-gray-100 hover:border-black hover:text-black'
+                      }`}
+                    >
+                      {filter}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="festival-list-view flex flex-col">
+                  {(filteredFestivals || []).map((item, festivalIdx) => (
+                    <div 
+                      key={item.id} 
+                      className="group flex flex-col md:flex-row md:items-center justify-between py-5 border-b border-gray-100 hover:bg-gray-50/50 transition-all cursor-pointer px-4"
+                      onClick={() => setSelectedFestival(item)}
+                    >
+                      <div className="flex items-baseline gap-6 flex-1">
+                        <span className="text-[10px] font-black text-gray-200 group-hover:text-black transition-colors">
+                          {(festivalIdx + 1).toString().padStart(2, '0')}
+                        </span>
+                        <div className="flex flex-col gap-1">
+                          <h3 
+                            className="text-lg md:text-xl font-black uppercase tracking-tighter leading-tight group-hover:italic transition-all"
+                            dangerouslySetInnerHTML={{ __html: item.title }}
+                          />
+                          <div 
+                            className="serif-italic text-gray-400 italic text-[10px] md:text-xs opacity-60 group-hover:opacity-100 transition-opacity"
+                            dangerouslySetInnerHTML={{ __html: item.sub }}
+                          />
                         </div>
-                        <div className="flex items-center gap-2 text-gray-300 group-hover:text-black transition-colors">
-                          <span className="text-[10px] font-black uppercase tracking-widest italic">상세보기</span>
-                          <ArrowRight className="w-3 h-3" />
+                      </div>
+                      <div className="flex items-center gap-8 mt-6 md:mt-0">
+                        <div className="hidden lg:flex flex-col items-end text-right">
+                          <span className="text-[10px] uppercase text-gray-300 font-black italic mb-1">Period</span>
+                          <span className="text-sm font-bold text-gray-400 italic" dangerouslySetInnerHTML={{ __html: item.period || '-' }} />
+                        </div>
+                        <div className="flex items-center gap-3 text-gray-200 group-hover:text-black transition-all transform group-hover:translate-x-2">
+                          <span className="text-[10px] font-black uppercase tracking-widest italic">View Detail</span>
+                          <ArrowRight className="w-4 h-4" />
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+              </section>
+            );
+          }
+
+          // Project category (environmental, interior, others, custom)
+          const items = projectsByCategory[cat.slug] || [];
+          return (
+            <section key={cat.id} id={cat.slug} className={`py-32 px-6 ${idx % 2 === 1 ? 'bg-gray-50' : ''}`}>
+              <div className="max-w-7xl mx-auto">
+                <h2 
+                  className="section-title uppercase whitespace-pre-wrap"
+                  dangerouslySetInnerHTML={{ __html: cat.name }}
+                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                  {items.map((project) => (
+                    <div 
+                      key={project.id} 
+                      className="project-card bg-white p-1 border border-gray-100 hover:border-black transition-all group cursor-pointer"
+                      onClick={() => setSelectedProject(project)}
+                    >
+                      <div className="aspect-square bg-gray-50 overflow-hidden relative">
+                        <img 
+                          src={project.imageUrl || `https://picsum.photos/seed/${project.id}/800/600`} 
+                          alt="Project"
+                          className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
+                          referrerPolicy="no-referrer"
+                        />
+                        <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+                      </div>
+                      <div className="p-8 text-left">
+                        <h3 
+                          className="text-2xl font-black mb-1 uppercase tracking-tighter whitespace-pre-wrap"
+                          dangerouslySetInnerHTML={{ __html: project.title }}
+                        />
+                        <div 
+                          className="serif-italic text-gray-500 mb-6 text-lg whitespace-pre-wrap"
+                          dangerouslySetInnerHTML={{ __html: project.subtitle }}
+                        />
+                        <div className="mt-auto pt-6 border-t border-gray-100 flex justify-between items-end">
+                          <div className="flex flex-col">
+                            <span className="text-[10px] uppercase text-gray-300 font-black italic mb-1">Project Info</span>
+                            <span className="text-sm font-bold text-gray-400 italic" dangerouslySetInnerHTML={{ __html: `${project.tags[0] || ''} / ${project.period || ''}` }} />
+                          </div>
+                          <div className="flex items-center gap-2 text-gray-300 group-hover:text-black transition-colors">
+                            <span className="text-[10px] font-black uppercase tracking-widest italic">상세보기</span>
+                            <ArrowRight className="w-3 h-3" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          </section>
-        ))}
+            </section>
+          );
+        })}
 
         {/* Project Modal */}
         <AnimatePresence>

@@ -3,7 +3,45 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Project, FestivalItem, AboutInfo } from './types';
+import { Project, FestivalItem, AboutInfo, Category } from './types';
+
+export const INITIAL_CATEGORIES: Category[] = [
+  {
+    id: 'cat_about',
+    name: 'ABOUT & CONTACT',
+    slug: 'about',
+    order: 1,
+    type: 'about'
+  },
+  {
+    id: 'cat_environmental',
+    name: 'ENVIRONMENTAL',
+    slug: 'environmental',
+    order: 2,
+    type: 'project'
+  },
+  {
+    id: 'cat_festival',
+    name: 'EXPERIENCE',
+    slug: 'festival',
+    order: 3,
+    type: 'festival'
+  },
+  {
+    id: 'cat_interior',
+    name: 'INTERIOR',
+    slug: 'interior',
+    order: 4,
+    type: 'project'
+  },
+  {
+    id: 'cat_others',
+    name: 'OTHERS',
+    slug: 'others',
+    order: 5,
+    type: 'project'
+  }
+];
 
 export const INITIAL_ABOUT: AboutInfo = {
   name: "HA JI EUN",

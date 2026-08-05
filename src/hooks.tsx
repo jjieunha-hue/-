@@ -17,13 +17,14 @@ import {
 import { ref, uploadBytes, getDownloadURL, uploadBytesResumable } from 'firebase/storage';
 import { onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut, User } from 'firebase/auth';
 import { db, auth, storage, OperationType, handleFirestoreError } from './firebase';
-import { Project, FestivalItem, AboutInfo } from './types';
-import { INITIAL_ABOUT, INITIAL_PROJECTS, INITIAL_FESTIVALS } from './constants';
+import { Project, FestivalItem, AboutInfo, Category } from './types';
+import { INITIAL_ABOUT, INITIAL_PROJECTS, INITIAL_FESTIVALS, INITIAL_CATEGORIES } from './constants';
 
 type PortfolioContextType = {
   about: AboutInfo;
   projects: Project[];
   festivals: FestivalItem[];
+  categories: Category[];
   loading: boolean;
   user: User | null;
   isAdmin: boolean;
@@ -32,6 +33,9 @@ type PortfolioContextType = {
   updateAbout: (newData: AboutInfo) => Promise<void>;
   updateProject: (project: Project) => Promise<void>;
   updateFestival: (festival: FestivalItem) => Promise<void>;
+  updateCategory: (category: Category) => Promise<void>;
+  saveCategories: (categories: Category[]) => Promise<void>;
+  deleteCategory: (id: string) => Promise<void>;
   deleteProject: (id: string) => Promise<void>;
   deleteFestival: (id: string) => Promise<void>;
   uploadImage: (file: File, path: string, onProgress?: (p: number) => void) => Promise<string>;
@@ -43,6 +47,7 @@ function usePortfolioDataInternal() {
   const [about, setAbout] = useState<AboutInfo>(INITIAL_ABOUT);
   const [projects, setProjects] = useState<Project[]>([]);
   const [festivals, setFestivals] = useState<FestivalItem[]>([]);
+  const [categories, setCategories] = useState<Category[]>(INITIAL_CATEGORIES);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -51,6 +56,19 @@ function usePortfolioDataInternal() {
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setIsAdmin(currentUser?.email === 'jjieunha@gmail.com');
+    });
+
+    // Fetch Categories
+    const qCategories = query(collection(db, 'categories'), orderBy('order', 'asc'));
+    const unsubCategories = onSnapshot(qCategories, (snapshot) => {
+      if (!snapshot.empty) {
+        setCategories(snapshot.docs.map(d => d.data() as Category));
+      } else {
+        setCategories(INITIAL_CATEGORIES);
+      }
+    }, (error) => {
+      console.error('Categories fetch error:', error);
+      handleFirestoreError(error, OperationType.GET, 'categories');
     });
 
     // Fetch About
@@ -96,6 +114,7 @@ function usePortfolioDataInternal() {
 
     return () => {
       unsubscribeAuth();
+      unsubCategories();
       unsubAbout();
       unsubProjects();
       unsubFestivals();
@@ -110,6 +129,17 @@ function usePortfolioDataInternal() {
       try {
         // Force token refresh to ensure permissions are recognized
         await user.getIdToken(true);
+
+        // Seed Categories if empty
+        const snapshotCats = await query(collection(db, 'categories'));
+        if (categories.length === 0) {
+          const batch = writeBatch(db);
+          INITIAL_CATEGORIES.forEach(c => {
+            batch.set(doc(db, 'categories', c.id), c);
+          });
+          await batch.commit();
+          console.log('Categories seeded');
+        }
 
         // Seed About if it's still the initial placeholder
         if (about.name === INITIAL_ABOUT.name && about.email === INITIAL_ABOUT.email) {
@@ -268,6 +298,73 @@ function usePortfolioDataInternal() {
     }
   };
 
+  const updateCategory = async (category: Category) => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      throw new Error('로그인이 필요합니다. (Authentication required)');
+    }
+    try {
+      await currentUser.getIdToken(true);
+      const batch = writeBatch(db);
+      let otherCategories = categories.filter(c => c.id !== category.id);
+      let allCategories = [...otherCategories, category];
+      allCategories.sort((a, b) => {
+        if (a.order !== b.order) return a.order - b.order;
+        if (a.id === category.id) return -1;
+        if (b.id === category.id) return 1;
+        return a.id.localeCompare(b.id);
+      });
+
+      allCategories.forEach((c, index) => {
+        const newOrder = index + 1;
+        batch.set(doc(db, 'categories', c.id), { ...c, order: newOrder });
+      });
+
+      await batch.commit();
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, `categories/${category.id}`);
+    }
+  };
+
+  const saveCategories = async (newCategories: Category[]) => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      throw new Error('로그인이 필요합니다. (Authentication required)');
+    }
+    try {
+      await currentUser.getIdToken(true);
+      const batch = writeBatch(db);
+      newCategories.forEach((cat, index) => {
+        batch.set(doc(db, 'categories', cat.id), { ...cat, order: index + 1 });
+      });
+      await batch.commit();
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, 'categories');
+    }
+  };
+
+  const deleteCategory = async (id: string) => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      throw new Error('로그인이 필요합니다. (Authentication required)');
+    }
+    try {
+      await currentUser.getIdToken(true);
+      const batch = writeBatch(db);
+      let remaining = categories.filter(c => c.id !== id);
+      remaining.sort((a, b) => (a.order || 0) - (b.order || 0));
+
+      remaining.forEach((c, index) => {
+        batch.set(doc(db, 'categories', c.id), { ...c, order: index + 1 });
+      });
+
+      batch.delete(doc(db, 'categories', id));
+      await batch.commit();
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, `categories/${id}`);
+    }
+  };
+
   const deleteFestival = async (id: string) => {
     const currentUser = auth.currentUser;
     if (!currentUser) {
@@ -324,6 +421,7 @@ function usePortfolioDataInternal() {
     about,
     projects,
     festivals,
+    categories,
     loading,
     user,
     isAdmin,
@@ -332,6 +430,9 @@ function usePortfolioDataInternal() {
     updateAbout,
     updateProject,
     updateFestival,
+    updateCategory,
+    saveCategories,
+    deleteCategory,
     deleteProject,
     deleteFestival,
     uploadImage
