@@ -6,11 +6,12 @@
 import React, { useState, useEffect, useMemo, memo } from 'react';
 import { Project, FestivalItem, AboutInfo, Category } from '../types';
 import { usePortfolioData } from '../hooks';
-import { auth } from '../firebase';
+import { auth, db } from '../firebase';
 import { stripHtml } from '../lib/utils';
-import { X, Save, Plus, Trash2, LogOut, Settings, Upload, Loader2, Smartphone, Monitor } from 'lucide-react';
+import { X, Save, Plus, Trash2, LogOut, Settings, Upload, Loader2, Smartphone, Monitor, Link2, Copy, Check, ExternalLink, ShieldCheck } from 'lucide-react';
 import RichTextEditor from './RichTextEditor';
 import { ImageViewer } from './ImageViewer';
+import { collection, doc, getDocs, setDoc, deleteDoc } from 'firebase/firestore';
 
 const convertGoogleDriveLink = (url: string) => {
   if (!url) return '';
@@ -59,7 +60,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
 
   const handleAddProject = async () => {
     const id = `project_${Date.now()}`;
-    const targetCat = activeTab === 'categories' || activeTab === 'about' || activeTab === 'festivals' ? 'environmental' : activeTab;
+    const targetCat = activeTab === 'categories' || activeTab === 'about' || activeTab === 'festivals' || activeTab === 'access_links' ? 'environmental' : activeTab;
     const newProject: Project = {
       id,
       title: 'New Project',
@@ -146,6 +147,15 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
             >
               카테고리 관리 (Categories)
             </button>
+            <button
+              onClick={() => setActiveTab('access_links')}
+              className={`pb-4 text-xs font-bold uppercase tracking-widest transition-all flex items-center gap-2 ${
+                activeTab === 'access_links' ? 'border-b-2 border-black text-black font-black' : 'text-gray-400'
+              }`}
+            >
+              <Link2 className="w-3.5 h-3.5" />
+              전용 링크 관리 (Access Links)
+            </button>
             {[...categories]
               .sort((a, b) => (a.order || 0) - (b.order || 0))
               .filter(cat => cat.type !== 'about')
@@ -161,7 +171,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
                 </button>
               ))}
           </div>
-          {activeTab !== 'about' && activeTab !== 'categories' && activeTab !== 'festivals' && activeTab !== 'festival' && (
+          {activeTab !== 'about' && activeTab !== 'categories' && activeTab !== 'access_links' && activeTab !== 'festivals' && activeTab !== 'festival' && (
             <button 
               onClick={handleSyncProjects}
               className="mb-4 text-[10px] font-black uppercase bg-gray-100 px-3 py-1 hover:bg-black hover:text-white transition"
@@ -179,7 +189,11 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
           <CategoryEditor categories={categories} onSave={saveCategories} onDelete={deleteCategory} />
         )}
 
-        {(activeTab === 'festivals' || activeTab === 'festival' || categories.some(c => c.slug === activeTab && c.type === 'festival')) && activeTab !== 'categories' && activeTab !== 'about' && (
+        {activeTab === 'access_links' && (
+          <AccessLinkEditor categories={categories} />
+        )}
+
+        {(activeTab === 'festivals' || activeTab === 'festival' || categories.some(c => c.slug === activeTab && c.type === 'festival')) && activeTab !== 'categories' && activeTab !== 'about' && activeTab !== 'access_links' && (
           <div className="space-y-4">
             <button 
               onClick={handleAddFestival}
@@ -205,7 +219,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
           </div>
         )}
 
-        {activeTab !== 'about' && activeTab !== 'categories' && activeTab !== 'festivals' && activeTab !== 'festival' && !categories.some(c => c.slug === activeTab && c.type === 'festival') && (
+        {activeTab !== 'about' && activeTab !== 'categories' && activeTab !== 'access_links' && activeTab !== 'festivals' && activeTab !== 'festival' && !categories.some(c => c.slug === activeTab && c.type === 'festival') && (
           <div className="space-y-4">
             <button 
               onClick={handleAddProject}
@@ -245,6 +259,255 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
     </div>
   );
 }
+
+// ==================== 전용 열람 링크 관리 컴포넌트 ====================
+interface AccessLinkItem {
+  id: string;
+  key: string;
+  title: string;
+  allowedCategories: string[];
+  createdAt?: string;
+}
+
+const AccessLinkEditor = memo(({ categories }: { categories: Category[] }) => {
+  const [links, setLinks] = useState<AccessLinkItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  // Form State
+  const [title, setTitle] = useState('');
+  const [customKey, setCustomKey] = useState('');
+  const [selectedCats, setSelectedCats] = useState<string[]>(['ALL']);
+
+  const loadLinks = async () => {
+    setLoading(true);
+    try {
+      const snap = await getDocs(collection(db, 'access_links'));
+      const items = snap.docs.map(d => ({ id: d.id, ...d.data() } as AccessLinkItem));
+      setLinks(items);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadLinks();
+  }, []);
+
+  const handleToggleCat = (slug: string) => {
+    if (slug === 'ALL') {
+      setSelectedCats(['ALL']);
+      return;
+    }
+    let updated = selectedCats.filter(c => c !== 'ALL');
+    if (updated.includes(slug)) {
+      updated = updated.filter(c => c !== slug);
+    } else {
+      updated.push(slug);
+    }
+    if (updated.length === 0) {
+      updated = ['ALL'];
+    }
+    setSelectedCats(updated);
+  };
+
+  const handleCreateLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title.trim()) {
+      alert('링크 별칭(이름)을 입력해주세요.');
+      return;
+    }
+
+    const keyToken = customKey.trim() || `key_${Math.random().toString(36).substring(2, 8)}`;
+    const newId = `link_${Date.now()}`;
+
+    const newLink: AccessLinkItem = {
+      id: newId,
+      key: keyToken,
+      title: title.trim(),
+      allowedCategories: selectedCats,
+      createdAt: new Date().toLocaleDateString('ko-KR')
+    };
+
+    try {
+      await setDoc(doc(db, 'access_links', newId), newLink);
+      setTitle('');
+      setCustomKey('');
+      setSelectedCats(['ALL']);
+      await loadLinks();
+      alert('전용 열람 링크가 생성되었습니다.');
+    } catch (err) {
+      alert('생성 실패: ' + (err instanceof Error ? err.message : String(err)));
+    }
+  };
+
+  const handleDeleteLink = async (id: string, name: string) => {
+    if (confirm(`'${name}' 열람 링크를 삭제하시겠습니까? (삭제 즉시 해당 링크 접근 차단)`)) {
+      try {
+        await deleteDoc(doc(db, 'access_links', id));
+        setLinks(prev => prev.filter(l => l.id !== id));
+      } catch (err) {
+        alert('삭제 실패: ' + (err instanceof Error ? err.message : String(err)));
+      }
+    }
+  };
+
+  const handleCopy = (key: string, id: string) => {
+    const fullUrl = `${window.location.origin}/?key=${key}`;
+    navigator.clipboard.writeText(fullUrl);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  return (
+    <div className="space-y-12">
+      {/* Header Info */}
+      <div className="bg-gray-50 p-8 border border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div>
+          <h3 className="text-xl font-black uppercase tracking-tighter flex items-center gap-2">
+            <ShieldCheck className="w-5 h-5 text-black" />
+            전용 열람 링크 관리 (Private Access Keys)
+          </h3>
+          <p className="text-xs text-gray-500 mt-1 font-medium leading-relaxed">
+            일반 방문자는 사이트 전체가 비공개 잠금 처리됩니다. 회사/면접관별로 원하는 카테고리만 지정한 맞춤형 URL을 무제한 발급할 수 있습니다.
+          </p>
+        </div>
+      </div>
+
+      {/* Create Form */}
+      <form onSubmit={handleCreateLink} className="p-8 border border-gray-100 bg-white space-y-6">
+        <h4 className="text-xs font-black uppercase tracking-widest text-black mb-4">새 전용 링크 생성하기</h4>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">링크 별칭 / 대상 (예: BEXCO 제출용, OO디자인 면접관용)</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="예: 벡스코 포트폴리오 전달용"
+              className="w-full p-4 border border-gray-100 focus:border-black outline-none font-bold text-sm"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest">열람 키 / 토큰 (미입력 시 무작위 자동생성)</label>
+            <input
+              type="text"
+              value={customKey}
+              onChange={(e) => setCustomKey(e.target.value)}
+              placeholder="예: bexco2026 (선택사항)"
+              className="w-full p-4 border border-gray-100 focus:border-black outline-none font-mono text-sm"
+            />
+          </div>
+        </div>
+
+        {/* Categories Selection */}
+        <div className="space-y-3 pt-2">
+          <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest block">열람 허용 범위 선택 (다중 선택 가능)</label>
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={() => handleToggleCat('ALL')}
+              className={`px-4 py-2 text-xs font-black uppercase tracking-widest border transition-all ${
+                selectedCats.includes('ALL') ? 'bg-black text-white border-black' : 'bg-gray-50 text-gray-400 border-gray-200 hover:text-black'
+              }`}
+            >
+              ✓ 전체 카테고리 열람 (ALL)
+            </button>
+            {categories.filter(c => c.slug !== 'about').map((cat) => (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => handleToggleCat(cat.slug)}
+                className={`px-4 py-2 text-xs font-black uppercase tracking-widest border transition-all ${
+                  selectedCats.includes(cat.slug) ? 'bg-black text-white border-black' : 'bg-white text-gray-400 border-gray-200 hover:text-black'
+                }`}
+              >
+                {selectedCats.includes(cat.slug) ? '✓ ' : ''}{cat.name}
+              </button>
+            ))}
+          </div>
+          <p className="text-[9px] text-gray-400 italic mt-1">* About & Contact는 모든 링크에서 기본 지원됩니다.</p>
+        </div>
+
+        <button
+          type="submit"
+          className="w-full py-4 bg-black text-white text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-gray-800 transition"
+        >
+          <Plus className="w-4 h-4" /> 전용 링크 생성 및 저장
+        </button>
+      </form>
+
+      {/* Links List */}
+      <div className="space-y-4">
+        <h4 className="text-xs font-black uppercase tracking-widest text-black">생성된 열람 링크 목록 ({links.length})</h4>
+
+        {loading ? (
+          <div className="py-12 text-center text-xs text-gray-400 font-bold uppercase tracking-widest">불러오는 중...</div>
+        ) : links.length === 0 ? (
+          <div className="py-12 text-center border border-dashed border-gray-200 text-xs text-gray-400 font-bold uppercase tracking-widest">
+            생성된 전용 링크가 없습니다.
+          </div>
+        ) : (
+          <div className="grid gap-4">
+            {links.map((item) => (
+              <div key={item.id} className="p-6 border border-gray-100 bg-white flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-sm hover:border-black transition-colors">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3">
+                    <h5 className="font-black text-base uppercase tracking-tight">{item.title}</h5>
+                    <span className="text-[10px] font-mono bg-gray-100 text-black px-2 py-0.5 font-bold">KEY: {item.key}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-gray-400">
+                    <span className="font-bold text-gray-500">열람 범위:</span>
+                    {item.allowedCategories?.includes('ALL') ? (
+                      <span className="font-bold text-black">전체 공개 (ALL)</span>
+                    ) : (
+                      item.allowedCategories?.map(catSlug => {
+                        const name = categories.find(c => c.slug === catSlug)?.name || catSlug;
+                        return <span key={catSlug} className="px-2 py-0.5 bg-gray-50 border border-gray-100 text-black text-[10px] font-bold uppercase">{name}</span>;
+                      })
+                    )}
+                    {item.createdAt && <span className="text-[10px] text-gray-300 ml-2">({item.createdAt})</span>}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 w-full md:w-auto">
+                  <button
+                    type="button"
+                    onClick={() => handleCopy(item.key, item.id)}
+                    className="flex-1 md:flex-initial px-4 py-3 bg-black text-white text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-gray-800 transition"
+                  >
+                    {copiedId === item.id ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
+                    {copiedId === item.id ? '링크 복사됨!' : '전용 링크 복사'}
+                  </button>
+                  <a
+                    href={`/?key=${item.key}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="p-3 border border-gray-200 hover:bg-gray-50 text-gray-500 hover:text-black transition"
+                    title="새 탭에서 미리보기"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteLink(item.id, item.title)}
+                    className="p-3 text-red-400 hover:text-red-600 hover:bg-red-50 transition border border-transparent hover:border-red-100"
+                    title="링크 삭제"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+});
 
 const AboutEditor = memo(({ about, onSave }: { about: AboutInfo, onSave: (a: AboutInfo) => void }) => {
   const [aboutState, setAboutState] = useState<AboutInfo>(about);
@@ -292,7 +555,6 @@ const AboutEditor = memo(({ about, onSave }: { about: AboutInfo, onSave: (a: Abo
 
   return (
     <form onSubmit={handleUpdateAbout} className="space-y-6">
-      {/* Basic Info Section */}
       <div className="border border-gray-100">
         <button 
           type="button"
@@ -352,7 +614,6 @@ const AboutEditor = memo(({ about, onSave }: { about: AboutInfo, onSave: (a: Abo
         )}
       </div>
 
-      {/* Labels & Titles Section */}
       <div className="border border-gray-100">
         <button 
           type="button"
@@ -408,7 +669,6 @@ const AboutEditor = memo(({ about, onSave }: { about: AboutInfo, onSave: (a: Abo
         )}
       </div>
 
-      {/* Experience Section */}
       <div className="border border-gray-100">
         <button 
           type="button"
@@ -451,7 +711,6 @@ const AboutEditor = memo(({ about, onSave }: { about: AboutInfo, onSave: (a: Abo
         )}
       </div>
 
-      {/* Contact & Social Section */}
       <div className="border border-gray-100">
         <button 
           type="button"
@@ -703,7 +962,7 @@ const ImageManager = memo(({ label, images = [], onImagesChange, uploadImage, lo
               referrerPolicy="no-referrer"
             />
             <button 
-              type="button"
+              type="button" 
               onClick={(e) => { e.stopPropagation(); removeImage(idx); }}
               className="absolute top-1 right-1 p-1 bg-black text-white opacity-0 group-hover:opacity-100 transition-opacity z-10"
               title="Remove image"
@@ -716,7 +975,6 @@ const ImageManager = memo(({ label, images = [], onImagesChange, uploadImage, lo
           </div>
         ))}
         
-        {/* Upload Button */}
         <div className="aspect-square">
           <ImageUpload 
             label="Upload File" 
@@ -729,7 +987,6 @@ const ImageManager = memo(({ label, images = [], onImagesChange, uploadImage, lo
         </div>
       </div>
 
-      {/* URL Input Section */}
       <div className="flex gap-2">
         <input 
           type="text"
@@ -748,7 +1005,6 @@ const ImageManager = memo(({ label, images = [], onImagesChange, uploadImage, lo
         </button>
       </div>
 
-      {/* Bulk Editor Toggle */}
       <div className="pt-2">
         <button 
           type="button"
