@@ -10,7 +10,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import AdminPanel from './components/AdminPanel';
 import { ImageViewer } from './components/ImageViewer';
 import Masonry from 'react-masonry-css';
-import { Menu, X, ArrowRight, Settings, Lock, KeyRound, CheckCircle2 } from 'lucide-react';
+import { Menu, X, ArrowRight, Settings, Lock, KeyRound } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from './firebase';
@@ -195,10 +195,8 @@ function AppContent() {
   if (!isAuthorized && !isAdmin) {
     return (
       <div className="min-h-screen bg-black text-white flex flex-col justify-between p-8 md:p-16 relative overflow-hidden selection:bg-white selection:text-black">
-        {/* Background Accent */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120vw] h-[120vw] bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.03)_0%,transparent_70%)] pointer-events-none"></div>
 
-        {/* Top Header */}
         <div className="flex justify-between items-center z-10">
           <span className="text-sm font-black uppercase tracking-widest text-gray-400" dangerouslySetInnerHTML={{ __html: about.name || 'PORTFOLIO' }} />
           <button 
@@ -210,7 +208,6 @@ function AppContent() {
           </button>
         </div>
 
-        {/* Center Lock Box */}
         <div className="max-w-md w-full mx-auto my-auto py-12 z-10 text-center space-y-8">
           <div className="w-16 h-16 rounded-full border border-white/10 flex items-center justify-center mx-auto text-gray-400">
             <Lock className="w-6 h-6" />
@@ -253,12 +250,10 @@ function AppContent() {
           </form>
         </div>
 
-        {/* Footer info */}
         <div className="text-center z-10">
           <p className="text-[9px] font-bold uppercase tracking-widest text-gray-700">© 2026 Ha Ji-eun. All Rights Reserved.</p>
         </div>
 
-        {/* Admin Password Modal */}
         <AnimatePresence>
           {showPasswordModal && (
             <motion.div
@@ -308,7 +303,6 @@ function AppContent() {
           )}
         </AnimatePresence>
 
-        {/* Admin Panel */}
         <AnimatePresence>
           {showAdmin && (
             <AdminPanel onClose={() => {
@@ -435,10 +429,58 @@ function AppContent() {
         {/* Admin Panel */}
         <AnimatePresence>
           {showAdmin && (
-            <AdminPanel onClose={() => {
-              setShowAdmin(false);
-              setIsPasswordAuthorized(false);
-            }} />
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              className="fixed inset-0 z-[100] bg-white overflow-y-auto"
+            >
+              {isAdmin || isPasswordAuthorized ? (
+                <AdminPanel onClose={() => {
+                  setShowAdmin(false);
+                  setIsPasswordAuthorized(false);
+                }} />
+              ) : (
+                <div className="h-screen flex items-center justify-center p-8">
+                  <div className="max-w-md w-full text-center space-y-8">
+                    <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto">
+                      <X className="w-10 h-10 text-gray-300" />
+                    </div>
+                    <div className="space-y-4">
+                      <h2 className="text-3xl font-black uppercase tracking-tighter">
+                        {user ? 'Access Denied' : 'Authentication Required'}
+                      </h2>
+                      <p className="text-gray-400 font-light leading-relaxed">
+                        {user ? (
+                          <>
+                            You are logged in as <span className="font-bold text-black">{user.email}</span>.<br />
+                            This account does not have administrative privileges.
+                          </>
+                        ) : (
+                          'Please log in with an administrator account to access this panel.'
+                        )}
+                      </p>
+                    </div>
+                    <div className="flex flex-col gap-4">
+                      {!user && (
+                        <button 
+                          onClick={login}
+                          className="w-full py-4 bg-black text-white text-[10px] font-black uppercase tracking-widest italic hover:bg-gray-900 transition"
+                        >
+                          Log In with Google
+                        </button>
+                      )}
+                      <button 
+                        onClick={() => setShowAdmin(false)}
+                        className={`w-full py-4 ${user ? 'bg-black text-white' : 'bg-gray-100 text-black'} text-[10px] font-black uppercase tracking-widest italic hover:bg-gray-200 transition`}
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </motion.div>
           )}
         </AnimatePresence>
 
@@ -904,7 +946,7 @@ function AppContent() {
           )}
         </AnimatePresence>
 
-        {/* Festival Modal */}
+        {/* Festival (Experience) Modal */}
         <AnimatePresence>
           {selectedFestival && (
             <motion.div 
@@ -1016,7 +1058,7 @@ function AppContent() {
                   </div>
                 </div>
 
-                {/* Detailed Image Sections */}
+                {/* Completed Photos Section */}
                 {selectedFestival.completedImages && selectedFestival.completedImages.length > 0 && (
                   <div className="pt-16 border-t border-gray-100 mb-24">
                     <div className="grid md:grid-cols-12 gap-12">
@@ -1042,6 +1084,116 @@ function AppContent() {
                         </Masonry>
                       </div>
                     </div>
+                  </div>
+                )}
+
+                {/* 2D Designs Section (방문객 화면에 2D 시안 노출) */}
+                {selectedFestival.design2DImages && selectedFestival.design2DImages.length > 0 && (
+                  <div className="pt-16 border-t border-gray-100 mb-24">
+                    <div className="grid md:grid-cols-12 gap-12">
+                      <div className="md:col-span-4">
+                        <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">2D Designs (2D 시안)</h4>
+                      </div>
+                      <div className="md:col-span-8">
+                        <Masonry
+                          breakpointCols={masonryBreakpoints}
+                          className="my-masonry-grid"
+                          columnClassName="my-masonry-grid_column"
+                        >
+                          {(selectedFestival.design2DImages || []).map((img, idx) => (
+                            <div key={idx} className="cursor-pointer" onClick={() => openViewer(selectedFestival.design2DImages || [], idx)}>
+                              <img 
+                                src={img} 
+                                alt={`${selectedFestival.title} 2d design ${idx + 1}`}
+                                className="w-full h-auto object-contain hover:scale-105 transition-transform duration-700"
+                                referrerPolicy="no-referrer"
+                              />
+                            </div>
+                          ))}
+                        </Masonry>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 3D Designs Section (방문객 화면에 3D 시안 노출) */}
+                {selectedFestival.design3DImages && selectedFestival.design3DImages.length > 0 && (
+                  <div className="pt-16 border-t border-gray-100 mb-24">
+                    <div className="grid md:grid-cols-12 gap-12">
+                      <div className="md:col-span-4">
+                        <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">3D Designs (3D 시안)</h4>
+                      </div>
+                      <div className="md:col-span-8">
+                        <Masonry
+                          breakpointCols={masonryBreakpoints}
+                          className="my-masonry-grid"
+                          columnClassName="my-masonry-grid_column"
+                        >
+                          {(selectedFestival.design3DImages || []).map((img, idx) => (
+                            <div key={idx} className="cursor-pointer" onClick={() => openViewer(selectedFestival.design3DImages || [], idx)}>
+                              <img 
+                                src={img} 
+                                alt={`${selectedFestival.title} 3d design ${idx + 1}`}
+                                className="w-full h-auto object-contain hover:scale-105 transition-transform duration-700"
+                                referrerPolicy="no-referrer"
+                              />
+                            </div>
+                          ))}
+                        </Masonry>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Legacy Design Images Section (기타 시안 노출) */}
+                {selectedFestival.designImages && selectedFestival.designImages.length > 0 && (
+                  <div className="pt-16 border-t border-gray-100 mb-24">
+                    <div className="grid md:grid-cols-12 gap-12">
+                      <div className="md:col-span-4">
+                        <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">Design Images (기타 시안)</h4>
+                      </div>
+                      <div className="md:col-span-8">
+                        <Masonry
+                          breakpointCols={masonryBreakpoints}
+                          className="my-masonry-grid"
+                          columnClassName="my-masonry-grid_column"
+                        >
+                          {(selectedFestival.designImages || []).map((img, idx) => (
+                            <div key={idx} className="cursor-pointer" onClick={() => openViewer(selectedFestival.designImages || [], idx)}>
+                              <img 
+                                src={img} 
+                                alt={`${selectedFestival.title} design ${idx + 1}`}
+                                className="w-full h-auto object-contain hover:scale-105 transition-transform duration-700"
+                                referrerPolicy="no-referrer"
+                              />
+                            </div>
+                          ))}
+                        </Masonry>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Process & Details Section (상세 사진 노출) */}
+                {selectedFestival.detailImages && selectedFestival.detailImages.length > 0 && (
+                  <div className="pt-20 border-t border-gray-100">
+                    <h4 className="text-[10px] uppercase text-gray-300 font-black mb-10 italic">Process & Details</h4>
+                    <Masonry
+                      breakpointCols={masonryBreakpoints}
+                      className="my-masonry-grid"
+                      columnClassName="my-masonry-grid_column"
+                    >
+                      {(selectedFestival.detailImages || []).map((img, idx) => (
+                        <div key={idx} className="cursor-pointer" onClick={() => openViewer(selectedFestival.detailImages || [], idx)}>
+                          <img 
+                            src={img} 
+                            alt={`${selectedFestival.title} detail ${idx + 1}`}
+                            className="w-full h-auto object-contain hover:scale-105 transition-transform duration-700"
+                            referrerPolicy="no-referrer"
+                          />
+                        </div>
+                      ))}
+                    </Masonry>
                   </div>
                 )}
               </div>
